@@ -19,6 +19,11 @@
     "README.md",
     "LICENSE"
   ],
+  "keywords": [
+    "web-scraping",
+    "automation",
+    "headless-chrome"
+  ],
   "preferGlobal": true,
   "devDependencies": {
     "@types/app-root-path": "~1.2.4",
