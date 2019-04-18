@@ -96,3 +96,12 @@ Autocomplete any method, check signatures and examples or follow links to more d
 
 Sounds cool?  
 Just head over to the [getting started guide](https://ayakashi.io/docs/getting_started)!
+
+## Status
+
+* Windows  
+[![Build Status](https://dev.azure.com/zisismaras/Ayakashi.io/_apis/build/status/win?branchName=master)](https://dev.azure.com/zisismaras/Ayakashi.io/_build/latest?definitionId=12&branchName=master)
+* macOS  
+[![Build Status](https://dev.azure.com/zisismaras/Ayakashi.io/_apis/build/status/mac?branchName=master)](https://dev.azure.com/zisismaras/Ayakashi.io/_build/latest?definitionId=11&branchName=master)
+* Linux  
+[![Build Status](https://dev.azure.com/zisismaras/Ayakashi.io/_apis/build/status/linux?branchName=master)](https://dev.azure.com/zisismaras/Ayakashi.io/_build/latest?definitionId=10&branchName=master)
