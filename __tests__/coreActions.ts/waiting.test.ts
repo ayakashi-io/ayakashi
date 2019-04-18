@@ -1,0 +1,109 @@
+//tslint:disable
+import "jest-extended";
+//tslint:enable
+import http from "http";
+import {getInstance, IHeadlessChrome} from "../../src/engine/browser";
+import {getChromePath} from "../../src/chromeDownloader/downloader";
+import {createStaticServer} from "../utils/startServer";
+import {resolve as pathResolve} from "path";
+import {getRandomPort} from "../utils/getRandomPort";
+import {getAyakashiInstance} from "../utils/getAyakashiInstance";
+
+let staticServerPort: number;
+let staticServer: http.Server;
+
+let headlessChrome: IHeadlessChrome;
+let bridgePort: number;
+let protocolPort: number;
+
+jest.setTimeout(600000);
+
+describe("waiting tests", function() {
+    let chromePath: string;
+    beforeAll(async function() {
+        chromePath = getChromePath(pathResolve(".", "__tests__"));
+        staticServerPort = await getRandomPort();
+        staticServer = createStaticServer(staticServerPort,
+            `
+            <html>
+                <head>
+                    <title>test page</title>
+                </head>
+                <body>
+                    <input type="text" id="myHiddenInput" style="display:none;"></input>
+                    <input type="text" id="foreverHiddenInput" style="display:none;"></input>
+                    <script>
+                        const theNewDiv = document.createElement("div");
+                        theNewDiv.id = "theNewDiv";
+                        setTimeout(function() {
+                            document.body.appendChild(theNewDiv);
+                            document.getElementById("myHiddenInput").style.display = "block";
+                        }, 1000);
+                    </script>
+                </body>
+            </html>
+            `
+        );
+    });
+    beforeEach(async function() {
+        headlessChrome = getInstance();
+        bridgePort = await getRandomPort();
+        protocolPort = await getRandomPort();
+        await headlessChrome.init({
+            chromePath: chromePath,
+            bridgePort: bridgePort,
+            protocolPort: protocolPort
+        });
+    });
+
+    afterEach(async function() {
+        await headlessChrome.close();
+    });
+
+    afterAll(function(done) {
+        staticServer.close(function() {
+            done();
+        });
+    });
+
+    test("wait for an element to exist", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("theNewDiv").where({id: {eq: "theNewDiv"}});
+        expect((async function() {
+            await ayakashiInstance.waitUntilExists("theNewDiv");
+        })()).toResolve();
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("wait for an element to become visible", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myHiddenInput").where({id: {eq: "myHiddenInput"}});
+        expect((async function() {
+            await ayakashiInstance.waitUntilVisible("myHiddenInput");
+        })()).toResolve();
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("should throw an error if the timeout period passes and element still does not exist", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("foreverUnknown").where({id: {eq: "foreverUnknown"}});
+        expect((async function() {
+            await ayakashiInstance.waitUntilExists("foreverUnknown", 1000);
+        })()).rejects.toThrowError("<waitUntil> timed out after waiting 1000ms");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("should throw an error if the timeout period passes and element is still hidden", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("foreverHiddenInput").where({id: {eq: "foreverHiddenInput"}});
+        expect((async function() {
+            await ayakashiInstance.waitUntilVisible("foreverHiddenInput", 1000);
+        })()).rejects.toThrowError("<waitUntil> timed out after waiting 1000ms");
+        await ayakashiInstance.__connection.release();
+    });
+
+});

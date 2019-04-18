@@ -1,0 +1,15 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '8.x'
+  displayName: 'Install Node.js'
+- script: npm install --save-dev
+  displayName: 'npm install'
+- script: npm run test
+  displayName: 'run tests'
