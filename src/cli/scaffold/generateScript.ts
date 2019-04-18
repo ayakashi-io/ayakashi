@@ -34,7 +34,7 @@ export async function generateScript(directory: string, name: string) {
 function getContent() {
     return (
 `module.exports = async function(input, params) {
-    return {page: "https://github.com/ayakashi/ayakashi"};
+    return {page: "https://github.com/ayakashi-io/ayakashi"};
 };
 `);
 }
