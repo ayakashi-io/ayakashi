@@ -17,7 +17,8 @@
     "lib",
     "bin",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "scripts/postInstall.js"
   ],
   "keywords": [
     "web-scraping",
@@ -65,6 +66,7 @@
     "app-root-path": "~2.1.0",
     "async": "~2.6.2",
     "body-parser": "~1.18.3",
+    "boxen": "~3.1.0",
     "browserify": "~16.2.3",
     "browserify-incremental": "~3.1.1",
     "chalk": "~2.4.2",
@@ -100,6 +102,7 @@
     "watch": "tsc --build --clean && tsc --watch",
     "test": "npm run build && node lib/cli/cli.js get-chrome ./__tests__ && jest --forceExit",
     "build-types": "tsc --build --clean && tsc -d --emitDeclarationOnly --allowJs false",
-    "generate-core-action-docs": "typedoc --mode file --json ./doc.json && node ./scripts/generateCoreActionDocs.js && rm ./doc.json"
+    "generate-core-action-docs": "typedoc --mode file --json ./doc.json && node ./scripts/generateCoreActionDocs.js && rm ./doc.json",
+    "postinstall": "node scripts/postInstall.js"
   }
 }

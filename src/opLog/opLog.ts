@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import dayjs from "dayjs";
 import ora from "ora";
+import boxen from "boxen";
 import {EOL} from "os";
 
 export function getOpLog() {
@@ -23,6 +24,19 @@ export function getOpLog() {
                 text: `${text}\n`,
                 spinner: "triangle"
             }).start();
+        },
+        messageBox: function(logs: string[]) {
+            process.stdout.write(boxen(
+                logs.reduce((msg, log) => msg + log + "\n", ""),
+                {
+                    borderColor: "cyan",
+                    align: "center",
+                    padding: 1,
+                    borderStyle: boxen.BorderStyle.Double
+                    // margin: 1,
+                    // float: "center"
+                }
+            ) + "\n");
         }
     };
 }

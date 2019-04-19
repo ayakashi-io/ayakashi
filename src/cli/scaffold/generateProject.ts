@@ -40,6 +40,14 @@ export async function generateProject(projectDir: string, useCurrentFolder: bool
         npm = "npm.cmd";
     }
     await runNpmInstall(npm);
+    opLog.messageBox([
+        "Your project is ready!",
+        "Get started:",
+        "https://ayakashi.io/docs/getting_started",
+        "",
+        "You may run your new project with:",
+        "ayakashi run"
+    ]);
 
 }
 
@@ -97,14 +105,14 @@ function getGitIgnore() {
 
 function runNpmInstall(npm: string) {
     const opLog = getOpLog();
-    const waiter = opLog.waiter("running npm install");
+    const waiter = opLog.waiter("installing dependencies");
     return new Promise(function(resolve) {
         exec(`${npm} install`, function(err) {
             if (err) {
                 waiter.fail("failed to run npm install, please run it manually");
                 console.error(err.message);
             } else {
-                waiter.succeed("npm install completed!");
+                waiter.succeed("dependencies installed!");
             }
             resolve();
         });
