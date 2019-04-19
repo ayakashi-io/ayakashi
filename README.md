@@ -29,7 +29,7 @@ DOM access easy and readable no matter how obscure the page's structure is.
 Props are the way to package domQL expressions as re-usable structures which
 can then be passed around to [actions](https://ayakashi.io/docs/guide/tour.html#actions) or to be used as models for [data
 extraction](https://ayakashi.io/docs/guide/data-extraction.html).  
-Tl;dr instead of this:  
+Instead of this:  
 
 <!-- markdownlint-disable MD013 -->
 
@@ -39,7 +39,25 @@ document.querySelector('#js-repo-pjax-container > div.container.new-discussion-t
 
 you can now write this:  
 
-![domql](https://ayakashi.io/assets/img/domql.png)
+```js
+ayakashi
+    .selectOne("cloneDialogTrigger")
+    .where({
+        and: [{
+            class: {
+                eq: "btn"
+            }
+        }, {
+            "style-background-color": {
+                eq: "rgb(40, 167, 69)"
+            }
+        }, {
+            textContent: {
+                like: "Clone"
+            }
+        }]
+    });
+```
 <!-- markdownlint-enable MD013 -->
 
 ### High level builtin actions
