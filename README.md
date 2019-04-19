@@ -2,6 +2,9 @@
 
 > [https://ayakashi.io](https://ayakashi.io)
 
+[![get started](https://img.shields.io/badge/Get-Started-brightgreen.svg)](https://ayakashi.io/docs/getting_started) [![npm](https://img.shields.io/npm/v/ayakashi.svg?label=version)](https://www.npmjs.com/package/ayakashi) ![NPM](https://img.shields.io/npm/l/ayakashi.svg)  
+[![Azure DevOps builds (branch)](https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/12/master.svg?label=Windows)](https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=12) [![Azure DevOps builds (branch)](https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/11/master.svg?label=macOS)](https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=11) [![Azure DevOps builds (branch)](https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/10/master.svg?label=Linux)](https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=10)
+
 ## The next generation web scraping framework
 
 The web has changed. Gone are the days that raw html parsing scripts were the proper tool for the job.  
@@ -96,12 +99,3 @@ Autocomplete any method, check signatures and examples or follow links to more d
 
 Sounds cool?  
 Just head over to the [getting started guide](https://ayakashi.io/docs/getting_started)!
-
-## Status
-
-* Windows  
-[![Build Status](https://dev.azure.com/zisismaras/Ayakashi.io/_apis/build/status/win?branchName=master)](https://dev.azure.com/zisismaras/Ayakashi.io/_build/latest?definitionId=12&branchName=master)
-* macOS  
-[![Build Status](https://dev.azure.com/zisismaras/Ayakashi.io/_apis/build/status/mac?branchName=master)](https://dev.azure.com/zisismaras/Ayakashi.io/_build/latest?definitionId=11&branchName=master)
-* Linux  
-[![Build Status](https://dev.azure.com/zisismaras/Ayakashi.io/_apis/build/status/linux?branchName=master)](https://dev.azure.com/zisismaras/Ayakashi.io/_build/latest?definitionId=10&branchName=master)
