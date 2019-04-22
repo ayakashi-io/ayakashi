@@ -2,7 +2,10 @@ import {resolve as pathResolve, sep} from "path";
 import {EmulatorOptions} from "../engine/createConnection";
 
 const fullPath = pathResolve(__dirname);
-const appRoot = fullPath.replace(sep + "lib" + sep + "runner", "");
+let appRoot = fullPath.replace(sep + "lib" + sep + "runner", "");
+if (process.platform === "win32") {
+    appRoot = appRoot.replace(/\\/g, "/");
+}
 
 type StepConfig = {
     /**
