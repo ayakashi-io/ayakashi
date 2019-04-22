@@ -1,6 +1,8 @@
-import appRoot from "app-root-path";
-import {resolve as pathResolve} from "path";
+import {resolve as pathResolve, sep} from "path";
 import {EmulatorOptions} from "../engine/createConnection";
+
+const fullPath = pathResolve(__dirname);
+const appRoot = fullPath.replace(sep + "lib" + sep + "runner", "");
 
 type StepConfig = {
     /**
@@ -492,7 +494,7 @@ function addStep(
                 name: `proc_from_pre_${step}_to_${step}`,
                 from: `pre_${step}`,
                 to: step,
-                processor: pathResolve(appRoot.toString(), "lib/runner/scrapperWrapper.js")
+                processor: pathResolve(appRoot, "lib/runner/scrapperWrapper.js")
             });
         } else {
             objectRef.type = "script";
@@ -501,7 +503,7 @@ function addStep(
                 name: `proc_from_pre_${step}_to_${step}`,
                 from: `pre_${step}`,
                 to: step,
-                processor: pathResolve(appRoot.toString(), "lib/runner/scriptWrapper.js")
+                processor: pathResolve(appRoot, "lib/runner/scriptWrapper.js")
             });
         }
     }
@@ -544,7 +546,7 @@ function addPreStep(
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
-                            appRoot: "${appRoot.path}"
+                            appRoot: "${appRoot}"
                         });
                     } else {
                         return Promise.resolve({
@@ -556,7 +558,7 @@ function addPreStep(
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
-                            appRoot: "${appRoot.path}"
+                            appRoot: "${appRoot}"
                         });
                     }
                 `)
@@ -602,7 +604,7 @@ function addParallelPreStep(
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
-                            appRoot: "${appRoot.path}"
+                            appRoot: "${appRoot}"
                         });
                     } else {
                         return Promise.resolve({
@@ -614,7 +616,7 @@ function addParallelPreStep(
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
-                            appRoot: "${appRoot.path}"
+                            appRoot: "${appRoot}"
                         });
                     }
                 `)
@@ -643,7 +645,7 @@ function addParallelPreStep(
                         operationId: "${options.operationId}",
                         startDate: "${options.startDate}",
                         procName: "proc_from_pre_${step}_to_${step}",
-                        appRoot: "${appRoot.path}"
+                        appRoot: "${appRoot}"
                     });
                 } else {
                     return Promise.resolve({
@@ -655,7 +657,7 @@ function addParallelPreStep(
                         operationId: "${options.operationId}",
                         startDate: "${options.startDate}",
                         procName: "proc_from_pre_${step}_to_${step}",
-                        appRoot: "${appRoot.path}"
+                        appRoot: "${appRoot}"
                     });
                 }
             `)
