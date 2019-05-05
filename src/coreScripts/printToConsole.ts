@@ -39,7 +39,7 @@ export default async function(
     const table = new Table();
     extraction.forEach(function(e) {
         Object.entries(e).forEach(function([key, val]) {
-            if (typeof val === undefined || typeof val === null) {
+            if (val === undefined || val === null) {
                 table.push({[key]: ""});
             } else if (typeof val === "object") {
                 table.push({[key]: truncate(JSON.stringify(val))});
