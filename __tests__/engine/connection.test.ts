@@ -124,7 +124,7 @@ describe("target/connection tests", function() {
             await connection.evaluate(function() {
                 throw new Error("test error!");
             });
-        })()).rejects.toContainKey("exception");
+        })()).rejects.toThrow();
         await connection.release();
     });
 
@@ -144,7 +144,7 @@ describe("target/connection tests", function() {
                     }, 20);
                 });
             });
-        })()).rejects.toContainKey("exception");
+        })()).rejects.toThrow();
         await connection.release();
     });
 

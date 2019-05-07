@@ -401,23 +401,22 @@ async function evaluate<T>(
             awaitPromise: awaitPromise
         });
         if (evaled.exceptionDetails) {
-            throw evaled.exceptionDetails;
+            //@ts-ignore
+            throw new EvalError(evaled.exceptionDetails.exception.description || evaled.exceptionDetails.text);
         } else {
             return evaled.result.value;
         }
     } catch (err) {
         d(err);
-        throw {
-            name: "evalError",
-            exception: {
-                text: err.exception.description,
-                lineNumber: err.lineNumber,
-                columnNumber: err.columnNumber,
-                stackTrace: err.stackTrace
-            }
-        };
+        throw err;
     }
 }
+
+function EvalError(this: Error, message: string) {
+    this.name = "EvalError";
+    this.message = message;
+}
+EvalError.prototype = new Error();
 
 function pipeEvent(
     connection: IConnection,
