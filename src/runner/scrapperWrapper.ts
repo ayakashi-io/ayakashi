@@ -57,19 +57,32 @@ export default async function scrapperWrapper(log: PassedLog) {
         const opLog = getOpLog();
         opLog.info("running scrapper", log.body.module);
         //get a tab and create a connection
-        const tab = await getTarget(log.body.connectionConfig.bridgePort);
-        if (!tab) {
-            opLog.error("Could not create a connection");
-            throw new Error("no_target");
+        let tab;
+        try {
+            tab = await getTarget(log.body.connectionConfig.bridgePort);
+            if (!tab) {
+                throw new Error("no_target");
+            }
+        } catch (e) {
+            d(e);
+            opLog.error("Could not create a chrome target");
+            throw e;
         }
-        const connection = await createConnection(
-            tab,
-            log.body.connectionConfig.bridgePort,
-            log.body.config.emulatorOptions
-        );
-        if (!connection) {
+
+        let connection;
+        try {
+            connection = await createConnection(
+                tab,
+                log.body.connectionConfig.bridgePort,
+                log.body.config.emulatorOptions
+            );
+            if (!connection) {
+                throw new Error("no_connection");
+            }
+        } catch (e) {
+            d(e);
             opLog.error("Could not create a connection");
-            throw new Error("no_connection");
+            throw e;
         }
 
         //check pipes and initialize the instance using the prelude
@@ -240,6 +253,7 @@ async function getTarget(port: number): Promise<ICDPTab | null> {
 
 async function getAvailableTarget(port: number): Promise<ICDPTab | null> {
     const resp = await request.post(`http://localhost:${port}/get_available_target`);
+    d("bridge response:", resp);
     if (resp) {
         const parsedResp = JSON.parse(resp);
         if (parsedResp.ok) {
@@ -254,6 +268,7 @@ async function getAvailableTarget(port: number): Promise<ICDPTab | null> {
 
 async function createTarget(port: number): Promise<ICDPTab | null> {
     const resp = await request.post(`http://localhost:${port}/create_target`);
+    d("bridge response:", resp);
     if (resp) {
         const parsedResp = JSON.parse(resp);
         if (parsedResp.ok) {
@@ -266,8 +281,9 @@ async function createTarget(port: number): Promise<ICDPTab | null> {
     }
 }
 
-async function collectDeadTargets(port: number): Promise<ICDPTab | null> {
-    return request.post(`http://localhost:${port}/collect_dead_targets`);
+async function collectDeadTargets(port: number): Promise<void> {
+    const resp = request.post(`http://localhost:${port}/collect_dead_targets`);
+    d("bridge response:", resp);
 }
 
 async function loadPreloaders(

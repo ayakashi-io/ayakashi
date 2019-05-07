@@ -104,6 +104,7 @@ export function getInstance(): IHeadlessChrome {
             }
             try {
                 if (forceKill && this.chromeInstance) {
+                    d("force killing chrome...");
                     await this.chromeInstance.forceKill();
                 }
             } catch (err) {
