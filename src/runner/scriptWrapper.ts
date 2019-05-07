@@ -2,7 +2,6 @@ import {resolve as pathResolve} from "path";
 // import debug from "debug";
 // const d = debug("ayakashi:scriptWrapper");
 import {getOpLog} from "../opLog/opLog";
-import {consoleWrap} from "./consoleWrap";
 
 type PassedLog = {
     id: string,
@@ -39,7 +38,6 @@ export default async function scriptWrapper(log: PassedLog) {
         opLog.error(e.message);
         throw e;
     }
-    consoleWrap("Script", log.body.module);
     try {
         const result = await scriptModule(log.body.input || {}, log.body.params || {}, {
             projectFolder: log.body.projectFolder,

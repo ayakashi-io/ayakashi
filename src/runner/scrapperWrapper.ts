@@ -10,7 +10,6 @@ import {compile} from "../preloaderCompiler/compiler";
 import dir from "node-dir";
 import {existsSync} from "fs";
 import {getOpLog} from "../opLog/opLog";
-import {consoleWrap} from "./consoleWrap";
 import debug from "debug";
 const d = debug("ayakashi:scrapperWrapper");
 
@@ -222,7 +221,6 @@ export default async function scrapperWrapper(log: PassedLog) {
             await connection.release();
             throw e;
         }
-        consoleWrap("Scrapper", log.body.module);
         //run the scrapper
         let result;
         try {
