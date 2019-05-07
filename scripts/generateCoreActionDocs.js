@@ -11,10 +11,6 @@ const coreActions = jsonDoc.children
             description: ch.comment ? buildText(ch.comment.shortText) : [],
             signature: buildSignature(ch.type.declaration.signatures[0])
         };
-    })
-    .filter(action => {
-        //don't include yield and yieldEach in core actions
-        return action.name !== "yield" && action.name !== "yieldEach";
     });
 
 function buildSignature(signature) {

@@ -174,6 +174,28 @@ await ayakashi.pause();
 ```
 */
     pause: () => Promise<void>;
+/**
+ * Yields extracted data from a scrapper to the next step of the pipeline.
+ * Learn more about yield in this example: http://ayakashi.io/guide/building-a-complete-scraping-project.html
+ * ```js
+ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
+const result = await ayakashi.extract("myDivProp");
+await ayakashi.yield(result);
+```
+*/
+    yield: (extracted: object | Promise<object>) => Promise<void>;
+/**
+ * Sugar method to yield multiple matches.
+ * Learn more about yield in this example: http://ayakashi.io/guide/building-a-complete-scraping-project.html
+ * ```js
+await ayakashi.yieldEach(extractedLinks);
+//is the same as
+for (const link of extractedLinks) {
+    await ayakashi.yield(extractedLinks);
+}
+```
+*/
+    yieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;
 }
 
 //tslint:disable interface-name
