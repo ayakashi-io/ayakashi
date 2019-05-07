@@ -197,6 +197,8 @@ export default async function scrapperWrapper(log: PassedLog) {
         //run the scrapper
         let result;
         try {
+            //@ts-ignore
+            if (log.body.input && log.body.input.continue === true) delete log.body.input.continue;
             result = await scrapperModule(ayakashiInstance, log.body.input || {}, log.body.params || {});
         } catch (e) {
             opLog.error(`There was an error while running scrapper <${log.body.module}> -`, e.message, e.stack);
@@ -207,7 +209,7 @@ export default async function scrapperWrapper(log: PassedLog) {
             await ayakashiInstance.yield(result);
         }
         if (!result && !yieldedAtLeastOnce) {
-            await ayakashiInstance.yield({});
+            await ayakashiInstance.yield({continue: true});
         }
         await connection.release();
     } catch (e) {

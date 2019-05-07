@@ -20,10 +20,11 @@ type PassedLog = {
 
 export default async function scriptWrapper(log: PassedLog) {
     const opLog = getOpLog();
-    await opLog.info("running script", log.body.module);
     let scriptModule;
     try {
         if (["saveToSQL", "saveToJSON", "saveToCSV", "printToConsole"].indexOf(log.body.module) > -1) {
+            //@ts-ignore
+            if (log.body.input && log.body.input.continue === true) return {continue: true};
             scriptModule = require(pathResolve(log.body.appRoot, "lib", "coreScripts", log.body.module));
         } else {
             scriptModule = require(pathResolve(log.body.projectFolder, "scripts", log.body.module));
@@ -38,7 +39,10 @@ export default async function scriptWrapper(log: PassedLog) {
         opLog.error(e.message);
         throw e;
     }
+    opLog.info("running script", log.body.module);
     try {
+        //@ts-ignore
+        if (log.body.input && log.body.input.continue === true) delete log.body.input.continue;
         const result = await scriptModule(log.body.input || {}, log.body.params || {}, {
             projectFolder: log.body.projectFolder,
             operationId: log.body.operationId,
@@ -47,7 +51,7 @@ export default async function scriptWrapper(log: PassedLog) {
         if (result) {
             return result;
         } else {
-            return {};
+            return {continue: true};
         }
     } catch (e) {
         opLog.error(`There was an error while running script <${log.body.module}> -`, e.message, e.stack);
