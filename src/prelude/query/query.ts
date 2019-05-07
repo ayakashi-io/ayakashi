@@ -207,6 +207,25 @@ ayakashi
 ```
 */
     selectChildren: (childPropId?: string) => IDomProp;
+/**
+ * Checks if a prop has any matches. The prop will be re-evaluated every time this runs.
+ * Useful for dynamic pagination loops.
+ * ```js
+const next = ayakashi
+    .select("next")
+    .where({
+        id: {
+            eq: "nextPage"
+        }
+    })
+while (await next.hasMatches()) {
+    // do work in the current page...
+    // go to the next page
+    await ayakashi.navigationClick("next");
+}
+```
+*/
+    hasMatches: () => Promise<boolean>;
 }
 export function createQuery(
     ayakashiInstance: IAyakashiInstance,
@@ -315,6 +334,13 @@ export function createQuery(
                 }
                 return propMatches;
             }
+        },
+        hasMatches: async function() {
+            await this.trigger({force: true, showNoMatchesWarning: false});
+            const matches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
+                return window.ayakashi.propTable[scopedPropId].matches.length;
+            }, this.id);
+            return matches > 0;
         },
         update: function() {
             triggered = false;
