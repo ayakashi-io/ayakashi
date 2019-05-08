@@ -5,6 +5,7 @@ import {attachExtract, Extractable, ExtractorFn} from "./actions/extract";
 import {IDomProp} from "./query/query";
 import {Query, QueryOptions} from "../domQL/domQL";
 import {attachCoreExtractors} from "../coreExtractors/extractors";
+import {attachRetry} from "./actions/retry";
 
 import clickActions from "../coreActions/click";
 import focusActions from "../coreActions/focus";
@@ -196,6 +197,18 @@ for (const link of extractedLinks) {
 ```
 */
     yieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;
+/**
+ * Retry an async operation.
+ * Default is 10 retries.
+ * If the operation returns a result, that result will also be returned by retry.
+ * Learn more about retries at: TODO:
+ * ```js
+await ayakashi.retry(async function() {
+    await ayakashi.goTo("myLink");
+}, 5);
+```
+*/
+    retry: <T>(task: (currentRetry: number) => Promise<T>, retries?: number) => Promise<T>;
 }
 
 //tslint:disable interface-name
@@ -236,6 +249,7 @@ export async function prelude(connection: IConnection): Promise<IAyakashiInstanc
         await attachExtract(<IAyakashiInstance>ayakashiInstance);
         attachCoreExtractors(<IAyakashiInstance>ayakashiInstance);
         attachCoreActions(<IAyakashiInstance>ayakashiInstance);
+        attachRetry(<IAyakashiInstance>ayakashiInstance);
         //define head and body props for convenience
         (<IAyakashiInstance>ayakashiInstance).defineProp(function() {
             return document.body;
