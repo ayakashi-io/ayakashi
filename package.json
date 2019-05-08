@@ -99,7 +99,7 @@
     "clean": "tsc --build --clean",
     "build": "tsc --build --clean && tsc --build",
     "watch": "tsc --build --clean && tsc --watch",
-    "test": "npm run build && node lib/cli/cli.js get-chrome ./__tests__ && jest --forceExit",
+    "test": "npm run build && node lib/cli/cli.js get-chrome ./__tests__ && NODE_ENV=test jest --forceExit",
     "build-types": "tsc --build --clean && tsc -d --emitDeclarationOnly --allowJs false",
     "generate-core-action-docs": "typedoc --mode file --json ./doc.json && node ./scripts/generateCoreActionDocs.js && rm ./doc.json",
     "postinstall": "node scripts/postInstall.js"
