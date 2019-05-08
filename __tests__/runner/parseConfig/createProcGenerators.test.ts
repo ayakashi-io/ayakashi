@@ -22,6 +22,7 @@ describe("createProcGenerators", function() {
         }).map((p) => {
             delete p.processor;
             delete p.name;
+            delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
@@ -56,6 +57,7 @@ describe("createProcGenerators", function() {
         }).map((p) => {
             delete p.processor;
             delete p.name;
+            delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
@@ -93,6 +95,7 @@ describe("createProcGenerators", function() {
         }).map((p) => {
             delete p.processor;
             delete p.name;
+            delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
@@ -127,6 +130,7 @@ describe("createProcGenerators", function() {
         }).map((p) => {
             delete p.processor;
             delete p.name;
+            delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
@@ -177,6 +181,7 @@ describe("createProcGenerators", function() {
         }).map((p) => {
             delete p.processor;
             delete p.name;
+            delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
@@ -243,6 +248,7 @@ describe("createProcGenerators", function() {
         }).map((p) => {
             delete p.processor;
             delete p.name;
+            delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
@@ -315,6 +321,7 @@ describe("createProcGenerators", function() {
         }).map((p) => {
             delete p.processor;
             delete p.name;
+            delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
@@ -384,6 +391,7 @@ describe("createProcGenerators", function() {
         }).map((p) => {
             delete p.processor;
             delete p.name;
+            delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
@@ -428,6 +436,45 @@ describe("createProcGenerators", function() {
         }, {
             from: "subwaterfall_1_waterfall_1",
             to: "pre_end"
+        }]);
+    });
+
+    test("retries are passed on correctly", function() {
+        const config: Config = {
+            waterfall: [{
+                type: "scrapper",
+                module: "test",
+                config: {
+                    retries: 10
+                }
+            }]
+        };
+        const steps = firstPass(config);
+        const procGenerators = createProcGenerators(config, steps, {
+            protocolPort: 1,
+            bridgePort: 1,
+            projectFolder: "",
+            operationId: "",
+            startDate: ""
+        }).map((p) => {
+            delete p.processor;
+            delete p.name;
+            return p;
+        });
+        expect(procGenerators).toIncludeAllMembers([{
+            from: "init",
+            to: "pre_waterfall_0",
+            config: {}
+        }, {
+            from: "pre_waterfall_0",
+            to: "waterfall_0",
+            config: {
+                retries: 10
+            }
+        }, {
+            from: "waterfall_0",
+            to: "pre_end",
+            config: {}
         }]);
     });
 });
