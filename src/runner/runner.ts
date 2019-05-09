@@ -66,7 +66,7 @@ export async function run(projectFolder: string, config: Config) {
                 name: generator.name,
                 offset: ">",
                 maxReclaims: generator.config.retries || 1,
-                reclaimTimeout: Number.MAX_SAFE_INTEGER,
+                reclaimTimeout: -1,
                 onMaxReclaimsReached: "disable",
                 from: generator.from,
                 to: generator.to,

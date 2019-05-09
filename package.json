@@ -82,7 +82,7 @@
     "node-dir": "~0.1.17",
     "ora": "~3.2.0",
     "pg": "~7.9.0",
-    "pipeproc": "^0.2.1",
+    "pipeproc": "^0.2.3",
     "request": "~2.88.0",
     "request-promise-native": "~1.0.7",
     "require-all": "~3.0.0",

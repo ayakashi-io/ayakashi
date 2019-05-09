@@ -16,14 +16,14 @@ export function attachRetry(ayakashiInstance: IAyakashiInstance) {
             retries = 10;
             //tslint:enable
         }
-        let retried = 1;
+        let retried = 0;
         return new Promise(function(resolve, reject) {
             asyncRetry({
                 times: retries,
                 interval: 200
             }, function(cb) {
                 let taskResult;
-                taskResult = task(retried);
+                taskResult = task(retried + 1);
                 if (taskResult instanceof Promise) {
                     taskResult
                     .then(function(result) {
