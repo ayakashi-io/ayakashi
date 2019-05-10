@@ -40,7 +40,7 @@ const DEFAULT_FLAGS = [
     // disable repost dialog
     "--disable-prompt-on-repost",
     // isolate
-    "--site-per-process",
+    // "--site-per-process",
     // other
     "--disable-gpu"
     // "--disable-setuid-sandbox",

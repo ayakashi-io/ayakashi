@@ -226,6 +226,7 @@ export default async function scrapperWrapper(log: PassedLog) {
         }
         await connection.release();
     } catch (e) {
+        d(e);
         throw e;
     }
 }

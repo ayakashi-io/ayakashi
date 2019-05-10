@@ -38,11 +38,13 @@ interface ICDPClient {
     Page: {
         enable: () => Promise<void>;
         loadEventFired: (fn?: () => void) => (() => void);
+        domContentEventFired: (fn?: () => void) => (() => void);
         navigate: (options: {url: string}) => Promise<void>;
         addScriptToEvaluateOnNewDocument: (arg0: {source: string}) => Promise<object>;
         removeScriptToEvaluateOnNewDocument: (scriptId: object) => Promise<void>;
         navigatedWithinDocument: (fn?: () => void) => (() => void);
         frameNavigated: (fn?: () => void) => (() => void);
+        stopLoading: () => Promise<void>;
     };
     DOM: {
         enable: () => Promise<void>;
@@ -244,8 +246,9 @@ export async function createConnection(
                     });
                     connection.timeouts = [];
                     connection.intervals = [];
+                    await connection.client.Page.stopLoading();
                     await connection.client.Page.navigate({url: "about:blank"});
-                    await connection.client.Page.loadEventFired();
+                    await connection.client.Page.domContentEventFired();
                     connection.active = false;
                     await request.post(`http://localhost:${bridgePort}/connection_released`, {
                         json: {

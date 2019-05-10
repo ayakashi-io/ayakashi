@@ -5,17 +5,22 @@ import boxen from "boxen";
 import {EOL} from "os";
 
 export function getOpLog() {
+    const env = process.env.NODE_ENV;
     return {
         info: function(...logs: string[]) {
+            if (env === "test") return;
             process.stdout.write(formatLogs(logs, "info"));
         },
         warn: function(...logs: string[]) {
+            if (env === "test") return;
             process.stdout.write(formatLogs(logs, "warning"));
         },
         error: function(...logs: string[]) {
+            if (env === "test") return;
             process.stdout.write(formatLogs(logs, "error"));
         },
         debug: function(...logs: string[]) {
+            if (env === "test") return;
             process.stdout.write(formatLogs(logs, "debug"));
         },
         waiter: function(text: string) {
@@ -26,6 +31,7 @@ export function getOpLog() {
             }).start();
         },
         messageBox: function(logs: string[]) {
+            if (env === "test") return;
             process.stdout.write(boxen(
                 logs.reduce((msg, log) => msg + log + "\n", ""),
                 {

@@ -28,6 +28,12 @@ type StepConfig = {
      * Used by the `--simple` run mode. For internal use only.
      */
     simple?: boolean
+    /**
+     * How many times to retry the step if there is an error.
+     * Learn more about retries at https://ayakashi.io/docs/going_deeper/automatic_retries.html
+     * No retries are performed by default.
+     */
+    retries?: number
 };
 
 type StepLoadingOptions = {
@@ -214,7 +220,13 @@ export type Config = {
     }[]
 };
 
-export type ProcGenerator = {name: string, from: string, to: string | string[], processor: Function | string};
+export type ProcGenerator = {
+    name: string,
+    from: string,
+    to: string | string[],
+    processor: Function | string,
+    config: StepConfig
+};
 
 export function firstPass(config: Config, previous?: string): (string | string[])[] {
     if (!config) {
@@ -336,7 +348,7 @@ export function countSteps(steps: (string | string[])[]) {
 export function getObjectReference(
     config: Config,
     stepName: string
-): {type?: string, module?: string, config?: object} {
+): {type?: string, module?: string, config?: StepConfig} {
     const formatedStepName = stepName.replace(/subwaterfall/g, "parallel");
     //@ts-ignore
     return formatedStepName.split("_").reduce(function(acc, key) {
@@ -497,7 +509,8 @@ function addStep(
                 name: `proc_from_pre_${step}_to_${step}`,
                 from: `pre_${step}`,
                 to: step,
-                processor: pathResolve(appRoot, "lib/runner/scrapperWrapper.js")
+                processor: pathResolve(appRoot, "lib/runner/scrapperWrapper.js"),
+                config: objectRef.config || {}
             });
         } else {
             objectRef.type = "script";
@@ -506,7 +519,8 @@ function addStep(
                 name: `proc_from_pre_${step}_to_${step}`,
                 from: `pre_${step}`,
                 to: step,
-                processor: pathResolve(appRoot, "lib/runner/scriptWrapper.js")
+                processor: pathResolve(appRoot, "lib/runner/scriptWrapper.js"),
+                config: objectRef.config || {}
             });
         }
     }
@@ -533,6 +547,7 @@ function addPreStep(
                 name: `proc_from_${previousStep}_to_pre_${step}`,
                 from: previousStep,
                 to: `pre_${step}`,
+                config: {},
                 //tslint:disable max-line-length
                 processor: new Function("log", `
                     const obj = ${JSON.stringify(getObjectReference(config, step))};
@@ -586,11 +601,55 @@ function addParallelPreStep(
     if (step === "init") return;
     if (Array.isArray(previousPreviousStep)) {
         previousPreviousStep.forEach(function(ppst) {
-            if (!procGenerators.find(pr => pr.from === ppst && pr.to === `pre_${step}`))
+            if (!procGenerators.find(pr => pr.from === ppst && pr.to === `pre_${step}`)) {
+                procGenerators.push({
+                    name: `proc_from_${ppst}_to_pre_${step}`,
+                    from: ppst,
+                    to: `pre_${step}`,
+                    config: {},
+                    //tslint:disable max-line-length
+                    processor: new Function("log", `
+                        const obj = ${JSON.stringify(getObjectReference(config, step))};
+                        if (obj.type === "scrapper") {
+                            return Promise.resolve({
+                                input: log.body,
+                                config: (obj && obj.config) || {},
+                                params: (obj && obj.params) || {},
+                                load: (obj && obj.load) || {},
+                                module: (obj && obj.module) || "",
+                                connectionConfig: ${JSON.stringify({bridgePort: options.bridgePort, protocolPort: options.protocolPort})},
+                                saveTopic: "${step}",
+                                projectFolder: "${options.projectFolder}",
+                                operationId: "${options.operationId}",
+                                startDate: "${options.startDate}",
+                                procName: "proc_from_pre_${step}_to_${step}",
+                                appRoot: "${appRoot}"
+                            });
+                        } else {
+                            return Promise.resolve({
+                                input: log.body,
+                                params: (obj && obj.params) || {},
+                                module: (obj && obj.module) || "",
+                                saveTopic: "${step}",
+                                projectFolder: "${options.projectFolder}",
+                                operationId: "${options.operationId}",
+                                startDate: "${options.startDate}",
+                                procName: "proc_from_pre_${step}_to_${step}",
+                                appRoot: "${appRoot}"
+                            });
+                        }
+                    `)
+                    //tslint:enable max-line-length
+                });
+            }
+        });
+    } else {
+        if (!procGenerators.find(pr => pr.from === previousPreviousStep && pr.to === `pre_${step}`)) {
             procGenerators.push({
-                name: `proc_from_${ppst}_to_pre_${step}`,
-                from: ppst,
+                name: `proc_from_${previousPreviousStep}_to_pre_${step}`,
+                from: previousPreviousStep,
                 to: `pre_${step}`,
+                config: {},
                 //tslint:disable max-line-length
                 processor: new Function("log", `
                     const obj = ${JSON.stringify(getObjectReference(config, step))};
@@ -625,46 +684,6 @@ function addParallelPreStep(
                 `)
                 //tslint:enable max-line-length
             });
-        });
-    } else {
-        if (!procGenerators.find(pr => pr.from === previousPreviousStep && pr.to === `pre_${step}`))
-        procGenerators.push({
-            name: `proc_from_${previousPreviousStep}_to_pre_${step}`,
-            from: previousPreviousStep,
-            to: `pre_${step}`,
-            //tslint:disable max-line-length
-            processor: new Function("log", `
-                const obj = ${JSON.stringify(getObjectReference(config, step))};
-                if (obj.type === "scrapper") {
-                    return Promise.resolve({
-                        input: log.body,
-                        config: (obj && obj.config) || {},
-                        params: (obj && obj.params) || {},
-                        load: (obj && obj.load) || {},
-                        module: (obj && obj.module) || "",
-                        connectionConfig: ${JSON.stringify({bridgePort: options.bridgePort, protocolPort: options.protocolPort})},
-                        saveTopic: "${step}",
-                        projectFolder: "${options.projectFolder}",
-                        operationId: "${options.operationId}",
-                        startDate: "${options.startDate}",
-                        procName: "proc_from_pre_${step}_to_${step}",
-                        appRoot: "${appRoot}"
-                    });
-                } else {
-                    return Promise.resolve({
-                        input: log.body,
-                        params: (obj && obj.params) || {},
-                        module: (obj && obj.module) || "",
-                        saveTopic: "${step}",
-                        projectFolder: "${options.projectFolder}",
-                        operationId: "${options.operationId}",
-                        startDate: "${options.startDate}",
-                        procName: "proc_from_pre_${step}_to_${step}",
-                        appRoot: "${appRoot}"
-                    });
-                }
-            `)
-            //tslint:enable max-line-length
-        });
+        }
     }
 }

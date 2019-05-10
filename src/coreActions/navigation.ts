@@ -46,9 +46,10 @@ await ayakashi.spaNavigationClick("inPageLink");
 }
 
 export default function(ayakashiInstance: IAyakashiInstance) {
-    ayakashiInstance.registerAction("goTo", function(url: string, timeout = 10000): Promise<void> {
+    ayakashiInstance.registerAction("goTo", async function(url: string, timeout = 10000): Promise<void> {
+        await ayakashiInstance.__connection.client.Page.stopLoading();
         return new Promise(function(resolve, reject) {
-            ayakashiInstance.waitForLoadEvent(timeout).then(function() {
+            ayakashiInstance.waitForDomContentLoadedEvent(timeout).then(function() {
                 resolve();
             }).catch(reject);
             ayakashiInstance.__connection.client.Page.navigate({url}).catch(function() {
@@ -57,9 +58,10 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         });
     });
 
-    ayakashiInstance.registerAction("navigationClick", function(prop: IDomProp, timeout = 10000): Promise<void> {
+    ayakashiInstance.registerAction("navigationClick", async function(prop: IDomProp, timeout = 10000): Promise<void> {
+        await ayakashiInstance.__connection.client.Page.stopLoading();
         return new Promise(function(resolve, reject) {
-            ayakashiInstance.waitForLoadEvent(timeout).then(function() {
+            ayakashiInstance.waitForDomContentLoadedEvent(timeout).then(function() {
                 resolve();
             }).catch(reject);
             ayakashiInstance.click(prop).catch(reject);

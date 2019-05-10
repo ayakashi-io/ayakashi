@@ -47,6 +47,7 @@
     "@types/sequelize": "~4.27.43",
     "@types/uuid": "~3.4.4",
     "@types/yargs": "~12.0.9",
+    "@types/backoff": "~2.5.1",
     "eslint": "~5.12.0",
     "eslint-config-google": "~0.11.0",
     "jest": "~23.6.0",
@@ -82,7 +83,7 @@
     "node-dir": "~0.1.17",
     "ora": "~3.2.0",
     "pg": "~7.9.0",
-    "pipeproc": "^0.2.1",
+    "pipeproc": "^0.2.4",
     "request": "~2.88.0",
     "request-promise-native": "~1.0.7",
     "require-all": "~3.0.0",
@@ -93,7 +94,8 @@
     "tedious": "~5.0.3",
     "user-agents": "~1.0.186",
     "uuid": "~3.3.2",
-    "yargs": "~13.2.2"
+    "yargs": "~13.2.2",
+    "backoff": "~2.5.0"
   },
   "scripts": {
     "clean": "tsc --build --clean",
