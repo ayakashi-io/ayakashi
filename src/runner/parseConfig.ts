@@ -30,7 +30,7 @@ type StepConfig = {
     simple?: boolean
     /**
      * How many times to retry the step if there is an error.
-     * Learn more about retries at TODO:
+     * Learn more about retries at https://ayakashi.io/docs/going_deeper/automatic_retries.html
      * No retries are performed by default.
      */
     retries?: number
