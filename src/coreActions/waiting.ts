@@ -26,17 +26,16 @@ await ayakashi.waitUntil(function() {
 /**
  * Waits for the load event of a new page.
  * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#using-the-raw-events
- * ```js
-await ayakashi.wait(3000);
-```
 */
         waitForLoadEvent: (timeout?: number) => Promise<void>;
 /**
+ * Waits for the domContentLoaded event of a new page.
+ * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#using-the-raw-events
+*/
+        waitForDomContentLoadedEvent: (timeout?: number) => Promise<void>;
+/**
  * Waits for an in-page navigation to occur in a dynamic page or single page application.
  * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#using-the-raw-events
- * ```js
-await ayakashi.wait(3000);
-```
 */
         waitForInPageNavigation: (timeout?: number) => Promise<void>;
 /**
@@ -151,6 +150,30 @@ export default function(ayakashiInstance: IAyakashiInstance) {
                 ayakashiInstance.__connection.timeouts.push(timedOut);
             }
             const unsubscribe = ayakashiInstance.__connection.client.Page.loadEventFired(function() {
+                if (!aborted) {
+                    resolved = true;
+                    unsubscribe();
+                    resolve();
+                }
+            });
+            ayakashiInstance.__connection.unsubscribers.push(unsubscribe);
+        });
+    });
+
+    ayakashiInstance.registerAction("waitForDomContentLoadedEvent", function(timeout = 10000): Promise<void> {
+        return new Promise(function(resolve, reject) {
+            let resolved = false;
+            let aborted = false;
+            if (timeout !== 0) {
+                const timedOut = setTimeout(function() {
+                    if (!resolved) {
+                        aborted = true;
+                        reject(new Error(`<waitForDomContentLoadedEvent> timed out after waiting ${timeout}ms`));
+                    }
+                }, timeout);
+                ayakashiInstance.__connection.timeouts.push(timedOut);
+            }
+            const unsubscribe = ayakashiInstance.__connection.client.Page.domContentEventFired(function() {
                 if (!aborted) {
                     resolved = true;
                     unsubscribe();

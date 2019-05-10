@@ -1,5 +1,6 @@
 import {IAyakashiInstance} from "../prelude";
 import {retry as asyncRetry} from "async";
+import {ExponentialStrategy} from "backoff";
 import {getOpLog} from "../../opLog/opLog";
 // import debug from "debug";
 // const d = debug("ayakashi:prelude:retry");
@@ -17,10 +18,18 @@ export function attachRetry(ayakashiInstance: IAyakashiInstance) {
             //tslint:enable
         }
         let retried = 0;
+        const strategy = new ExponentialStrategy({
+            randomisationFactor: 0.5,
+            initialDelay: 500,
+            maxDelay: 5000,
+            factor: 2
+        });
         return new Promise(function(resolve, reject) {
             asyncRetry({
                 times: retries,
-                interval: 200
+                interval: function() {
+                    return strategy.next();
+                }
             }, function(cb) {
                 let taskResult;
                 taskResult = task(retried + 1);
