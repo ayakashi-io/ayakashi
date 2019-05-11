@@ -249,6 +249,7 @@ export async function createConnection(
                     await connection.client.Page.stopLoading();
                     await connection.client.Page.navigate({url: "about:blank"});
                     await connection.client.Page.domContentEventFired();
+                    await client.close();
                     connection.active = false;
                     await request.post(`http://localhost:${bridgePort}/connection_released`, {
                         json: {

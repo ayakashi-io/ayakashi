@@ -1,6 +1,6 @@
 {
   "name": "ayakashi",
-  "version": "1.0.0-beta1.5",
+  "version": "1.0.0-beta1.6",
   "description": "The next generation web scraping framework",
   "author": {
     "name": "ayakashi.io",
@@ -102,7 +102,7 @@
     "build": "tsc --build --clean && tsc --build",
     "watch": "tsc --build --clean && tsc --watch",
     "test": "npm run build && node lib/cli/cli.js get-chrome ./__tests__ && jest --forceExit",
-    "build-types": "tsc --build --clean && tsc -d --emitDeclarationOnly --allowJs false",
+    "build-types": "rm -rf ./lib && tsc --build --clean && tsc -d --emitDeclarationOnly --allowJs false",
     "generate-core-action-docs": "typedoc --mode file --json ./doc.json && node ./scripts/generateCoreActionDocs.js && rm ./doc.json",
     "postinstall": "node scripts/postInstall.js",
     "prepublishOnly": "rm -rf ./lib && tsc --build --clean && tsc --build && npm shrinkwrap"
