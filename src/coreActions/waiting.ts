@@ -91,15 +91,6 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         return new Promise<T>(function(resolve, reject) {
             let resolved = false;
             let aborted = false;
-            if (timeout !== 0) {
-                const timedOut = setTimeout(function() {
-                    if (!resolved) {
-                        aborted = true;
-                        reject(new Error(`<waitUntil> timed out after waiting ${timeout}ms`));
-                    }
-                }, timeout);
-                ayakashiInstance.__connection.timeouts.push(timedOut);
-            }
             const waiter = setInterval(async function() {
                 const cbResult = await cb();
                 if (cbResult && !aborted) {
@@ -108,6 +99,16 @@ export default function(ayakashiInstance: IAyakashiInstance) {
                     resolve(cbResult);
                 }
             }, interval);
+            if (timeout !== 0) {
+                const timedOut = setTimeout(function() {
+                    if (!resolved) {
+                        aborted = true;
+                        clearInterval(waiter);
+                        reject(new Error(`<waitUntil> timed out after waiting ${timeout}ms`));
+                    }
+                }, timeout);
+                ayakashiInstance.__connection.timeouts.push(timedOut);
+            }
             ayakashiInstance.__connection.intervals.push(waiter);
         });
     });
@@ -116,15 +117,6 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         return new Promise(function(resolve, reject) {
             let resolved = false;
             let aborted = false;
-            if (timeout !== 0) {
-                const timedOut = setTimeout(function() {
-                    if (!resolved) {
-                        aborted = true;
-                        reject(new Error(`<waitForInPageNavigation> timed out after waiting ${timeout}ms`));
-                    }
-                }, timeout);
-                ayakashiInstance.__connection.timeouts.push(timedOut);
-            }
             const unsubscribe = ayakashiInstance.__connection.client.Page.navigatedWithinDocument(function() {
                 if (!aborted) {
                     resolved = true;
@@ -132,6 +124,16 @@ export default function(ayakashiInstance: IAyakashiInstance) {
                     resolve();
                 }
             });
+            if (timeout !== 0) {
+                const timedOut = setTimeout(function() {
+                    if (!resolved) {
+                        aborted = true;
+                        unsubscribe();
+                        reject(new Error(`<waitForInPageNavigation> timed out after waiting ${timeout}ms`));
+                    }
+                }, timeout);
+                ayakashiInstance.__connection.timeouts.push(timedOut);
+            }
             ayakashiInstance.__connection.unsubscribers.push(unsubscribe);
         });
     });
@@ -140,15 +142,6 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         return new Promise(function(resolve, reject) {
             let resolved = false;
             let aborted = false;
-            if (timeout !== 0) {
-                const timedOut = setTimeout(function() {
-                    if (!resolved) {
-                        aborted = true;
-                        reject(new Error(`<waitForLoadEvent> timed out after waiting ${timeout}ms`));
-                    }
-                }, timeout);
-                ayakashiInstance.__connection.timeouts.push(timedOut);
-            }
             const unsubscribe = ayakashiInstance.__connection.client.Page.loadEventFired(function() {
                 if (!aborted) {
                     resolved = true;
@@ -156,6 +149,16 @@ export default function(ayakashiInstance: IAyakashiInstance) {
                     resolve();
                 }
             });
+            if (timeout !== 0) {
+                const timedOut = setTimeout(function() {
+                    if (!resolved) {
+                        aborted = true;
+                        unsubscribe();
+                        reject(new Error(`<waitForLoadEvent> timed out after waiting ${timeout}ms`));
+                    }
+                }, timeout);
+                ayakashiInstance.__connection.timeouts.push(timedOut);
+            }
             ayakashiInstance.__connection.unsubscribers.push(unsubscribe);
         });
     });
@@ -164,15 +167,6 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         return new Promise(function(resolve, reject) {
             let resolved = false;
             let aborted = false;
-            if (timeout !== 0) {
-                const timedOut = setTimeout(function() {
-                    if (!resolved) {
-                        aborted = true;
-                        reject(new Error(`<waitForDomContentLoadedEvent> timed out after waiting ${timeout}ms`));
-                    }
-                }, timeout);
-                ayakashiInstance.__connection.timeouts.push(timedOut);
-            }
             const unsubscribe = ayakashiInstance.__connection.client.Page.domContentEventFired(function() {
                 if (!aborted) {
                     resolved = true;
@@ -180,6 +174,16 @@ export default function(ayakashiInstance: IAyakashiInstance) {
                     resolve();
                 }
             });
+            if (timeout !== 0) {
+                const timedOut = setTimeout(function() {
+                    if (!resolved) {
+                        aborted = true;
+                        unsubscribe();
+                        reject(new Error(`<waitForDomContentLoadedEvent> timed out after waiting ${timeout}ms`));
+                    }
+                }, timeout);
+                ayakashiInstance.__connection.timeouts.push(timedOut);
+            }
             ayakashiInstance.__connection.unsubscribers.push(unsubscribe);
         });
     });

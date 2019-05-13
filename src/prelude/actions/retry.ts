@@ -2,6 +2,7 @@ import {IAyakashiInstance} from "../prelude";
 import {retry as asyncRetry} from "async";
 import {ExponentialStrategy} from "backoff";
 import {getOpLog} from "../../opLog/opLog";
+import {sep} from "path";
 // import debug from "debug";
 // const d = debug("ayakashi:prelude:retry");
 
@@ -24,6 +25,13 @@ export function attachRetry(ayakashiInstance: IAyakashiInstance) {
             maxDelay: 5000,
             factor: 2
         });
+        const errForStack = new Error();
+        Error.captureStackTrace(errForStack, ayakashiInstance.retry);
+        let filename = "";
+        if (errForStack && errForStack.stack) {
+            //@ts-ignore
+            filename = errForStack.stack.match(/\/([\/\w-_\.]+\.js):(\d*):(\d*)/)[0].split(sep).pop();
+        }
         return new Promise(function(resolve, reject) {
             asyncRetry({
                 times: retries,
@@ -42,9 +50,9 @@ export function attachRetry(ayakashiInstance: IAyakashiInstance) {
                         retried += 1;
                         console.error(err);
                         if (retried < retries) {
-                            opLog.warn("operation will be retried -", `retries: ${retried}/${retries}`);
+                            opLog.warn(`operation ${filename} will be retried -`, `retries: ${retried}/${retries}`);
                         } else {
-                            opLog.error(`${retries} retries reached - operation will fail`);
+                            opLog.error(`${retries} retries reached for ${filename} - operation will fail`);
                         }
                         cb(err);
                     });
