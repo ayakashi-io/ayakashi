@@ -281,9 +281,19 @@ export function createQuery(
         trigger: async function(triggerOptions) {
             if (!triggerOptions || triggerOptions.force !== true) {
                 if (triggered) {
-                    return ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
-                        return window.ayakashi.propTable[scopedPropId].matches.length;
+                    const propMatches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
+                        if (window.ayakashi.propTable[scopedPropId] &&
+                            window.ayakashi.propTable[scopedPropId].matches) {
+                                return window.ayakashi.propTable[scopedPropId].matches.length;
+                        } else {
+                            return 0;
+                        }
                     }, this.id);
+                    if (propMatches === 0 &&
+                        (!triggerOptions || (triggerOptions && triggerOptions.showNoMatchesWarning))) {
+                        opLog.warn(`prop: ${this.id} has no matches`);
+                    }
+                    return propMatches;
                 }
             }
             triggered = true;
