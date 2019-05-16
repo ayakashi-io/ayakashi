@@ -29,8 +29,10 @@ export function attachRetry(ayakashiInstance: IAyakashiInstance) {
         Error.captureStackTrace(errForStack, ayakashiInstance.retry);
         let filename = "";
         if (errForStack && errForStack.stack) {
-            //@ts-ignore
-            filename = errForStack.stack.match(/\/([\/\w-_\.]+\.js):(\d*):(\d*)/)[0].split(sep).pop();
+            const stackMatch = errForStack.stack.match(/\/([\/\w-_\.]+\.js):(\d*):(\d*)/);
+            if (stackMatch && stackMatch[0]) {
+                filename = stackMatch[0].split(sep).pop() || "";
+            }
         }
         return new Promise(function(resolve, reject) {
             asyncRetry({
