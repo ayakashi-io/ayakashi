@@ -33,7 +33,7 @@ export interface IHeadlessChrome {
         protocolPort: number
     }) => Promise<void>;
     close: () => Promise<void>;
-    createTarget: (overrideMaxTargets?: boolean) => Promise<Target | null>;
+    createTarget: () => Promise<Target | null>;
     collectDeadTargets: () => Promise<void>;
 }
 
@@ -92,7 +92,10 @@ export function getInstance(): IHeadlessChrome {
             let forceKill = false;
             try {
                 if (this.chromeInstance) {
-                    const target = await this.createTarget(true);
+                    const target = await createTarget(
+                        HOST,
+                        this.chromeInstance.port
+                    );
                     if (!target) throw new Error("cannot_kill_chrome_instance");
                     const connection = await createConnection(target.tab, BRIDGE_PORT);
                     if (!connection) throw new Error("cannot_kill_chrome_instance");
@@ -166,13 +169,13 @@ export function getInstance(): IHeadlessChrome {
                 });
             });
         },
-        createTarget: async function(overrideMaxTargets = false) {
+        createTarget: async function() {
             const self = this;
             return new Promise(function(resolve, reject) {
                 targetOpQueue.push({
                     op: "createTarget",
                     exec: async function() {
-                        if (self.targets.length >= self.maxTargets && !overrideMaxTargets) {
+                        if (self.targets.length >= self.maxTargets) {
                             throw new Error("max_targets_reached");
                         }
                         if (self.chromeInstance) {
