@@ -131,13 +131,13 @@ async function spawnProcess(chromePath: string, port: number, flags: string[]): 
     try {
         d("spawning...");
         const chrome = await spawn(chromePath, flags, {detached: process.platform !== "win32"});
-        //too noisy
-        // chrome.stderr.on("data", (data) => {
-        //     d(`chrome: ${data}`);
-        // });
-        // chrome.stdout.on("data", (data) => {
-        //     d(`chrome: ${data}`);
-        // });
+        const chromeDebug = debug("ayakashi:chrome");
+        chrome.stderr.on("data", (data) => {
+            chromeDebug(`stderr: ${data}`);
+        });
+        chrome.stdout.on("data", (data) => {
+            chromeDebug(`stdout: ${data}`);
+        });
         await waitUntilReady(port);
         return chrome;
     } catch (err) {

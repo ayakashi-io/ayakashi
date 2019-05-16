@@ -95,6 +95,7 @@ export function getInstance(): IHeadlessChrome {
                     const target = await this.createTarget(true);
                     if (!target) throw new Error("cannot_kill_chrome_instance");
                     const connection = await createConnection(target.tab, BRIDGE_PORT);
+                    if (!connection) throw new Error("cannot_kill_chrome_instance");
                     await connection.client.Browser.close();
                     this.chromeInstance = null;
                 }

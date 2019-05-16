@@ -166,6 +166,7 @@ export async function createConnection(
     emulatorOptions?: EmulatorOptions
 ): Promise<IConnection> {
     try {
+        d("creating new connection");
         const client: ICDPClient = await CDP({target: tab});
         await Promise.all([
             client.Network.enable(),
@@ -177,7 +178,7 @@ export async function createConnection(
             client.Console.enable(),
             client.Runtime.enable()
         ]);
-        d("setting emulator options: ");
+        d("connection created");
         const defaultEmulatorOptions: EmulatorOptions = {
             width: 1920,
             height: 1080,
@@ -215,7 +216,8 @@ export async function createConnection(
                 d(`activating connection: ${tab.id}`);
                 if (connection.active) throw new Error("connection_already_active");
                 try {
-                    await client.Target.activateTarget({targetId: tab.id});
+                    // we don't need to focus the active target
+                    // await client.Target.activateTarget({targetId: tab.id});
                     connection.active = true;
                     await request.post(`http://localhost:${bridgePort}/connection_activated`, {
                         json: {
@@ -256,6 +258,7 @@ export async function createConnection(
                             id: tab.id
                         }
                     });
+                    d(`connection released: ${tab.id}`);
                 } catch (err) {
                     d(err);
                     throw new Error("could_not_release_connection");
