@@ -1,6 +1,6 @@
 {
   "name": "ayakashi",
-  "version": "1.0.0-beta1.6",
+  "version": "1.0.0-beta1.7",
   "description": "The next generation web scraping framework",
   "author": {
     "name": "ayakashi.io",
@@ -23,6 +23,8 @@
   ],
   "keywords": [
     "web-scraping",
+    "web-crawling",
+    "data-mining",
     "automation",
     "headless-chrome"
   ],
