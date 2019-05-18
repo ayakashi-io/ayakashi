@@ -1,9 +1,19 @@
-# Ayakashi.io
+<p align="center"><a href="https://ayakashi.io" target="_blank" rel="noopener noreferrer"><img src="https://ayakashi.io/assets/img/logo_cropped.png" alt="Ayakashi"></a></p>
 
-> [https://ayakashi.io](https://ayakashi.io)
+<p align="center">
+  <a href="https://ayakashi.io/docs/getting_started"><img src="https://img.shields.io/badge/Get-Started-brightgreen.svg" alt="Get Started"></a>
+  <br/>
+  <a href="https://www.npmjs.com/package/ayakashi"><img src="https://img.shields.io/npm/v/ayakashi.svg?label=version" alt="npm"></a>
+  <a href="https://github.com/ayakashi-io/ayakashi/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/ayakashi.svg" alt="license"></a>
+  <br/>
+  <a href="https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=12"><img src="https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/12/master.svg?label=Windows" alt="windows build"></a>
+  <a href="https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=11"><img src="https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/11/master.svg?label=macOS" alt="macOs build"></a>
+  <a href="https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=10"><img src="https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/10/master.svg?label=Linux" alt="linux build"></a>
+</p>
 
-[![get started](https://img.shields.io/badge/Get-Started-brightgreen.svg)](https://ayakashi.io/docs/getting_started) [![npm](https://img.shields.io/npm/v/ayakashi.svg?label=version)](https://www.npmjs.com/package/ayakashi) ![NPM](https://img.shields.io/npm/l/ayakashi.svg)  
-[![Azure DevOps builds (branch)](https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/12/master.svg?label=Windows)](https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=12) [![Azure DevOps builds (branch)](https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/11/master.svg?label=macOS)](https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=11) [![Azure DevOps builds (branch)](https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/10/master.svg?label=Linux)](https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=10)
+<hr/>
+
+<p align="center"><img width="500" src="https://ayakashi.io/assets/img/ayakashi_demo-min.gif?raw=true"/></p>
 
 ## The next generation web scraping framework
 
@@ -28,37 +38,9 @@ Directly inspired by the relational database world (and SQL), domQL makes
 DOM access easy and readable no matter how obscure the page's structure is.  
 Props are the way to package domQL expressions as re-usable structures which
 can then be passed around to [actions](https://ayakashi.io/docs/guide/tour.html#actions) or to be used as models for [data
-extraction](https://ayakashi.io/docs/guide/data-extraction.html).  
-Instead of this:  
+extraction](https://ayakashi.io/docs/guide/data-extraction.html).    
 
-<!-- markdownlint-disable MD013 -->
-
-```js
-document.querySelector('#js-repo-pjax-container > div.container.new-discussion-timeline.experiment-repo-nav > div.repository-content > div.file-navigation.in-mid-page.d-flex.flex-items-start > details.get-repo-select-menu.js-get-repo-select-menu.position-relative.details-overlay.details-reset > summary');
-```
-
-you can now write this:  
-
-```js
-ayakashi
-    .selectOne("cloneDialogTrigger")
-    .where({
-        and: [{
-            class: {
-                eq: "btn"
-            }
-        }, {
-            "style-background-color": {
-                eq: "rgb(40, 167, 69)"
-            }
-        }, {
-            textContent: {
-                like: "Clone"
-            }
-        }]
-    });
-```
-<!-- markdownlint-enable MD013 -->
+![domql](https://ayakashi.io/assets/img/domql.png)
 
 ### High level builtin actions
 
@@ -117,3 +99,10 @@ Autocomplete any method, check signatures and examples or follow links to more d
 
 Sounds cool?  
 Just head over to the [getting started guide](https://ayakashi.io/docs/getting_started)!
+
+<hr/>
+
+[Documentation](https://ayakashi.io/docs/getting_started)  
+[Roadmap](https://github.com/ayakashi-io/ayakashi/milestones)  
+[Changelog](https://changelog.ayakashi.io/)  
+[Twitter](https://twitter.com/ayakashi_io)
