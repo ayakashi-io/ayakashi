@@ -13,9 +13,7 @@
 
 <hr/>
 
-<p align="center">
-    <video src="https://ayakashi.io/assets/img/ayakashi_demo.mp4" width="500" controls preload></video>
-</p>
+<p align="center"><img width="500" src="https://ayakashi.io/assets/img/ayakashi_demo-min.gif?raw=true"/></p>
 
 ## The next generation web scraping framework
 
