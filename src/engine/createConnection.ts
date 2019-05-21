@@ -5,6 +5,8 @@ import {isRegExp} from "util";
 import request from "request-promise-native";
 //@ts-ignore
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
+import {retry as asyncRetry} from "async";
+import {ExponentialStrategy} from "backoff";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -28,6 +30,9 @@ export type EmulatorOptions = {
 };
 
 interface ICDPClient {
+    _ws: {
+        readyState: 1 | 2 | 3
+    };
     close: () => Promise<void>;
     Browser: {
         close: () => Promise<void>;
@@ -167,17 +172,20 @@ export async function createConnection(
 ): Promise<IConnection> {
     try {
         d("creating new connection");
-        const client: ICDPClient = await CDP({target: tab});
-        await Promise.all([
-            client.Network.enable(),
-            client.Page.enable(),
-            client.DOM.enable(),
-            client.CSS.enable(),
-            client.DOMStorage.enable(),
-            client.Security.enable(),
-            client.Console.enable(),
-            client.Runtime.enable()
-        ]);
+        const client: ICDPClient = await retryOnErrorOrTimeOut<ICDPClient>(async function() {
+            const _client: ICDPClient = await CDP({target: tab});
+            await Promise.all([
+                _client.Network.enable(),
+                _client.Page.enable(),
+                _client.DOM.enable(),
+                _client.CSS.enable(),
+                _client.DOMStorage.enable(),
+                _client.Security.enable(),
+                _client.Console.enable(),
+                _client.Runtime.enable()
+            ]);
+            return _client;
+        });
         d("connection created");
         const defaultEmulatorOptions: EmulatorOptions = {
             width: 1920,
@@ -224,6 +232,7 @@ export async function createConnection(
                             id: tab.id
                         }
                     });
+                    d("connection activated");
                 } catch (err) {
                     d(err);
                     throw new Error("could_not_activate_connection");
@@ -233,30 +242,36 @@ export async function createConnection(
                 d(`releasing connection: ${tab.id}`);
                 if (!connection.active) throw new Error("connection_not_active");
                 try {
-                    connection.unsubscribers.forEach(unsubscriber => unsubscriber());
-                    connection.unsubscribers = [];
-                    await Promise.all(
-                        connection.preloaderIds
-                        .map(preloaderId => client.Page.removeScriptToEvaluateOnNewDocument(preloaderId))
-                    );
-                    connection.preloaderIds = [];
-                    connection.timeouts.forEach(function(id) {
-                        clearTimeout(id);
-                    });
-                    connection.intervals.forEach(function(id) {
-                        clearInterval(id);
-                    });
-                    connection.timeouts = [];
-                    connection.intervals = [];
-                    await connection.client.Page.stopLoading();
-                    await connection.client.Page.navigate({url: "about:blank"});
-                    await connection.client.Page.domContentEventFired();
-                    await client.close();
-                    connection.active = false;
-                    await request.post(`http://localhost:${bridgePort}/connection_released`, {
-                        json: {
-                            id: tab.id
+                    await retryOnErrorOrTimeOut<void>(async function() {
+                        connection.unsubscribers.forEach(unsubscriber => unsubscriber());
+                        connection.unsubscribers = [];
+                        if (client && client._ws && client._ws.readyState !== 3) {
+                            await Promise.all(
+                                connection.preloaderIds
+                                .map(preloaderId => client.Page.removeScriptToEvaluateOnNewDocument(preloaderId))
+                            );
                         }
+                        connection.preloaderIds = [];
+                        connection.timeouts.forEach(function(id) {
+                            clearTimeout(id);
+                        });
+                        connection.intervals.forEach(function(id) {
+                            clearInterval(id);
+                        });
+                        connection.timeouts = [];
+                        connection.intervals = [];
+                        if (client && client._ws && client._ws.readyState !== 3) {
+                            await connection.client.Page.stopLoading();
+                            await connection.client.Page.navigate({url: "about:blank"});
+                            await connection.client.Page.domContentEventFired();
+                            await client.close();
+                        }
+                        connection.active = false;
+                        await request.post(`http://localhost:${bridgePort}/connection_released`, {
+                            json: {
+                                id: tab.id
+                            }
+                        });
                     });
                     d(`connection released: ${tab.id}`);
                 } catch (err) {
@@ -438,5 +453,55 @@ function pipeEvent(
     connection.client.on(`${domain}.${eventName}`, listener);
     connection.unsubscribers.push(function() {
         connection.client.removeListener(`${domain}.${eventName}`, listener);
+    });
+}
+
+async function retryOnErrorOrTimeOut<T>(task: () => Promise<T>): Promise<T> {
+    const strategy = new ExponentialStrategy({
+        randomisationFactor: 0.5,
+        initialDelay: 100,
+        maxDelay: 1000,
+        factor: 2
+    });
+    let retried = 0;
+    return new Promise(function(resolve, reject) {
+        asyncRetry({
+            times: 10,
+            interval: function() {
+                return strategy.next();
+            }
+        }, function(cb) {
+            let resolved = false;
+            let aborted = false;
+            const timedOut = setTimeout(function() {
+                if (!resolved) {
+                    retried += 1;
+                    d(`connection creation/release timed out -`, `retries: ${retried}`);
+                    aborted = true;
+                    cb(new Error(`timed_out`));
+                }
+            }, 1000);
+            task()
+            .then(function(taskResult) {
+                if (!aborted) {
+                    resolved = true;
+                    clearTimeout(timedOut);
+                    cb(null, taskResult);
+                }
+            })
+            .catch(function(err: Error) {
+                if (!aborted) {
+                    resolved = true;
+                    clearTimeout(timedOut);
+                    cb(err);
+                }
+            });
+        }, function(err, taskResult: T) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(taskResult);
+            }
+        });
     });
 }
