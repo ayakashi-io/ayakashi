@@ -63,7 +63,7 @@ export const operators: {[key: string]: Function} = {
             return _neq(domResult, expected);
         };
     },
-    like: function(domQuery: NodeQuery, expected: string): () => boolean {
+    like: function(domQuery: NodeQuery, expected: string | RegExp): () => boolean {
         return function() {
             const domResult = domQuery();
             if (domResult === null) return false;
@@ -82,13 +82,13 @@ export const operators: {[key: string]: Function} = {
             }
         };
     },
-    $nlike: function(domQuery: NodeQuery, expected: string): () => boolean {
+    $nlike: function(domQuery: NodeQuery, expected: string | RegExp): () => boolean {
         return function() {
             const domResult = domQuery();
             return _nlike(domResult, expected);
         };
     },
-    nlike: function(domQuery: NodeQuery, expected: string): () => boolean {
+    nlike: function(domQuery: NodeQuery, expected: string | RegExp): () => boolean {
         return function() {
             const domResult = domQuery();
             if (domResult === null) return true;
@@ -141,7 +141,7 @@ function _neq(domResult: string | string[] | null, expected: string): boolean {
     }
 }
 
-function _nlike(domResult: string | string[] | null, expected: string): boolean {
+function _nlike(domResult: string | string[] | null, expected: string | RegExp): boolean {
     if (Array.isArray(domResult)) {
         return !!domResult.find(member => {
             if (member && typeof member.match === "function") {

@@ -141,6 +141,7 @@ describe("nested queries", function() {
 
     it("should raise an error for an invalid operator", function() {
         expect(() => domQuery({
+            //@ts-ignore
             where: {
                 invalidOperator: [{
                     className: {
@@ -164,6 +165,7 @@ describe("nested queries", function() {
     it("should raise an error for an invalid operator (nested)", function() {
         expect(() => domQuery({
             where: {
+                //@ts-ignore
                 and: [{
                     className: {
                         eq: "listValues"
@@ -174,6 +176,7 @@ describe("nested queries", function() {
                     }
                 }, {
                     dataValue: {
+                        //@ts-ignore
                         invalidOperator: "test"
                     }
                 }]
@@ -186,6 +189,7 @@ describe("nested queries", function() {
     it("should raise an error for an invalid operator (super nested)", function() {
         expect(() => domQuery({
             where: {
+                //@ts-ignore
                 or: [{
                     id: {
                         eq: "a_div"

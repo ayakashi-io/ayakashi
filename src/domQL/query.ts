@@ -23,7 +23,7 @@ export function runQuery(env: Window, query: Query, el: El): boolean {
         return operators[top](...reductionTree[top])();
     } else {
         const attribute = Object.keys(query.where)[0];
-        const op = Object.keys(query.where[attribute])[0];
+        const op = Object.keys(<{}>query.where[attribute])[0];
         //@ts-ignore
         const expected = query.where[attribute][op];
         throwIfInvalidExpected(expected);
@@ -130,7 +130,7 @@ function throwIfInvalidExpected(expected: unknown) {
         (Array.isArray(expected) && (
             expected.length === 0 || expected.some(val => !val)
         )) ||
-        (typeof expected === "object" && !Array.isArray(expected))) {
+        (typeof expected === "object" && !Array.isArray(expected) && !(expected instanceof RegExp))) {
             throw new Error(`Invalid expected value: ${
                 Array.isArray(expected) ||
                     (typeof expected === "object" && expected !== null)

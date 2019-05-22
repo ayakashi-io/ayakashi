@@ -25,6 +25,7 @@ describe("test invalid input", function() {
         expect(() => domQuery({
             where: {
                 id: {
+                    //@ts-ignore
                     invalidOperator: "myList"
                 }
             }
@@ -96,6 +97,7 @@ describe("test invalid input", function() {
             where: {
                 //@ts-ignore
                 id: {
+                    //@ts-ignore
                     eq: false
                 }
             }
@@ -122,6 +124,7 @@ describe("test invalid input", function() {
             //@ts-ignore
             where: {
                 id: {
+                    //@ts-ignore
                     $nin: [null]
                 }
             }
@@ -148,6 +151,7 @@ describe("test invalid input", function() {
             where: {
                 //@ts-ignore
                 id: {
+                    //@ts-ignore
                     in: {anObject: "hi"}
                 }
             }

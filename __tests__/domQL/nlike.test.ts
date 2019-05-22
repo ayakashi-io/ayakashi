@@ -34,11 +34,37 @@ describe("test nlike", function() {
         expect(results).toBeEmpty();
     });
 
+    it("by id, strict, with regex", function() {
+        const results = domQuery({
+            where: {
+                id: {
+                    $nlike: /myL/
+                }
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeEmpty();
+    });
+
     it("by id, non-strict", function() {
         const results = domQuery({
             where: {
                 id: {
                     nlike: "myL"
+                }
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(14);
+    });
+
+    it("by id, non-strict, with regex", function() {
+        const results = domQuery({
+            where: {
+                id: {
+                    nlike: /myL/
                 }
             }
         }, {

@@ -35,6 +35,20 @@ describe("test like", function() {
         expect(results[0]).toBe(dom.window.document.getElementById("myList"));
     });
 
+    it("with a regex", function() {
+        const results = domQuery({
+            where: {
+                id: {
+                    like: /List/
+                }
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(1);
+        expect(results[0]).toBe(dom.window.document.getElementById("myList"));
+    });
+
     it("with an invalid attribute", function() {
         const results = domQuery({
             where: {
