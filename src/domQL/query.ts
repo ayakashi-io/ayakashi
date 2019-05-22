@@ -1,5 +1,6 @@
 import {operators} from "./operators";
 import {Query, El} from "./domQL";
+import {handleStyleColors} from "./handleStyleColors";
 
 export type NodeQuery = () => string | string[] | null;
 
@@ -25,13 +26,14 @@ export function runQuery(env: Window, query: Query, el: El): boolean {
         const attribute = Object.keys(query.where)[0];
         const op = Object.keys(<{}>query.where[attribute])[0];
         //@ts-ignore
-        const expected = query.where[attribute][op];
+        let expected = query.where[attribute][op];
         throwIfInvalidExpected(expected);
         if (!operators[op]) {
             throw new Error(
                 `Invalid operator: ${op}. Learn more at https://ayakashi.io/docs/guide/querying-with-domql.html`
             );
         }
+        expected = formatExpected(attribute, expected);
         //@ts-ignore
         return operators[op](createNodeQuery(env, el, attribute), expected)();
     }
@@ -113,8 +115,9 @@ function expandQuery(
     } else {
         const expKey = Object.keys(member[key])[0];
         //@ts-ignore
-        const expected = member[key][expKey];
+        let expected = member[key][expKey];
         throwIfInvalidExpected(expected);
+        expected = formatExpected(key, expected);
         const op = Object.keys(member[key])[0];
         if (VALID_OPERATORS.indexOf(op) === -1) {
             throw new Error(
@@ -137,4 +140,12 @@ function throwIfInvalidExpected(expected: unknown) {
                 ? JSON.stringify(expected) : String(expected) || "empty_string"
             }. Learn more at https://ayakashi.io/docs/guide/querying-with-domql.html`);
     }
+}
+
+function formatExpected(attribute: string, expected: unknown) {
+    if (attribute.indexOf("style-") > -1 && attribute.indexOf("color") > -1) {
+        return handleStyleColors(<string>expected);
+    }
+
+    return expected;
 }
