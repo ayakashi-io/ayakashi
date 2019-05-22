@@ -20,7 +20,7 @@ let protocolPort: number;
 
 jest.setTimeout(600000);
 
-describe("waiting tests", function() {
+describe("navigation tests", function() {
     let chromePath: string;
     beforeAll(async function() {
         chromePath = getChromePath(pathResolve(".", "__tests__"));
@@ -36,6 +36,7 @@ describe("waiting tests", function() {
             `
         );
         anotherStaticServerPort = await getRandomPort();
+        //tslint:disable max-line-length
         anotherStaticServer = createStaticServer(anotherStaticServerPort,
             `
             <html>
@@ -44,10 +45,12 @@ describe("waiting tests", function() {
                 </head>
                 <body>
                     <a id="myLink" href="http://localhost:${staticServerPort}">Go to to the first test page</a>
+                    <a id="myLinkWithBlank" target="_blank" href="http://localhost:${staticServerPort}">Go to to the first test page</a>
                 </body>
             </html>
             `
         );
+        //tslint:enable max-line-length
     });
     beforeEach(async function() {
         headlessChrome = getInstance();
@@ -81,6 +84,19 @@ describe("waiting tests", function() {
             return document.title;
         });
         expect(result).toBe("test page");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("click a link with target=_blank to navigate to a new page", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${anotherStaticServerPort}`);
+        ayakashiInstance.selectOne("myLink").where({id: {eq: "myLinkWithBlank"}});
+        await ayakashiInstance.navigationClick("myLink");
+        const result = await ayakashiInstance.evaluate<string>(function() {
+            return document.title;
+        });
+        expect(result).toBe("test page");
+        await ayakashiInstance.__connection.release();
     });
 
 });

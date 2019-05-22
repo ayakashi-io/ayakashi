@@ -59,7 +59,18 @@ export default function(ayakashiInstance: IAyakashiInstance) {
     });
 
     ayakashiInstance.registerAction("navigationClick", async function(prop: IDomProp, timeout = 10000): Promise<void> {
+        const myProp = this.prop(prop);
+        if (!myProp) throw new Error("<navigationClick> needs a valid prop");
+        const matchCount = await myProp.trigger();
+        if (matchCount === 0) throw new Error("<navigationClick> needs a prop with at least 1 match");
         await ayakashiInstance.__connection.client.Page.stopLoading();
+        await ayakashiInstance.evaluate(function(scopedPropId: string) {
+            window.ayakashi.propTable[scopedPropId].matches.forEach(function(link) {
+                if ((<HTMLAnchorElement>link).target === "_blank") {
+                    (<HTMLAnchorElement>link).target = "_self";
+                }
+            });
+        }, myProp.id);
         return new Promise(function(resolve, reject) {
             ayakashiInstance.waitForDomContentLoadedEvent(timeout).then(function() {
                 resolve();
