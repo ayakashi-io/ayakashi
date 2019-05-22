@@ -50,6 +50,7 @@ interface ICDPClient {
         navigatedWithinDocument: (fn?: () => void) => (() => void);
         frameNavigated: (fn?: () => void) => (() => void);
         stopLoading: () => Promise<void>;
+        setBypassCSP: (arg0: {enabled: boolean}) => Promise<void>;
     };
     DOM: {
         enable: () => Promise<void>;
@@ -204,6 +205,7 @@ export async function createConnection(
             width: (emulatorOptions && emulatorOptions.width) || defaultEmulatorOptions.width,
             height: (emulatorOptions && emulatorOptions.height) || defaultEmulatorOptions.height
         });
+        await client.Page.setBypassCSP({enabled: true});
         const _keyBoard = new Keyboard(client);
         const _mouse = new Mouse(client, _keyBoard);
         const _touchScreen = new Touchscreen(client, _keyBoard);
