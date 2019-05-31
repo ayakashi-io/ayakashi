@@ -99,9 +99,7 @@ export function downloadLatestChromium(projectFolder: string) {
             unzipStream.on("finish", async function() {
                 await cleanZipFile(`${projectFolder}/.chromium.zip`);
                 const chromePath = getChromePath(projectFolder);
-                if (process.platform === "linux") {
-                    chmodSync(chromePath,  0o755);
-                }
+                chmodSync(chromePath,  0o755);
                 waiter.succeed("done!");
                 resolve();
             });
