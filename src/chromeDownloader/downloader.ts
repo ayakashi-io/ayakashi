@@ -1,9 +1,9 @@
 import request from "request";
 import {getOpLog} from "../opLog/opLog";
-import {lstatSync, createWriteStream, createReadStream, unlink, chmodSync} from "fs";
+import {lstatSync, createWriteStream, unlink, chmodSync} from "fs";
 import rimraf from "rimraf";
 import {resolve as pathResolve} from "path";
-import unzipper from "unzipper";
+import extractZip from "extract-zip";
 
 export function isChromiumAlreadyInstalled(projectFolder: string) {
     try {
@@ -82,26 +82,19 @@ export function downloadLatestChromium(projectFolder: string) {
         });
         downloadStream.on("end", function() {
             waiter.text = "extracting...";
-            const zipStream = createReadStream(`${projectFolder}/.chromium.zip`);
-            const unzipStream = unzipper.Extract({path: `${projectFolder}/.chromium`});
-            zipStream.pipe(unzipStream);
-            zipStream.on("error", async function(err) {
-                waiter.fail(err.message);
-                await cleanZipFile(`${projectFolder}/.chromium.zip`);
-                reject(err);
-            });
-            unzipStream.on("error", async function(err) {
-                waiter.fail(err.message);
-                await cleanZipFile(`${projectFolder}/.chromium.zip`);
-                await cleanChromiumDirectory(projectFolder);
-                reject(err);
-            });
-            unzipStream.on("finish", async function() {
-                await cleanZipFile(`${projectFolder}/.chromium.zip`);
-                const chromePath = getChromePath(projectFolder);
-                chmodSync(chromePath,  0o755);
-                waiter.succeed("done!");
-                resolve();
+            extractZip(`${projectFolder}/.chromium.zip`, {dir: `${projectFolder}/.chromium`}, async function(err) {
+                if (err) {
+                    waiter.fail(err.message);
+                    await cleanChromiumDirectory(projectFolder);
+                    await cleanZipFile(`${projectFolder}/.chromium.zip`);
+                    reject(err);
+                } else {
+                    await cleanZipFile(`${projectFolder}/.chromium.zip`);
+                    const chromePath = getChromePath(projectFolder);
+                    chmodSync(chromePath,  0o755);
+                    waiter.succeed("done!");
+                    resolve();
+                }
             });
         });
         downloadStream.on("error", async function(err) {
