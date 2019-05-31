@@ -97,10 +97,12 @@ export function downloadLatestChromium(projectFolder: string) {
                 reject(err);
             });
             unzipStream.on("finish", async function() {
-                waiter.succeed("done!");
                 await cleanZipFile(`${projectFolder}/.chromium.zip`);
                 const chromePath = getChromePath(projectFolder);
-                chmodSync(chromePath,  0o755);
+                if (process.platform === "linux") {
+                    chmodSync(chromePath,  0o755);
+                }
+                waiter.succeed("done!");
                 resolve();
             });
         });
@@ -127,7 +129,22 @@ export function getChromePath(projectFolder: string) {
     } else {
         throw new Error("invalid_platform");
     }
-    return pathResolve(projectFolder, ".chromium", subfolder, executable);
+    function isNewFolderFormat() {
+        try {
+            if (lstatSync(pathResolve(projectFolder, ".chromium", subfolder)).isDirectory()) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (e) {
+            return false;
+        }
+    }
+    if (isNewFolderFormat()) {
+        return pathResolve(projectFolder, ".chromium", subfolder, executable);
+    } else {
+        return pathResolve(projectFolder, ".chromium", executable);
+    }
 }
 
 function toMb(bytes: number) {
