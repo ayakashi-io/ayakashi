@@ -98,7 +98,6 @@ function getpackageJson() {
 function getGitIgnore() {
     return (
 `node_modules
-.chromium
 .cache
 `);
 }

@@ -3,9 +3,8 @@ import "jest-extended";
 //tslint:enable
 import http from "http";
 import {getInstance, IHeadlessChrome} from "../../src/engine/browser";
-import {getChromePath} from "../../src/chromeDownloader/downloader";
+import {getChromePath} from "../../src/store/chromium";
 import {createStaticServer} from "../utils/startServer";
-import {resolve as pathResolve} from "path";
 import {getRandomPort} from "../utils/getRandomPort";
 import {getAyakashiInstance} from "../utils/getAyakashiInstance";
 
@@ -18,10 +17,10 @@ let protocolPort: number;
 
 jest.setTimeout(600000);
 
-describe("hovering tests", function() {
+describe("focusing tests", function() {
     let chromePath: string;
     beforeAll(async function() {
-        chromePath = getChromePath(pathResolve(".", "__tests__"));
+        chromePath = await getChromePath();
         staticServerPort = await getRandomPort();
         staticServer = createStaticServer(staticServerPort,
             `
@@ -30,11 +29,11 @@ describe("hovering tests", function() {
                     <title>test page</title>
                 </head>
                 <body>
-                    <div id="myDiv">hello</div>
+                    <input type="text" id="myInput"></input>
                     <script>
-                        const myDiv = document.getElementById("myDiv");
+                        const myInput = document.getElementById("myInput");
                         window.counter = 0;
-                        myDiv.addEventListener("mouseover", function () {
+                        myInput.addEventListener("focus", function () {
                             counter += 1;
                         });
                     </script>
@@ -64,11 +63,11 @@ describe("hovering tests", function() {
         });
     });
 
-    test("hover over a div", async function() {
+    test("focus on an input field", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
-        await ayakashiInstance.hover("myDiv");
+        ayakashiInstance.selectOne("myInput").where({id: {eq: "myInput"}});
+        await ayakashiInstance.focus("myInput");
         const result = await ayakashiInstance.evaluate<number>(function() {
             //@ts-ignore
             return window.counter;

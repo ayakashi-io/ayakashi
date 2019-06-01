@@ -4,11 +4,11 @@ import "jest-extended";
 import http from "http";
 import {mkdtempSync} from "fs";
 import {tmpdir} from "os";
-import {join, resolve as pathResolve} from "path";
+import {join} from "path";
 
 import {getInstance, IHeadlessChrome} from "../../src/engine/browser";
 import {createConnection} from "../../src/engine/createConnection";
-import {getChromePath} from "../../src/chromeDownloader/downloader";
+import {getChromePath} from "../../src/store/chromium";
 
 import {createStaticServer} from "../utils/startServer";
 import {getRandomPort} from "../utils/getRandomPort";
@@ -23,7 +23,7 @@ jest.setTimeout(600000);
 describe("launcher tests", function() {
     let chromePath: string;
     beforeAll(async function() {
-        chromePath = getChromePath(pathResolve(".", "__tests__"));
+        chromePath = await getChromePath();
         staticServerPort = await getRandomPort();
         staticServer = createStaticServer(staticServerPort,
             `

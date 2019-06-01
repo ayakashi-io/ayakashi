@@ -18,11 +18,9 @@ import {
     countSteps
 } from "./parseConfig";
 
-import {
-    downloadLatestChromium,
-    isChromiumAlreadyInstalled,
-    getChromePath
-} from "../chromeDownloader/downloader";
+import {downloadChromium} from "../chromeDownloader/downloader";
+import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
+import {getManifest} from "../store/manifest";
 
 // import debug from "debug";
 // const d = debug("ayakashi:runner");
@@ -51,10 +49,11 @@ export async function run(projectFolder: string, config: Config) {
     if (config.config && config.config.chromePath) {
         chromePath = config.config.chromePath;
     } else {
-        if (!isChromiumAlreadyInstalled(projectFolder)) {
-            await downloadLatestChromium(projectFolder);
+        if (!(await isChromiumAlreadyInstalled())) {
+            const manifest = await getManifest();
+            await downloadChromium(manifest.chromium.revision);
         }
-        chromePath = getChromePath(projectFolder);
+        chromePath = await getChromePath();
     }
     try {
         //launch chrome

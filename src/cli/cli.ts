@@ -1,11 +1,9 @@
 import yargs from "yargs";
 import {run} from "../runner/runner";
 import {getOpLog} from "../opLog/opLog";
-import {
-    downloadLatestChromium,
-    cleanChromiumDirectory,
-    isChromiumAlreadyInstalled
-} from "../chromeDownloader/downloader";
+import {downloadChromium} from "../chromeDownloader/downloader";
+import {isChromiumAlreadyInstalled, cleanChromiumDirectory, getStoredRevision} from "../store/chromium";
+import {getManifest} from "../store/manifest";
 import {Config} from "../runner/parseConfig";
 import {getDirectory} from "./getDirectory";
 import {prepareStandard} from "./prepareStandard";
@@ -160,36 +158,47 @@ yargs
         }
     })
     //@ts-ignore
-    .command("update-chrome [dir]", "Updates/Downloads the latest chromium revision", (_argv) => {
+    .command("update-chrome", "Updates/Downloads the latest chromium revision", (_argv) => {
         yargs
-            .positional("dir", {
-                describe: "The root directory of the project",
-                default: "."
-            })
             .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#update-chrome");
         //@ts-ignore
     }, async function(argv) {
-        const directory = getDirectory(<string>argv.dir);
-        await cleanChromiumDirectory(directory);
-        await downloadLatestChromium(directory);
+        const opLog = getOpLog();
+        const storedRevision = await getStoredRevision();
+        const manifest = await getManifest();
+        if (storedRevision < manifest.chromium.revision || !(await isChromiumAlreadyInstalled())) {
+            await cleanChromiumDirectory();
+            await downloadChromium(manifest.chromium.revision);
+        } else {
+            opLog.info("Chromium is already at the latest recommended revision");
+        }
     })
     //@ts-ignore
-    .command("get-chrome [dir]", "Downloads the latest chromium revision if one is not already installed", (_argv) => {
+    .command("get-chrome", "Downloads the latest chromium revision if one is not already installed", (_argv) => {
         yargs
-            .positional("dir", {
-                describe: "The root directory of the project",
-                default: "."
-            })
             .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#get-chrome");
         //@ts-ignore
     }, async function(argv) {
-        const directory = getDirectory(<string>argv.dir);
         const opLog = getOpLog();
-        if (isChromiumAlreadyInstalled(directory)) {
-            opLog.info("chromium already installed in .chromium, use update-chrome to update");
+        if (await isChromiumAlreadyInstalled()) {
+            opLog.info("chromium is already installed, use update-chrome to update");
         } else {
-            await cleanChromiumDirectory(directory);
-            await downloadLatestChromium(directory);
+            const manifest = await getManifest();
+            await cleanChromiumDirectory();
+            await downloadChromium(manifest.chromium.revision);
+        }
+    })
+    //@ts-ignore
+    .command("info", "System information", (_argv) => {
+        //@ts-ignore
+    }, async function(argv) {
+        const opLog = getOpLog();
+        opLog.info(`Ayakashi version: ${packageJson.version}`);
+        if (await isChromiumAlreadyInstalled()) {
+            const storedRevision = await getStoredRevision();
+            opLog.info(`Chromium revision: ${storedRevision}`);
+        } else {
+            opLog.info(`Chromium revision: none`);
         }
     })
     .demandCommand().recommendCommands().strict()

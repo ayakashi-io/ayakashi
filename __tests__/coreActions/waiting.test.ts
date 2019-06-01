@@ -3,9 +3,8 @@ import "jest-extended";
 //tslint:enable
 import http from "http";
 import {getInstance, IHeadlessChrome} from "../../src/engine/browser";
-import {getChromePath} from "../../src/chromeDownloader/downloader";
+import {getChromePath} from "../../src/store/chromium";
 import {createStaticServer} from "../utils/startServer";
-import {resolve as pathResolve} from "path";
 import {getRandomPort} from "../utils/getRandomPort";
 import {getAyakashiInstance} from "../utils/getAyakashiInstance";
 
@@ -21,7 +20,7 @@ jest.setTimeout(600000);
 describe("waiting tests", function() {
     let chromePath: string;
     beforeAll(async function() {
-        chromePath = getChromePath(pathResolve(".", "__tests__"));
+        chromePath = await getChromePath();
         staticServerPort = await getRandomPort();
         staticServer = createStaticServer(staticServerPort,
             `
