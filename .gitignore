@@ -3,5 +3,4 @@ npm-debug.log
 lib
 .directory
 coverage
-__tests__/.cache
 core_actions.json

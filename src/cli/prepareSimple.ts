@@ -3,7 +3,7 @@ import {getDirectory} from "./getDirectory";
 import {sep} from "path";
 import {Config} from "../runner/parseConfig";
 
-export function prepareSimple(file: string, out: string): {config: Config, directory: string} {
+export function prepareSimple(file: string, out: string): {config: Config, directory: string, scrapper: string} {
     const opLog = getOpLog();
     if (file === ".") {
         opLog.error("Simple mode requires a scrapper file as input");
@@ -53,6 +53,7 @@ export function prepareSimple(file: string, out: string): {config: Config, direc
                 }
             }]
         },
-        directory: directory
+        directory: directory,
+        scrapper: <string>scrapper
     };
 }

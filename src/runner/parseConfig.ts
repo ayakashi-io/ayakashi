@@ -365,6 +365,7 @@ export function createProcGenerators(
         protocolPort: number,
         projectFolder: string,
         operationId: string,
+        storeProjectFolder: string,
         startDate: string
     }
 ) {
@@ -410,6 +411,7 @@ function _createProcGenerators(
         bridgePort: number,
         protocolPort: number,
         projectFolder: string,
+        storeProjectFolder: string,
         operationId: string,
         startDate: string
     },
@@ -535,6 +537,7 @@ function addPreStep(
         bridgePort: number,
         protocolPort: number,
         projectFolder: string,
+        storeProjectFolder: string,
         operationId: string,
         startDate: string
     },
@@ -561,6 +564,7 @@ function addPreStep(
                             connectionConfig: ${JSON.stringify({bridgePort: options.bridgePort, protocolPort: options.protocolPort})},
                             saveTopic: "${step}",
                             projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
@@ -573,6 +577,7 @@ function addPreStep(
                             module: (obj && obj.module) || "",
                             saveTopic: "${step}",
                             projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
@@ -593,6 +598,7 @@ function addParallelPreStep(
         bridgePort: number,
         protocolPort: number,
         projectFolder: string,
+        storeProjectFolder: string,
         operationId: string,
         startDate: string
     },
@@ -620,6 +626,7 @@ function addParallelPreStep(
                                 connectionConfig: ${JSON.stringify({bridgePort: options.bridgePort, protocolPort: options.protocolPort})},
                                 saveTopic: "${step}",
                                 projectFolder: "${options.projectFolder}",
+                                storeProjectFolder: "${options.storeProjectFolder}",
                                 operationId: "${options.operationId}",
                                 startDate: "${options.startDate}",
                                 procName: "proc_from_pre_${step}_to_${step}",
@@ -632,6 +639,7 @@ function addParallelPreStep(
                                 module: (obj && obj.module) || "",
                                 saveTopic: "${step}",
                                 projectFolder: "${options.projectFolder}",
+                                storeProjectFolder: "${options.storeProjectFolder}",
                                 operationId: "${options.operationId}",
                                 startDate: "${options.startDate}",
                                 procName: "proc_from_pre_${step}_to_${step}",
@@ -663,6 +671,7 @@ function addParallelPreStep(
                             connectionConfig: ${JSON.stringify({bridgePort: options.bridgePort, protocolPort: options.protocolPort})},
                             saveTopic: "${step}",
                             projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
@@ -675,6 +684,7 @@ function addParallelPreStep(
                             module: (obj && obj.module) || "",
                             saveTopic: "${step}",
                             projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",

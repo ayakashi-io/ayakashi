@@ -46,16 +46,18 @@ yargs
         opLog.info("Ayakashi version:", packageJson.version);
         let directory: string;
         let config: Config;
+        let simpleScrapper = "";
         if (argv.simple) {
             const simple = prepareSimple(<string>argv.dir, <string>argv.out);
             config = simple.config;
             directory = simple.directory;
+            simpleScrapper = simple.scrapper;
         } else {
             const standard = prepareStandard(<string>argv.dir, <string>argv.configFile);
             config = standard.config;
             directory = standard.directory;
         }
-        run(directory, config).then(function() {
+        run(directory, config, simpleScrapper).then(function() {
             opLog.info("Nothing more to do!");
         }).catch(function(err) {
             opLog.error("Something went wrong", err);

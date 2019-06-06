@@ -21,14 +21,16 @@ import {
 import {downloadChromium} from "../chromeDownloader/downloader";
 import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
 import {getManifest} from "../store/manifest";
-
+import {getOrCreateStoreProjectFolder} from "../store/project";
 // import debug from "debug";
 // const d = debug("ayakashi:runner");
 
-export async function run(projectFolder: string, config: Config) {
+export async function run(projectFolder: string, config: Config, simpleScrapper?: string) {
     const opLog = getOpLog();
     let steps: (string | string[])[];
     let procGenerators: ProcGenerator[];
+    const storeProjectFolder =
+        await getOrCreateStoreProjectFolder(simpleScrapper ? `${projectFolder}/${simpleScrapper}` : projectFolder);
     try {
         steps = firstPass(config);
         checkStepLevels(steps);
@@ -37,6 +39,7 @@ export async function run(projectFolder: string, config: Config) {
             bridgePort: (config.config && config.config.bridgePort) || 9731,
             protocolPort: (config.config && config.config.protocolPort) || 9730,
             projectFolder: projectFolder,
+            storeProjectFolder: storeProjectFolder,
             operationId: uuid(),
             startDate: dayjs().format("YYYY-MM-DD-HH-mm-ss")
         });

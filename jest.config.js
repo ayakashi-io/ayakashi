@@ -14,8 +14,7 @@ module.exports = {
     ],
     "testPathIgnorePatterns": [
         "/node_modules/",
-        "/__tests__/utils/",
-        "/__tests__/.cache/"
+        "/__tests__/utils/"
     ],
     "testEnvironment": "node",
     "testURL": "http://localhost",

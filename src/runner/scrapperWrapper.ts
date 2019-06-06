@@ -45,6 +45,7 @@ type PassedLog = {
         },
         saveTopic: string,
         projectFolder: string,
+        storeProjectFolder: string,
         operationId: string,
         startDate: string,
         procName: string,
@@ -150,7 +151,7 @@ export default async function scrapperWrapper(log: PassedLog) {
             log.body.appRoot,
             `./lib/domQL/domQL`,
             "ayakashi",
-            `${log.body.projectFolder}/.cache/preloaders/`
+            `${log.body.storeProjectFolder}/.cache/preloaders/`
         );
         await connection.injectPreloader({compiled: domqlPreloader, as: "domQL", waitForDOM: false});
 
@@ -159,7 +160,7 @@ export default async function scrapperWrapper(log: PassedLog) {
             log.body.appRoot,
             `@ayakashi/get-node-selector`,
             "ayakashi",
-            `${log.body.projectFolder}/.cache/preloaders/`
+            `${log.body.storeProjectFolder}/.cache/preloaders/`
         );
         await connection.injectPreloader({
             compiled: findCssSelectorPreloader,
@@ -171,7 +172,7 @@ export default async function scrapperWrapper(log: PassedLog) {
             log.body.appRoot,
             "./lib/detection/patch",
             "ayakashi",
-            `${log.body.projectFolder}/.cache/preloaders/`
+            `${log.body.storeProjectFolder}/.cache/preloaders/`
         );
         await connection.injectPreloader({
             compiled: detectionPatches,
@@ -294,7 +295,8 @@ async function loadPreloaders(
         as: string | null,
         waitForDOM: boolean
     }[],
-    projectFolder: string
+    projectFolder: string,
+    storeProjectFolder: string
 ) {
     const opLog = getOpLog();
     const preloaders = await Promise.all(preloaderDefinitions.map(function(preloaderDefinition) {
@@ -303,7 +305,7 @@ async function loadPreloaders(
                 projectFolder,
                 preloaderDefinition.module,
                 "ayakashi",
-                `${projectFolder}/.cache/preloaders/`
+                `${storeProjectFolder}/.cache/preloaders/`
             ).then(function(compiled) {
                 resolve({
                     compiled: compiled,
@@ -359,7 +361,7 @@ async function loadExternals(
             }
             //@ts-ignore
         }).filter(preloader => !!preloader);
-        await loadPreloaders(connection, preloaderDefinitions, log.body.projectFolder);
+        await loadPreloaders(connection, preloaderDefinitions, log.body.projectFolder, log.body.storeProjectFolder);
     }
     //load external actions
     if (log.body.load.actions && Array.isArray(log.body.load.actions)) {
@@ -468,6 +470,11 @@ async function loadLocals(
                 waitForDOM: false
             };
         });
-        await loadPreloaders(connection, localPreloaderDefinitions, log.body.projectFolder);
+        await loadPreloaders(
+            connection,
+            localPreloaderDefinitions,
+            log.body.projectFolder,
+            log.body.storeProjectFolder
+        );
     }
 }
