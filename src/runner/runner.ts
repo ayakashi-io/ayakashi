@@ -60,7 +60,7 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
     }
     try {
         //launch chrome
-        const headlessChrome = await launch(config, projectFolder, chromePath);
+        const headlessChrome = await launch(config, storeProjectFolder, chromePath);
 
         //finalize systemProcs
         const procs = procGenerators.map(function(generator) {
@@ -109,7 +109,7 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
 }
 
 //tslint:disable cyclomatic-complexity
-async function launch(config: Config, projectFolder: string, chromePath: string) {
+async function launch(config: Config, storeProjectFolder: string, chromePath: string) {
     //check top level config options
     let headless = true;
     if (config.config && config.config.headless === false) {
@@ -165,7 +165,7 @@ async function launch(config: Config, projectFolder: string, chromePath: string)
         autoOpenDevTools: autoOpenDevTools,
         bridgePort: bridgePort,
         protocolPort: protocolPort,
-        sessionDir: persistentSession ? pathResolve(projectFolder, ".session") : undefined,
+        sessionDir: persistentSession ? pathResolve(storeProjectFolder, ".session") : undefined,
         proxyUrl: proxyUrl,
         windowHeight: windowHeight,
         windowWidth: windowWidth,
