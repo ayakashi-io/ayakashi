@@ -17,6 +17,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
@@ -52,6 +53,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
@@ -90,6 +92,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
@@ -125,6 +128,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
@@ -176,6 +180,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
@@ -243,6 +248,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
@@ -316,6 +322,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
@@ -386,6 +393,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
@@ -454,6 +462,7 @@ describe("createProcGenerators", function() {
             protocolPort: 1,
             bridgePort: 1,
             projectFolder: "",
+            storeProjectFolder: "",
             operationId: "",
             startDate: ""
         }).map((p) => {
