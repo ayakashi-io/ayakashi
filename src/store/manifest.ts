@@ -1,26 +1,38 @@
 import request from "request-promise-native";
 const packageJson = require("../../package.json");
 
-export async function getManifest() {
+type Manifest = {
+    chromium: {
+        revision: number
+    },
+    ayakashi: {
+        version: string
+    }
+};
+
+export async function getManifest(): Promise<Manifest> {
     //tslint:disable
-    const resp = await request
-        .get(`https://ayakashi.io/manifest.json?platform=${process.platform}&arch=${process.arch}&version=${packageJson.version}`);
-    if (resp) {
-        const parsedResp: {
-            chromium: {
-                revision: number
-            },
-            ayakashi: {
-                version: string
-            }
-        } = JSON.parse(resp);
-        if (parsedResp) {
-            return parsedResp;
-        } else {
-            throw new Error("Could not download manifest");
+    let manifest = {
+        chromium: {
+            revision: 0
+        },
+        ayakashi: {
+            version: "0.0.0"
         }
-    } else {
-        throw new Error("Could not download manifest");
+    };
+    try {
+        const resp = await request
+        .get(`https://ayakashi.io/manifest.json?platform=${process.platform}&arch=${process.arch}&version=${packageJson.version}&test=${process.env.NODE_ENV === "test"}`);
+        if (resp) {
+            try {
+                manifest = JSON.parse(resp);
+            } catch (_e) {}
+            return manifest;
+        } else {
+            return manifest;
+        }
+    } catch (_e) {
+        return manifest;
     }
     //tslint:enable
 }
