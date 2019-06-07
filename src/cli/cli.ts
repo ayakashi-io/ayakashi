@@ -16,6 +16,7 @@ import {generatePreloader} from "./scaffold/generatePreloader";
 import {generateScrapper} from "./scaffold/generateScrapper";
 import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
+import {showBoxUpdate, showLineUpdate} from "./update/showUpdate";
 const packageJson = require("../../package.json");
 
 yargs
@@ -44,6 +45,7 @@ yargs
     }, async function(argv) {
         const opLog = getOpLog();
         opLog.info("Ayakashi version:", packageJson.version);
+        await showLineUpdate();
         let directory: string;
         let config: Config;
         let simpleScrapper = "";
@@ -57,8 +59,9 @@ yargs
             config = standard.config;
             directory = standard.directory;
         }
-        run(directory, config, simpleScrapper).then(function() {
+        run(directory, config, simpleScrapper).then(async function() {
             opLog.info("Nothing more to do!");
+            await showBoxUpdate();
         }).catch(function(err) {
             opLog.error("Something went wrong", err);
             process.exit(1);
@@ -158,6 +161,8 @@ yargs
             }
             await generateScript(getDirectory(argv.dir), name);
         }
+
+        await showBoxUpdate();
     })
     //@ts-ignore
     .command("update-chrome", "Updates/Downloads the latest chromium revision", (_argv) => {
@@ -195,13 +200,14 @@ yargs
         //@ts-ignore
     }, async function(argv) {
         const opLog = getOpLog();
+        const storedRevision = await getStoredRevision();
         opLog.info(`Ayakashi version: ${packageJson.version}`);
         if (await isChromiumAlreadyInstalled()) {
-            const storedRevision = await getStoredRevision();
             opLog.info(`Chromium revision: ${storedRevision}`);
         } else {
             opLog.info(`Chromium revision: none`);
         }
+        await showBoxUpdate();
     })
     .demandCommand().recommendCommands().strict()
     .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html")

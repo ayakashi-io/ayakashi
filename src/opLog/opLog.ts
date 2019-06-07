@@ -30,19 +30,47 @@ export function getOpLog() {
                 spinner: "triangle"
             }).start();
         },
-        messageBox: function(logs: string[]) {
+        messageBox: function(logs: string[], opts?: {color?: string, margin?: number}) {
             if (env === "test") return;
             process.stdout.write(boxen(
                 logs.reduce((msg, log) => msg + log + "\n", ""),
                 {
-                    borderColor: "cyan",
+                    borderColor: (opts && opts.color) || "cyan",
                     align: "center",
                     padding: 1,
-                    borderStyle: boxen.BorderStyle.Double
-                    // margin: 1,
+                    borderStyle: boxen.BorderStyle.Double,
+                    margin: (opts && opts.margin) || 0
                     // float: "center"
                 }
             ) + "\n");
+        },
+        incrementalMessageBox: function(
+            opts?: {color?: string, margin?: number}
+        ): {_logs: string[], add: (text: string | string[]) => void, render: () => void} {
+            return {
+                _logs: [],
+                add: function(text) {
+                    if (Array.isArray(text)) {
+                        this._logs = this._logs.concat(text);
+                    } else {
+                        this._logs.push(text);
+                    }
+                },
+                render: function() {
+                    if (this._logs.length === 0) return;
+                    process.stdout.write(boxen(
+                        this._logs.reduce((msg, log) => msg + log + "\n", ""),
+                        {
+                            borderColor: (opts && opts.color) || "cyan",
+                            align: "center",
+                            padding: 1,
+                            borderStyle: boxen.BorderStyle.Double,
+                            margin: (opts && opts.margin) || 0
+                            // float: "center"
+                        }
+                    ) + "\n");
+                }
+            };
         }
     };
 }
