@@ -169,7 +169,8 @@ export interface IConnection {
 export async function createConnection(
     tab: ICDPTab,
     bridgePort: number,
-    emulatorOptions?: EmulatorOptions
+    emulatorOptions?: EmulatorOptions,
+    disabledBridge?: boolean
 ): Promise<IConnection> {
     try {
         d("creating new connection");
@@ -229,11 +230,13 @@ export async function createConnection(
                     // we don't need to focus the active target
                     // await client.Target.activateTarget({targetId: tab.id});
                     connection.active = true;
-                    await request.post(`http://localhost:${bridgePort}/connection_activated`, {
-                        json: {
-                            id: tab.id
-                        }
-                    });
+                    if (!disabledBridge) {
+                        await request.post(`http://localhost:${bridgePort}/connection_activated`, {
+                            json: {
+                                id: tab.id
+                            }
+                        });
+                    }
                     d("connection activated");
                 } catch (err) {
                     d(err);
@@ -269,11 +272,13 @@ export async function createConnection(
                             await client.close();
                         }
                         connection.active = false;
-                        await request.post(`http://localhost:${bridgePort}/connection_released`, {
-                            json: {
-                                id: tab.id
-                            }
-                        });
+                        if (!disabledBridge) {
+                            await request.post(`http://localhost:${bridgePort}/connection_released`, {
+                                json: {
+                                    id: tab.id
+                                }
+                            });
+                        }
                     });
                     d(`connection released: ${tab.id}`);
                 } catch (err) {
