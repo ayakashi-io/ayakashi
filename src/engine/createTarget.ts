@@ -5,7 +5,7 @@ export type Unsubscriber = () => void;
 const d = debug("ayakashi:engine:target");
 
 export type Target = {
-    tab: ICDPTab;
+    tab: ICDPTab | string;
     active: boolean;
     locked: boolean;
     lockedUntil: number;
@@ -24,16 +24,38 @@ export interface ICDPTab {
 
 export async function createTarget(
     host: string,
-    port: number
+    port: number,
+    options: {
+        isHeadless: boolean,
+        isPersistentSession: boolean
+    }
 ): Promise<Target> {
     d(`creating new target tab for host:${host} port:${port}`);
-    const tab: ICDPTab = await CDP.New({host: host, port: port});
-
-    return {
-        tab: tab,
-        active: false,
-        locked: false,
-        lockedUntil: 0,
-        close: () => CDP.Close({host: host, port: port, id: tab.id})
-    };
+    if (!options.isHeadless || options.isPersistentSession) {
+        const tab: ICDPTab = await CDP.New({host: host, port: port});
+        return {
+            tab: tab,
+            active: false,
+            locked: false,
+            lockedUntil: 0,
+            close: () => CDP.Close({host: host, port: port, id: tab.id})
+        };
+    } else {
+        const {webSocketDebuggerUrl} = await CDP.Version({host, port});
+        const browser = await CDP({
+            target: webSocketDebuggerUrl || `ws://${host}:${port}/devtools/browser`
+        });
+        const {browserContextId} = await browser.Target.createBrowserContext();
+        const {targetId} = await browser.Target.createTarget({
+            url: "about:blank",
+            browserContextId
+        });
+        return {
+            tab: `ws://${host}:${port}/devtools/page/${targetId}`,
+            active: false,
+            locked: false,
+            lockedUntil: 0,
+            close: () => CDP.Close({host: host, port: port, id: targetId})
+        };
+    }
 }

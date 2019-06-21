@@ -44,6 +44,7 @@ type PassedLog = {
             protocolPort: number
         },
         saveTopic: string,
+        selfTopic: string,
         projectFolder: string,
         storeProjectFolder: string,
         operationId: string,
@@ -143,6 +144,22 @@ export default async function scrapperWrapper(log: PassedLog) {
                 await Promise.all(extracted.map(ex => {
                     return ayakashiInstance.yield(ex);
                 }));
+            }
+        };
+        ayakashiInstance.recursiveYield = async function(extracted) {
+            if (extracted instanceof Promise) {
+                const actualExtracted = await extracted;
+                if (!actualExtracted || typeof actualExtracted !== "object") return;
+                await pipeprocClient.commit({
+                    topic: log.body.selfTopic,
+                    body: actualExtracted
+                });
+            } else {
+                if (!extracted || typeof extracted !== "object") return;
+                await pipeprocClient.commit({
+                    topic: log.body.selfTopic,
+                    body: extracted
+                });
             }
         };
 

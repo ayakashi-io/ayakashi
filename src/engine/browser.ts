@@ -46,6 +46,8 @@ export function getInstance(): IHeadlessChrome {
     let BRIDGE_PORT: number;
     const targetOpQueue: TargetOpQueue = [];
     const targetOpQueueSignal = {stop: false};
+    let isHeadless = true;
+    let isPersistentSession = false;
     startTargetManager(targetOpQueueSignal, targetOpQueue);
     const opLog = getOpLog();
     return {
@@ -74,6 +76,8 @@ export function getInstance(): IHeadlessChrome {
             if (!this.chromeInstance) {
                 throw new Error("chrome_not_launched");
             }
+            isHeadless = options.headless !== false;
+            isPersistentSession = !!options.sessionDir;
             try {
                 BRIDGE_PORT = options.bridgePort;
                 this.bridge = await startBridge(this, BRIDGE_PORT);
@@ -94,7 +98,11 @@ export function getInstance(): IHeadlessChrome {
                 if (this.chromeInstance) {
                     const target = await createTarget(
                         HOST,
-                        this.chromeInstance.port
+                        this.chromeInstance.port,
+                        {
+                            isHeadless: isHeadless,
+                            isPersistentSession: isPersistentSession
+                        }
                     );
                     if (!target) throw new Error("cannot_kill_chrome_instance");
                     const connection = await createConnection(target.tab, BRIDGE_PORT);
@@ -182,7 +190,11 @@ export function getInstance(): IHeadlessChrome {
                             try {
                                 const target = await createTarget(
                                     HOST,
-                                    self.chromeInstance.port
+                                    self.chromeInstance.port,
+                                    {
+                                        isHeadless: isHeadless,
+                                        isPersistentSession: isPersistentSession
+                                    }
                                 );
                                 target.locked = true;
                                 target.lockedUntil = Date.now() + 10000;
