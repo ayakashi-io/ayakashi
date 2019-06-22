@@ -153,9 +153,78 @@ describe("launcher tests", function() {
         await connection2.activate();
         await connection2.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
         await connection2.client.Page.loadEventFired();
-        const result = await connection2.evaluate<string>(function() {
+        const result = await connection2.evaluate<string | null>(function() {
             return localStorage.getItem("hello");
         });
+        await connection2.release();
+        expect(result).toBe("hello");
+    });
+
+    test("browserContexts are isolated", async function() {
+        headlessChrome = getInstance();
+        const bridgePort = await getRandomPort();
+        await headlessChrome.init({
+            chromePath: chromePath,
+            bridgePort: bridgePort,
+            protocolPort: await getRandomPort()
+        });
+        const target = await headlessChrome.createTarget();
+        if (!target) throw new Error("no_target");
+        const connection = await createConnection(target, bridgePort);
+        if (!connection) throw new Error("jest_connection_not_created");
+        await connection.activate();
+        await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
+        await connection.client.Page.loadEventFired();
+        await connection.evaluate(function() {
+            localStorage.setItem("hello", "hello");
+        });
+        const target2 = await headlessChrome.createTarget();
+        if (!target2) throw new Error("no_target");
+        const connection2 = await createConnection(target2, bridgePort);
+        if (!connection2) throw new Error("jest_connection_not_created");
+        await connection2.activate();
+        await connection2.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
+        await connection2.client.Page.loadEventFired();
+        const result = await connection2.evaluate<string | null>(function() {
+            return localStorage.getItem("hello");
+        });
+        await connection.release();
+        await connection2.release();
+        expect(result).toBeNull();
+    });
+
+    test("when not using browserContexts, the context is shared", async function() {
+        headlessChrome = getInstance();
+        const bridgePort = await getRandomPort();
+        const sessionDir = mkdtempSync(join(tmpdir(), "ayakashi-test-session."));
+        await headlessChrome.init({
+            chromePath: chromePath,
+            //by using a sessionDir we are not using isolated contexts
+            sessionDir: sessionDir,
+            bridgePort: bridgePort,
+            protocolPort: await getRandomPort()
+        });
+        const target = await headlessChrome.createTarget();
+        if (!target) throw new Error("no_target");
+        const connection = await createConnection(target, bridgePort);
+        if (!connection) throw new Error("jest_connection_not_created");
+        await connection.activate();
+        await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
+        await connection.client.Page.loadEventFired();
+        await connection.evaluate(function() {
+            localStorage.setItem("hello", "hello");
+        });
+        const target2 = await headlessChrome.createTarget();
+        if (!target2) throw new Error("no_target");
+        const connection2 = await createConnection(target2, bridgePort);
+        if (!connection2) throw new Error("jest_connection_not_created");
+        await connection2.activate();
+        await connection2.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
+        await connection2.client.Page.loadEventFired();
+        const result = await connection2.evaluate<string | null>(function() {
+            return localStorage.getItem("hello");
+        });
+        await connection.release();
         await connection2.release();
         expect(result).toBe("hello");
     });
