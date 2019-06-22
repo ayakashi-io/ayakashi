@@ -1,6 +1,5 @@
 import debug from "debug";
 import {ICDPClient} from "./createConnection";
-export type Unsubscriber = () => void;
 
 const d = debug("ayakashi:engine:target");
 

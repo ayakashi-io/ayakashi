@@ -1,6 +1,6 @@
 const CDP = require("chrome-remote-interface");
 import debug from "debug";
-import {Unsubscriber, Target} from "./createTarget";
+import {Target} from "./createTarget";
 import {isRegExp} from "util";
 //@ts-ignore
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
@@ -9,6 +9,8 @@ import {ExponentialStrategy} from "backoff";
 import request from "request-promise-native";
 
 const d = debug("ayakashi:engine:connection");
+
+type Unsubscriber = () => void;
 
 /**
  * Emulation options for the scrapper to use.
