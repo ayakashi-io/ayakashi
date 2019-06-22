@@ -58,14 +58,14 @@ describe("target/connection tests", function() {
     test("it can create targets and connections", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         expect(connection).not.toBeNull();
     });
 
     test("it can load a page", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
@@ -80,7 +80,7 @@ describe("target/connection tests", function() {
     test("it can pass arguments to evaluate", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
@@ -95,7 +95,7 @@ describe("target/connection tests", function() {
     test("it can evaluate async expressions", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
@@ -114,7 +114,7 @@ describe("target/connection tests", function() {
     test("it should throw an error if evaluate throws an error", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
@@ -130,7 +130,7 @@ describe("target/connection tests", function() {
     test("it should throw an error if evaluateAsync returns a rejected promise", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
@@ -147,21 +147,10 @@ describe("target/connection tests", function() {
         await connection.release();
     });
 
-    test("it can manage targets", async function() {
-        const target = await headlessChrome.createTarget();
-        if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
-        if (!connection) throw new Error("jest_connection_not_created");
-        await connection.activate();
-        expect(await headlessChrome.getAvailableTarget()).toBeNull();
-        await connection.release();
-        expect(await headlessChrome.getAvailableTarget()).not.toBeNull();
-    });
-
     test("it should throw if evaluate is used on an inactive connection", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
@@ -177,7 +166,7 @@ describe("target/connection tests", function() {
     test("it should throw if an inactive connection is released", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         expect((async function() {
             await connection.release();
@@ -187,7 +176,7 @@ describe("target/connection tests", function() {
     test("it should throw if an already active connection is activated", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         expect((async function() {
@@ -196,40 +185,10 @@ describe("target/connection tests", function() {
         await connection.release();
     });
 
-    test("it should be able to collect dead targets", async function() {
-        const target = await headlessChrome.createTarget();
-        if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
-        if (!connection) throw new Error("jest_connection_not_created");
-        await connection.activate();
-        const target2 = await headlessChrome.createTarget();
-        if (!target2) throw new Error("no_target");
-        const connection2 = await createConnection(target2.tab, bridgePort);
-        if (!connection2) throw new Error("jest_connection_not_created");
-        await connection2.activate();
-        expect(headlessChrome.targets).toBeArrayOfSize(2);
-        await connection.release();
-        await headlessChrome.collectDeadTargets();
-        expect(headlessChrome.targets).toBeArrayOfSize(1);
-    });
-
-    test("it should throw if maxTargets is reached", async function() {
-        headlessChrome.maxTargets = 1;
-        const target = await headlessChrome.createTarget();
-        if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
-        if (!connection) throw new Error("jest_connection_not_created");
-        expect((async function() {
-            const target2 = await headlessChrome.createTarget();
-            if (!target2) throw new Error("no_target");
-            await createConnection(target2.tab, bridgePort);
-        })()).rejects.toThrowError("max_targets_reached");
-    });
-
     test("it can inject preloaders", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.injectPreloader({
             compiled: {
@@ -253,7 +212,7 @@ describe("target/connection tests", function() {
     test("it should throw if a preloader is injected into an active connection", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
@@ -274,7 +233,7 @@ describe("target/connection tests", function() {
     test("it can pipe console.log", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         connection.pipe.console(function(text) {
             expect(text).toBe("hi there!");
@@ -291,7 +250,7 @@ describe("target/connection tests", function() {
     test("it can pipe uncaughtException", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         connection.pipe.uncaughtException(function(exception) {
             expect(exception.text).toMatch("my test error");
@@ -313,7 +272,7 @@ describe("target/connection tests", function() {
     test("it should throw an error if an event is piped into an active connection", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         expect((async function() {

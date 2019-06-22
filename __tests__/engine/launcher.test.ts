@@ -84,7 +84,7 @@ describe("launcher tests", function() {
         });
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         await connection.activate();
         await connection.client.Page.navigate({url: "https://expired.badssl.com/"});
         await connection.client.Page.loadEventFired();
@@ -106,7 +106,7 @@ describe("launcher tests", function() {
         });
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
         await connection.client.Page.loadEventFired();
@@ -129,7 +129,7 @@ describe("launcher tests", function() {
         });
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
-        const connection = await createConnection(target.tab, bridgePort);
+        const connection = await createConnection(target, bridgePort);
         if (!connection) throw new Error("jest_connection_not_created");
         await connection.activate();
         await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
@@ -148,7 +148,7 @@ describe("launcher tests", function() {
         });
         const target2 = await headlessChrome.createTarget();
         if (!target2) throw new Error("no_target");
-        const connection2 = await createConnection(target2.tab, bridgePort);
+        const connection2 = await createConnection(target2, bridgePort);
         if (!connection2) throw new Error("jest_connection_not_created");
         await connection2.activate();
         await connection2.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
