@@ -1,12 +1,12 @@
 const CDP = require("chrome-remote-interface");
 import debug from "debug";
-import {Unsubscriber, ICDPTab} from "./createTarget";
+import {Unsubscriber, Target} from "./createTarget";
 import {isRegExp} from "util";
-import request from "request-promise-native";
 //@ts-ignore
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
 import {retry as asyncRetry} from "async";
 import {ExponentialStrategy} from "backoff";
+import request from "request-promise-native";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -29,7 +29,7 @@ export type EmulatorOptions = {
     deviceScaleFactor: 0
 };
 
-interface ICDPClient {
+export interface ICDPClient {
     _ws: {
         readyState: 1 | 2 | 3
     };
@@ -77,7 +77,11 @@ interface ICDPClient {
         setVisibleSize: (size: {width: EmulatorOptions["width"], height: EmulatorOptions["height"]}) => void;
     };
     Target: {
+        createTarget: (options: {url: string, browserContextId?: string}) => Promise<{targetId: string}>;
         activateTarget: (options: {targetId: string}) => Promise<void>;
+        closeTarget: (options: {targetId: string}) => Promise<void>;
+        createBrowserContext: () => Promise<{browserContextId: string}>;
+        disposeBrowserContext: (options: {browserContextId: string}) => Promise<void>;
     };
     Runtime: {
         enable: () => Promise<void>;
@@ -101,7 +105,7 @@ interface ICDPClient {
 
 export interface IConnection {
     client: ICDPClient;
-    tab: ICDPTab;
+    target: Target;
     active: boolean;
     preloaderIds: object[];
     preloaders: string[];
@@ -167,15 +171,15 @@ export interface IConnection {
 }
 
 export async function createConnection(
-    tab: ICDPTab,
+    target: Target,
     bridgePort: number,
     emulatorOptions?: EmulatorOptions,
     disabledBridge?: boolean
 ): Promise<IConnection> {
     try {
-        d("creating new connection");
+        d("creating new connection", target.targetId);
         const client: ICDPClient = await retryOnErrorOrTimeOut<ICDPClient>(async function() {
-            const _client: ICDPClient = await CDP({target: tab});
+            const _client: ICDPClient = await CDP({target: target.webSocketDebuggerUrl});
             await Promise.all([
                 _client.Network.enable(),
                 _client.Page.enable(),
@@ -211,7 +215,7 @@ export async function createConnection(
         const _mouse = new Mouse(client, _keyBoard);
         const _touchScreen = new Touchscreen(client, _keyBoard);
         const connection: IConnection = {
-            tab,
+            target,
             client,
             namespace: "",
             active: false,
@@ -224,27 +228,13 @@ export async function createConnection(
             mouse: _mouse,
             touchScreen: _touchScreen,
             activate: async function() {
-                d(`activating connection: ${tab.id}`);
+                d(`activating connection`);
                 if (connection.active) throw new Error("connection_already_active");
-                try {
-                    // we don't need to focus the active target
-                    // await client.Target.activateTarget({targetId: tab.id});
-                    connection.active = true;
-                    if (!disabledBridge) {
-                        await request.post(`http://localhost:${bridgePort}/connection_activated`, {
-                            json: {
-                                id: tab.id
-                            }
-                        });
-                    }
-                    d("connection activated");
-                } catch (err) {
-                    d(err);
-                    throw new Error("could_not_activate_connection");
-                }
+                connection.active = true;
+                d("connection activated");
             },
             release: async function() {
-                d(`releasing connection: ${tab.id}`);
+                d(`releasing connection`);
                 if (!connection.active) throw new Error("connection_not_active");
                 try {
                     await retryOnErrorOrTimeOut<void>(async function() {
@@ -266,21 +256,20 @@ export async function createConnection(
                         connection.timeouts = [];
                         connection.intervals = [];
                         if (client && client._ws && client._ws.readyState !== 3) {
-                            await connection.client.Page.stopLoading();
-                            await connection.client.Page.navigate({url: "about:blank"});
-                            await connection.client.Page.domContentEventFired();
+                            d("closing client");
                             await client.close();
                         }
-                        connection.active = false;
                         if (!disabledBridge) {
                             await request.post(`http://localhost:${bridgePort}/connection_released`, {
                                 json: {
-                                    id: tab.id
+                                    targetId: target.targetId,
+                                    browserContextId: target.browserContextId
                                 }
                             });
                         }
+                        connection.active = false;
                     });
-                    d(`connection released: ${tab.id}`);
+                    d(`connection released`);
                 } catch (err) {
                     d(err);
                     throw new Error("could_not_release_connection");
@@ -303,11 +292,11 @@ export async function createConnection(
                 connection.preloaderIds.push(scriptId);
             },
             evaluate: async function(fn, ...args) {
-                d(`evaluating expression on connection: ${tab.id}`);
+                d(`evaluating expression on connection`);
                 return evaluate(this, false, fn, args);
             },
             evaluateAsync: async function(fn, ...args) {
-                d(`evaluating async expression on connection: ${tab.id}`);
+                d(`evaluating async expression on connection`);
                 return evaluate(this, true, fn, args);
             },
             injectPreloader: async function({compiled: {wrapper, source}, as, waitForDOM}) {

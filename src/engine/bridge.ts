@@ -11,20 +11,11 @@ export function startBridge(browser: IHeadlessChrome, port: number): Promise<Ser
     const app = Express();
     app.use(bodyParser.json());
 
-    app.post("/get_available_target", async function(_req, res) {
-        const target = await browser.getAvailableTarget();
-        if (target) {
-            res.json({ok: true, tab: target.tab});
-        } else {
-            res.json({ok: false, msg: "no_available_target"});
-        }
-    });
-
     app.post("/create_target", async function(_req, res) {
         try {
             const target = await browser.createTarget();
             if (target) {
-                res.json({ok: true, tab: target.tab});
+                res.json({ok: true, target: target});
             } else {
                 res.json({ok: false, msg: "no_available_target"});
             }
@@ -33,34 +24,13 @@ export function startBridge(browser: IHeadlessChrome, port: number): Promise<Ser
         }
     });
 
-    app.post("/collect_dead_targets", async function(_req, res) {
+    app.post("/connection_released", async function(req, res) {
         try {
-            await browser.collectDeadTargets();
+            await browser.destroyTarget(req.body.targetId, req.body.browserContextId);
             res.json({ok: true});
         } catch (e) {
-            res.json({ok: false, msg: e.message});
-        }
-    });
-
-    app.post("/connection_activated", function(req, res) {
-        const target = browser.targets.find(trg => trg.tab.id === req.body.id);
-        if (target) {
-            target.active = true;
-            res.json({ok: true});
-        } else {
-            res.json({ok: false, msg: "invalid_target"});
-        }
-    });
-
-    app.post("/connection_released", function(req, res) {
-        const target = browser.targets.find(trg => trg.tab.id === req.body.id);
-        if (target) {
-            target.active = false;
-            target.locked = false;
-            target.lockedUntil = 0;
-            res.json({ok: true});
-        } else {
-            res.json({ok: false, msg: "invalid_target"});
+            d(e);
+            res.json({ok: false, msg: "could_not_destory_target"});
         }
     });
 

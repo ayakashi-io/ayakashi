@@ -1,6 +1,6 @@
 import request from "request-promise-native";
 import {createConnection, EmulatorOptions, IConnection} from "../engine/createConnection";
-import {ICDPTab} from "../engine/createTarget";
+import {Target} from "../engine/createTarget";
 import {prelude, IAyakashiInstance} from "../prelude/prelude";
 //@ts-ignore
 import requireAll from "require-all";
@@ -249,60 +249,19 @@ export default async function scrapperWrapper(log: PassedLog) {
     }
 }
 
-async function getTarget(port: number): Promise<ICDPTab | null> {
-    let tab;
-    tab = await getAvailableTarget(port);
-    if (tab) {
-        return tab;
-    } else {
-        tab = await createTarget(port);
-    }
-    if (tab) {
-        return tab;
-    } else {
-        await collectDeadTargets(port);
-        tab = await createTarget(port);
-    }
-    if (tab) {
-        return tab;
-    } else {
-        return null;
-    }
-}
-
-async function getAvailableTarget(port: number): Promise<ICDPTab | null> {
-    const resp = await request.post(`http://localhost:${port}/get_available_target`);
-    d("bridge response:", resp);
-    if (resp) {
-        const parsedResp = JSON.parse(resp);
-        if (parsedResp.ok) {
-            return parsedResp.tab;
-        } else {
-            return null;
-        }
-    } else {
-        return null;
-    }
-}
-
-async function createTarget(port: number): Promise<ICDPTab | null> {
+async function getTarget(port: number): Promise<Target | null> {
     const resp = await request.post(`http://localhost:${port}/create_target`);
     d("bridge response:", resp);
     if (resp) {
         const parsedResp = JSON.parse(resp);
         if (parsedResp.ok) {
-            return parsedResp.tab;
+            return parsedResp.target;
         } else {
             return null;
         }
     } else {
         return null;
     }
-}
-
-async function collectDeadTargets(port: number): Promise<void> {
-    const resp = request.post(`http://localhost:${port}/collect_dead_targets`);
-    d("bridge response:", resp);
 }
 
 async function loadPreloaders(
