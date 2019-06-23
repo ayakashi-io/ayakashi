@@ -563,7 +563,7 @@ function addPreStep(
                 //tslint:disable max-line-length
                 processor: new Function("log", `
                     const obj = ${JSON.stringify(getObjectReference(config, step))};
-                    if (obj.type === "scrapper" || obj.type === "renderlessScrapper") {
+                    if (obj.type === "scrapper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},
@@ -579,6 +579,25 @@ function addPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousStep}",
                             appRoot: "${appRoot}"
+                        });
+                    } else if (obj.type === "renderlessScrapper") {
+                        return Promise.resolve({
+                            input: log.body,
+                            config: (obj && obj.config) || {},
+                            params: (obj && obj.params) || {},
+                            load: (obj && obj.load) || {},
+                            module: (obj && obj.module) || "",
+                            saveTopic: "${step}",
+                            projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
+                            operationId: "${options.operationId}",
+                            startDate: "${options.startDate}",
+                            procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousStep}",
+                            appRoot: "${appRoot}",
+                            userAgent: "${(config.config && config.config.userAgent) || ""}",
+                            proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                            ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
                     } else {
                         return Promise.resolve({
@@ -627,7 +646,7 @@ function addParallelPreStep(
                     //tslint:disable max-line-length
                     processor: new Function("log", `
                         const obj = ${JSON.stringify(getObjectReference(config, step))};
-                        if (obj.type === "scrapper" || obj.type === "renderlessScrapper") {
+                        if (obj.type === "scrapper") {
                             return Promise.resolve({
                                 input: log.body,
                                 config: (obj && obj.config) || {},
@@ -643,6 +662,25 @@ function addParallelPreStep(
                                 procName: "proc_from_pre_${step}_to_${step}",
                                 selfTopic: "${ppst}",
                                 appRoot: "${appRoot}"
+                            });
+                        } else if (obj.type === "renderlessScrapper") {
+                            return Promise.resolve({
+                                input: log.body,
+                                config: (obj && obj.config) || {},
+                                params: (obj && obj.params) || {},
+                                load: (obj && obj.load) || {},
+                                module: (obj && obj.module) || "",
+                                saveTopic: "${step}",
+                                projectFolder: "${options.projectFolder}",
+                                storeProjectFolder: "${options.storeProjectFolder}",
+                                operationId: "${options.operationId}",
+                                startDate: "${options.startDate}",
+                                procName: "proc_from_pre_${step}_to_${step}",
+                                selfTopic: "${ppst}",
+                                appRoot: "${appRoot}",
+                                userAgent: "${(config.config && config.config.userAgent) || ""}",
+                                proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                                ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                             });
                         } else {
                             return Promise.resolve({
@@ -674,7 +712,7 @@ function addParallelPreStep(
                 //tslint:disable max-line-length
                 processor: new Function("log", `
                     const obj = ${JSON.stringify(getObjectReference(config, step))};
-                    if (obj.type === "scrapper" || obj.type === "renderlessScrapper") {
+                    if (obj.type === "scrapper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},
@@ -690,6 +728,25 @@ function addParallelPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousPreviousStep}",
                             appRoot: "${appRoot}"
+                        });
+                    } else if (obj.type === "renderlessScrapper") {
+                        return Promise.resolve({
+                            input: log.body,
+                            config: (obj && obj.config) || {},
+                            params: (obj && obj.params) || {},
+                            load: (obj && obj.load) || {},
+                            module: (obj && obj.module) || "",
+                            saveTopic: "${step}",
+                            projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
+                            operationId: "${options.operationId}",
+                            startDate: "${options.startDate}",
+                            procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousPreviousStep}",
+                            appRoot: "${appRoot}",
+                            userAgent: "${(config.config && config.config.userAgent) || ""}",
+                            proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                            ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
                     } else {
                         return Promise.resolve({

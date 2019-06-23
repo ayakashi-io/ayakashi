@@ -26,7 +26,7 @@ export interface IRenderlessAyakashiInstance {
     yieldEach: IAyakashiInstance["yieldEach"];
     recursiveYield: IAyakashiInstance["recursiveYield"];
     page: JSDOM;
-    load: (url: string) => Promise<void>;
+    load: (url: string, timeout?: number) => Promise<void>;
     attachDOM: (dom: JSDOM) => void;
 }
 

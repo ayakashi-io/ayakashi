@@ -1,9 +1,13 @@
 import request from "request-promise-native";
 import {resolve as pathResolve} from "path";
 import {JSDOM} from "jsdom";
+//@ts-ignore
+import UserAgent from "user-agents";
 import {PipeProc} from "pipeproc";
 import {renderlessPrelude} from "../prelude/renderlessPrelude";
 import {getOpLog} from "../opLog/opLog";
+import debug from "debug";
+const d = debug("ayakashi:renderlessScrapperWrapper");
 
 type PassedLog = {
     id: string,
@@ -26,10 +30,6 @@ type PassedLog = {
             }[]
         },
         module: string,
-        connectionConfig: {
-            bridgePort: number,
-            protocolPort: number
-        },
         saveTopic: string,
         selfTopic: string,
         projectFolder: string,
@@ -37,7 +37,10 @@ type PassedLog = {
         operationId: string,
         startDate: string,
         procName: string,
-        appRoot: string
+        appRoot: string,
+        userAgent?: string,
+        proxyUrl?: string,
+        ignoreCertificateErrors: boolean
     }
 };
 
@@ -47,9 +50,37 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
 
     const ayakashiInstance = await renderlessPrelude();
 
-    ayakashiInstance.load = async function(url) {
-        const html = await request.get(url);
-        this.attachDOM(new JSDOM(html));
+    ayakashiInstance.load = async function(url, timeout) {
+        let userAgent = "";
+        if (!log.body.userAgent || log.body.userAgent === "random") {
+            userAgent = new UserAgent();
+        }
+        if (log.body.userAgent && log.body.userAgent === "desktop") {
+            userAgent = new UserAgent({deviceCategory: "desktop"});
+        }
+        if (log.body.userAgent && log.body.userAgent === "mobile") {
+            userAgent = new UserAgent({deviceCategory: "mobile"});
+        }
+        d("loading url: ", url);
+        const html = await request.get(url, {
+            headers: {
+                "User-Agent": userAgent.toString(),
+                Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+                "accept-language": "en-US,en;q=0.9"
+            },
+            proxy: log.body.proxyUrl || undefined,
+            strictSSL: !log.body.ignoreCertificateErrors,
+            timeout: timeout || 10000,
+            gzip: true
+        });
+        d("url loaded");
+        d("building DOM");
+        if (html) {
+            this.attachDOM(new JSDOM(html));
+        } else {
+            throw new Error("Invalid page");
+        }
+        d("DOM built");
     };
     //connect to pipeproc
     const pipeprocClient = PipeProc();
