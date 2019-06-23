@@ -1,7 +1,8 @@
 import {IAyakashiInstance} from "../prelude/prelude";
+import {IRenderlessAyakashiInstance} from "../prelude/renderlessPrelude";
 import {ExtractorFn} from "../prelude/actions/extract";
 
-export function attachCoreExtractors(ayakashiInstance: IAyakashiInstance) {
+export function attachCoreExtractors(ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance) {
     ayakashiInstance.registerExtractor("text", function() {
         return {
             extract: function(element): string | null {

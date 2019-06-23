@@ -1,4 +1,5 @@
 import {IAyakashiInstance} from "../prelude";
+import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {retry as asyncRetry} from "async";
 import {ExponentialStrategy} from "backoff";
 import {getOpLog} from "../../opLog/opLog";
@@ -6,7 +7,7 @@ import {sep} from "path";
 // import debug from "debug";
 // const d = debug("ayakashi:prelude:retry");
 
-export function attachRetry(ayakashiInstance: IAyakashiInstance) {
+export function attachRetry(ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance) {
     const opLog = getOpLog();
 
     ayakashiInstance.retry = async function(task, retries = 10) {

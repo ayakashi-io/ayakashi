@@ -1,5 +1,6 @@
 import {IDomProp} from "../query/query";
 import {IAyakashiInstance} from "../prelude";
+import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {isRegExp} from "util";
 
 //tslint:disable no-any
@@ -18,7 +19,7 @@ export type Extractable =
     [string | RegExp, any];
 //tslint:enable no-any
 
-export function attachExtract(ayakashiInstance: IAyakashiInstance) {
+export function attachExtract(ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance) {
     ayakashiInstance.extract =
     async function(
         propId: string | IDomProp,
@@ -41,7 +42,7 @@ export function attachExtract(ayakashiInstance: IAyakashiInstance) {
 }
 
 async function recursiveExtract(
-    ayakashiInstance: IAyakashiInstance,
+    ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
     extractable: Extractable,
     prop: IDomProp
 //tslint:disable no-any

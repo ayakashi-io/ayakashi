@@ -1,9 +1,11 @@
 import {Where, Query} from "../../domQL/domQL";
 import {IAyakashiInstance} from "../prelude";
+import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {getOpLog} from "../../opLog/opLog";
 import {v4 as uuid} from "uuid";
 
 import debug from "debug";
+import {DOMWindow} from "jsdom";
 const d = debug("ayakashi:prelude:query");
 
 export interface IDomProp {
@@ -228,15 +230,17 @@ while (await next.hasMatches()) {
     hasMatches: () => Promise<boolean>;
 }
 export function createQuery(
-    ayakashiInstance: IAyakashiInstance,
-    opts?: {
+    ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
+    opts: {
         propId?: string,
-        triggerFn?: () => Promise<number>
+        triggerFn?: () => Promise<number>,
+        window?: DOMWindow
     }
 ): IDomProp {
     const opLog = getOpLog();
     const query: Partial<Query> = {};
     let triggered = false;
+    const window = opts.window;
     return {
         $$prop: Symbol("AyakashiProp"),
         id: (opts && opts.propId) || `prop_${uuid()}`,
@@ -325,14 +329,17 @@ export function createQuery(
                                 parentMatches.forEach((parentEl) => {
                                     matches = matches.concat(
                                         Array.from(
-                                            this.preloaders.domQL.domQuery(scopedQuery, {scope: parentEl})
+                                            this.preloaders.domQL.domQuery(scopedQuery, {
+                                                scope: parentEl,
+                                                env: window
+                                            })
                                         )
                                     );
                                 });
                             }
                         });
                     } else {
-                        matches = Array.from(this.preloaders.domQL.domQuery(scopedQuery));
+                        matches = Array.from(this.preloaders.domQL.domQuery(scopedQuery, {env: window}));
                     }
                     this.propTable[scopedId] = {
                         matches: matches
@@ -357,13 +364,13 @@ export function createQuery(
             return this;
         },
         selectChildren: function(childPropId) {
-            const childQuery = createQuery(ayakashiInstance, {propId: childPropId}).from(this);
+            const childQuery = createQuery(ayakashiInstance, {propId: childPropId, window: window}).from(this);
             ayakashiInstance.propRefs[childQuery.id] = childQuery;
             d(`registering prop: ${childQuery.id}`);
             return childQuery;
         },
         selectChild: function(childPropId) {
-            const childQuery = createQuery(ayakashiInstance, {propId: childPropId}).from(this);
+            const childQuery = createQuery(ayakashiInstance, {propId: childPropId, window: window}).from(this);
             childQuery.limit(1);
             ayakashiInstance.propRefs[childQuery.id] = childQuery;
             d(`registering prop: ${childQuery.id}`);
@@ -373,7 +380,7 @@ export function createQuery(
             return this.selectChild(childPropId);
         },
         selectLastChild: function(childPropId) {
-            const childQuery = createQuery(ayakashiInstance, {propId: childPropId}).from(this);
+            const childQuery = createQuery(ayakashiInstance, {propId: childPropId, window: window}).from(this);
             childQuery.limit(1);
             childQuery.order("desc");
             ayakashiInstance.propRefs[childQuery.id] = childQuery;

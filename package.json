@@ -55,7 +55,6 @@
     "eslint-config-google": "~0.11.0",
     "jest": "~23.6.0",
     "jest-extended": "~0.11.0",
-    "jsdom": "~13.1.0",
     "prettier": "~1.15.3",
     "ts-jest": "~23.10.5",
     "tslint": "~5.12.1",
@@ -99,7 +98,8 @@
     "tedious": "~5.0.3",
     "user-agents": "~1.0.186",
     "uuid": "~3.3.2",
-    "yargs": "~13.2.2"
+    "yargs": "~13.2.2",
+    "jsdom": "~13.1.0"
   },
   "scripts": {
     "clean": "tsc --build --clean",

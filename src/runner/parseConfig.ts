@@ -125,7 +125,7 @@ export type Config = {
         /**
          * The type of the step.
          */
-        type: "scrapper" | "script",
+        type: "scrapper" | "renderlessScrapper" | "script",
         /**
          * The name of the module.
          */
@@ -149,7 +149,7 @@ export type Config = {
             /**
              * The type of the step.
              */
-            type: "scrapper" | "script",
+            type: "scrapper" | "renderlessScrapper" | "script",
             /**
              * The name of the module.
              */
@@ -175,7 +175,7 @@ export type Config = {
         /**
          * The type of the step.
          */
-        type: "scrapper" | "script",
+        type: "scrapper" | "renderlessScrapper" | "script",
         /**
          * The name of the module.
          */
@@ -199,7 +199,7 @@ export type Config = {
             /**
              * The type of the step.
              */
-            type: "scrapper" | "script",
+            type: "scrapper" | "renderlessScrapper" | "script",
             /**
              * The name of the module.
              */
@@ -514,6 +514,15 @@ function addStep(
                 processor: pathResolve(appRoot, "lib/runner/scrapperWrapper.js"),
                 config: objectRef.config || {}
             });
+        } else if (objectRef.type === "renderlessScrapper") {
+            if (!objectRef.module) return;
+            procGenerators.push({
+                name: `proc_from_pre_${step}_to_${step}`,
+                from: `pre_${step}`,
+                to: step,
+                processor: pathResolve(appRoot, "lib/runner/renderlessScrapperWrapper.js"),
+                config: objectRef.config || {}
+            });
         } else {
             objectRef.type = "script";
             if (!objectRef.module) return;
@@ -554,7 +563,7 @@ function addPreStep(
                 //tslint:disable max-line-length
                 processor: new Function("log", `
                     const obj = ${JSON.stringify(getObjectReference(config, step))};
-                    if (obj.type === "scrapper") {
+                    if (obj.type === "scrapper" || obj.type === "renderlessScrapper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},
@@ -618,7 +627,7 @@ function addParallelPreStep(
                     //tslint:disable max-line-length
                     processor: new Function("log", `
                         const obj = ${JSON.stringify(getObjectReference(config, step))};
-                        if (obj.type === "scrapper") {
+                        if (obj.type === "scrapper" || obj.type === "renderlessScrapper") {
                             return Promise.resolve({
                                 input: log.body,
                                 config: (obj && obj.config) || {},
@@ -665,7 +674,7 @@ function addParallelPreStep(
                 //tslint:disable max-line-length
                 processor: new Function("log", `
                     const obj = ${JSON.stringify(getObjectReference(config, step))};
-                    if (obj.type === "scrapper") {
+                    if (obj.type === "scrapper" || obj.type === "renderlessScrapper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},

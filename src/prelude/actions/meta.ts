@@ -1,5 +1,6 @@
 import {IConnection} from "../../engine/createConnection";
 import {IAyakashiInstance} from "../prelude";
+import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {createQuery} from "../query/query";
 import {getOpLog} from "../../opLog/opLog";
 
@@ -7,7 +8,10 @@ import debug from "debug";
 import {ExtractorFn} from "./extract";
 const d = debug("ayakashi:prelude:meta");
 
-export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connection: IConnection) {
+export function attachMetaActions(
+    ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
+    connection: IConnection
+) {
     const opLog = getOpLog();
     ayakashiInstance.prop = function(propId) {
         if (typeof propId === "string" && ayakashiInstance.propRefs[propId]) {
@@ -52,14 +56,14 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
         return query;
     };
 
-    ayakashiInstance.pause = async function() {
+    (<IAyakashiInstance>ayakashiInstance).pause = async function() {
         try {
             await ayakashiInstance.evaluate(function() {
                 console.warn("[Ayakashi]: scrapper execution is paused, run ayakashi.resume() in devtools to resume");
                 this.paused = true;
             });
             opLog.warn("scrapper execution is paused, run ayakashi.resume() in devtools to resume");
-            await ayakashiInstance.waitUntil<boolean>(function() {
+            await (<IAyakashiInstance>ayakashiInstance).waitUntil<boolean>(function() {
                 return ayakashiInstance.evaluate<boolean>(function() {
                     return this.paused === false;
                 });
@@ -70,7 +74,7 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
         }
     };
 
-    ayakashiInstance.registerAction = function(name, actionFn) {
+    (<IAyakashiInstance>ayakashiInstance).registerAction = function(name, actionFn) {
         d("registering action:", name);
         if (!name || typeof name !== "string" ||
             !actionFn || typeof actionFn !== "function") {
@@ -79,7 +83,7 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
         if (name in ayakashiInstance) throw new Error(`There is an action "${name}" already registered`);
         //@ts-ignore
         ayakashiInstance[name] = function(...args) {
-            return actionFn.call(ayakashiInstance, ...args);
+            return actionFn.call(<IAyakashiInstance>ayakashiInstance, ...args);
         };
     };
 
