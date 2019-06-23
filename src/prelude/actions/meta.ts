@@ -41,7 +41,7 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
                     } else {
                         matches = [elements];
                     }
-                    window.ayakashi.propTable[id] = {
+                    this.propTable[id] = {
                         matches: matches
                     };
                     return matches.length;
@@ -56,12 +56,12 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
         try {
             await ayakashiInstance.evaluate(function() {
                 console.warn("[Ayakashi]: scrapper execution is paused, run ayakashi.resume() in devtools to resume");
-                window.ayakashi.paused = true;
+                this.paused = true;
             });
             opLog.warn("scrapper execution is paused, run ayakashi.resume() in devtools to resume");
             await ayakashiInstance.waitUntil<boolean>(function() {
                 return ayakashiInstance.evaluate<boolean>(function() {
-                    return window.ayakashi.paused === false;
+                    return this.paused === false;
                 });
             }, 100, 0);
             opLog.warn("scrapper execution is resumed");
@@ -103,7 +103,7 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
                 }));
             }
             await ayakashiInstance.evaluate(function(name: string, fn: ExtractorFn) {
-                window.ayakashi.extractors[name] = fn;
+                this.extractors[name] = fn.bind(this);
             }, extractorName, extractorFn);
         };
     };

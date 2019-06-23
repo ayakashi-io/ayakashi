@@ -29,7 +29,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         const matchCount = await myProp.trigger();
         if (matchCount === 0) throw new Error("<getPosition> needs a prop with at least 1 match");
         const sizeAndPosition = await this.evaluate(function(scopedPropId: string) {
-            const node = window.ayakashi.propTable[scopedPropId].matches[0];
+            const node = this.propTable[scopedPropId].matches[0];
             const clientRec = node.getBoundingClientRect();
             return {
                 bottom: clientRec.bottom,
@@ -57,8 +57,8 @@ export default function(ayakashiInstance: IAyakashiInstance) {
             rootNode = rootNode.contentDocument;
         }
         const selector = await this.evaluate<string>(function(scopedPropId: string) {
-            const node = window.ayakashi.propTable[scopedPropId].matches[0];
-            return window.ayakashi.preloaders.getNodeSelector(node);
+            const node = this.propTable[scopedPropId].matches[0];
+            return this.preloaders.getNodeSelector(node);
         }, myProp.id);
         const result = await this.__connection.client.DOM.querySelector({
             nodeId: rootNode.nodeId,

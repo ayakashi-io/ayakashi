@@ -282,9 +282,9 @@ export function createQuery(
             if (!triggerOptions || triggerOptions.force !== true) {
                 if (triggered) {
                     const propMatches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
-                        if (window.ayakashi.propTable[scopedPropId] &&
-                            window.ayakashi.propTable[scopedPropId].matches) {
-                                return window.ayakashi.propTable[scopedPropId].matches.length;
+                        if (this.propTable[scopedPropId] &&
+                            this.propTable[scopedPropId].matches) {
+                                return this.propTable[scopedPropId].matches.length;
                         } else {
                             return 0;
                         }
@@ -319,22 +319,22 @@ export function createQuery(
                 ) {
                     let matches: HTMLElement[] = [];
                     if (scopedParentIds.length > 0) {
-                        scopedParentIds.forEach(function(parentId) {
-                            const parentMatches = window.ayakashi.propTable[parentId].matches;
+                        scopedParentIds.forEach((parentId) => {
+                            const parentMatches = this.propTable[parentId].matches;
                             if (parentMatches && parentMatches.length > 0) {
-                                parentMatches.forEach(function(parentEl) {
+                                parentMatches.forEach((parentEl) => {
                                     matches = matches.concat(
                                         Array.from(
-                                            window.ayakashi.preloaders.domQL.domQuery(scopedQuery, {scope: parentEl})
+                                            this.preloaders.domQL.domQuery(scopedQuery, {scope: parentEl})
                                         )
                                     );
                                 });
                             }
                         });
                     } else {
-                        matches = Array.from(window.ayakashi.preloaders.domQL.domQuery(scopedQuery));
+                        matches = Array.from(this.preloaders.domQL.domQuery(scopedQuery));
                     }
-                    window.ayakashi.propTable[scopedId] = {
+                    this.propTable[scopedId] = {
                         matches: matches
                     };
                     return matches.length;
@@ -348,7 +348,7 @@ export function createQuery(
         hasMatches: async function() {
             await this.trigger({force: true, showNoMatchesWarning: false});
             const matches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
-                return window.ayakashi.propTable[scopedPropId].matches.length;
+                return this.propTable[scopedPropId].matches.length;
             }, this.id);
             return matches > 0;
         },

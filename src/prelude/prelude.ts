@@ -32,6 +32,7 @@ ayakashi.prop("myProp");
 ```
 */
     prop: (propId: IDomProp | string) => IDomProp | null;
+    //tslint:disable no-any
 /**
  * Evaluates a javascript function in the current page.
  * Learn more here: http://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
@@ -41,7 +42,7 @@ const title = await ayakashi.evaluate(function() {
 });
 ```
 */
-    evaluate: IConnection["evaluate"];
+    evaluate: <T>(fn: (this: Window["ayakashi"], ...args: any[]) => T, ...args: any[]) => Promise<T>;
 /**
  * Evaluates an asynchronous javascript function in the current page.
  * Learn more here: http://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
@@ -55,7 +56,8 @@ await ayakashi.evaluateAsync(function() {
 });
 ```
 */
-    evaluateAsync: IConnection["evaluateAsync"];
+    evaluateAsync: <T>(fn: (this: Window["ayakashi"], ...args: any[]) => Promise<T>, ...args: any[]) => Promise<T>;
+    //tslint:enable no-any
 /**
  * Defines a new domQL prop with no match limit.
  * Learn more here: http://ayakashi.io/docs/guide/querying-with-domql.html
