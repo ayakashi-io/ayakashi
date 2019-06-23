@@ -10,7 +10,7 @@ export async function getAyakashiInstance(
 ) {
     const target = await headlessChrome.createTarget();
     if (!target) throw new Error("no_target");
-    const connection = await createConnection(target.tab, bridgePort);
+    const connection = await createConnection(target, bridgePort);
     if (!connection) throw new Error("no_connection");
     const ayakashiInstance = await prelude(connection);
     const domqlPreloader = await compile(

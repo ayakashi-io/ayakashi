@@ -568,6 +568,7 @@ function addPreStep(
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousStep}",
                             appRoot: "${appRoot}"
                         });
                     } else {
@@ -581,6 +582,7 @@ function addPreStep(
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousStep}",
                             appRoot: "${appRoot}"
                         });
                     }
@@ -630,6 +632,7 @@ function addParallelPreStep(
                                 operationId: "${options.operationId}",
                                 startDate: "${options.startDate}",
                                 procName: "proc_from_pre_${step}_to_${step}",
+                                selfTopic: "${ppst}",
                                 appRoot: "${appRoot}"
                             });
                         } else {
@@ -643,6 +646,7 @@ function addParallelPreStep(
                                 operationId: "${options.operationId}",
                                 startDate: "${options.startDate}",
                                 procName: "proc_from_pre_${step}_to_${step}",
+                                selfTopic: "${ppst}",
                                 appRoot: "${appRoot}"
                             });
                         }
@@ -675,6 +679,7 @@ function addParallelPreStep(
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousPreviousStep}",
                             appRoot: "${appRoot}"
                         });
                     } else {
@@ -688,6 +693,7 @@ function addParallelPreStep(
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousPreviousStep}",
                             appRoot: "${appRoot}"
                         });
                     }
