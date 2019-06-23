@@ -3,7 +3,7 @@ import {IAyakashiInstance} from "../prelude";
 import {isRegExp} from "util";
 
 //tslint:disable no-any
-export type ExtractorFn = () => {
+export type ExtractorFn = (this: Window["ayakashi"]) => {
     extract: (el: any) => any,
     isValid: (result: any) => boolean,
     useDefault: () => any
@@ -51,6 +51,7 @@ async function recursiveExtract(
         if (extractable in ayakashiInstance.extractors) {
             await ayakashiInstance.extractors[extractable]();
             return ayakashiInstance.evaluate(function(scopedPropId: string, scopedExtractorName: string) {
+                //@ts-ignore
                 const extractor = this.extractors[scopedExtractorName]();
                 return this.propTable[scopedPropId].matches.map(function(match) {
                     const result = extractor.extract(match);

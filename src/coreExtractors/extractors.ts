@@ -27,9 +27,11 @@ export function attachCoreExtractors(ayakashiInstance: IAyakashiInstance) {
     });
 
     const integerExtractor: ExtractorFn = function() {
+        const self = this;
         return {
             extract: function(element) {
-                const textExtractor = window.ayakashi.extractors.text();
+                //@ts-ignore
+                const textExtractor = self.extractors.text();
                 let textResult: string = textExtractor.extract(element);
                 if (!textExtractor.isValid(textResult)) {
                     textResult = textExtractor.useDefault();
@@ -53,9 +55,11 @@ export function attachCoreExtractors(ayakashiInstance: IAyakashiInstance) {
     ayakashiInstance.registerExtractor("number", integerExtractor, ["text"]);
 
     ayakashiInstance.registerExtractor("float", function() {
+        const self = this;
         return {
             extract: function(element) {
-                const textExtractor = window.ayakashi.extractors.text();
+                //@ts-ignore
+                const textExtractor = self.extractors.text();
                 let textResult: string = textExtractor.extract(element);
                 if (!textExtractor.isValid(textResult)) {
                     textResult = textExtractor.useDefault();

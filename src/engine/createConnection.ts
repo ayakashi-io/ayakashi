@@ -396,13 +396,14 @@ async function evaluate<T>(
             //tslint:disable
             exp = `(function() {
                 "use strict";
-                const args = ${JSON.stringify(args)};` +
+                const args = ${JSON.stringify(args)};
+                const ns = ${namespace};\n` +
                 "args.forEach(function(arg, i) {\
                     if (arg && typeof arg.indexOf === 'function' && (arg.indexOf('function') === 0 || arg.indexOf('=>') > -1)) {\
                         const func = args[i];\
                         args[i] = function(results) {\
-                            let exec = new Function('results', `return (${func}).call(null, results);`);\
-                            return exec(results);\
+                            let exec = new Function('results', `return (${func}).call(this, results);`);\
+                            return exec.call(ns, results);\
                         };\
                     }\
                     if (arg && arg.isRegex) {\
