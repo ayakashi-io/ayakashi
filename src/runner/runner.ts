@@ -15,15 +15,16 @@ import {
     checkStepLevels,
     validateStepFormat,
     createProcGenerators,
-    countSteps
+    countSteps,
+    isUsingNormalScrapper
 } from "./parseConfig";
 
 import {downloadChromium} from "../chromeDownloader/downloader";
 import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
 import {getManifest} from "../store/manifest";
 import {getOrCreateStoreProjectFolder} from "../store/project";
-// import debug from "debug";
-// const d = debug("ayakashi:runner");
+import debug from "debug";
+const d = debug("ayakashi:runner");
 
 export async function run(projectFolder: string, config: Config, simpleScrapper?: string) {
     const opLog = getOpLog();
@@ -58,9 +59,15 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
         }
         chromePath = await getChromePath();
     }
+    let headlessChrome = null;
     try {
         //launch chrome
-        const headlessChrome = await launch(config, storeProjectFolder, chromePath);
+        if (isUsingNormalScrapper(steps, config)) {
+            d("using normal scrapper(s), chrome will be spawned");
+            headlessChrome = await launch(config, storeProjectFolder, chromePath);
+        } else {
+            d("using renderless scrapper(s) only, chrome will not be spawned");
+        }
 
         //finalize systemProcs
         const procs = procGenerators.map(function(generator) {
@@ -100,7 +107,9 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
 
         //close
         await pipeprocClient.waitForProcs();
-        await headlessChrome.close();
+        if (headlessChrome) {
+            await headlessChrome.close();
+        }
         await pipeprocClient.shutdown();
     } catch (e) {
         opLog.error("Failed to run project");

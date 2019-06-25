@@ -345,6 +345,24 @@ export function countSteps(steps: (string | string[])[]) {
     return count;
 }
 
+export function isUsingNormalScrapper(steps: (string | string[])[], config: Config) {
+    let using = false;
+    for (const step of steps) {
+        if (Array.isArray(step)) {
+            for (const st of step) {
+                if (getObjectReference(config, st).type === "scrapper") {
+                    using = true;
+                }
+            }
+        } else {
+            if (getObjectReference(config, step).type === "scrapper") {
+                using = true;
+            }
+        }
+    }
+    return using;
+}
+
 export function getObjectReference(
     config: Config,
     stepName: string
