@@ -364,4 +364,21 @@ describe("select tests", function() {
         }).toThrowError("Uknown parent prop : uknownContainer");
         await ayakashiInstance.__connection.release();
     });
+
+    test("hasMatches() should return false if an uknown prop is used as parent", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const myProp = ayakashiInstance
+            .selectOne("aParent")
+            .where({id: {eq: "uknownParent"}})
+            .selectChild("myChild")
+            .where({
+                id: {
+                    eq: "someId"
+                }
+            });
+        const result = await myProp.hasMatches();
+        expect(result).toBe(false);
+        await ayakashiInstance.__connection.release();
+    });
 });

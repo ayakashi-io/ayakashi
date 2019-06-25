@@ -355,7 +355,10 @@ export function createQuery(
         hasMatches: async function() {
             await this.trigger({force: true, showNoMatchesWarning: false});
             const matches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
-                return this.propTable[scopedPropId].matches.length;
+                return (
+                    this.propTable[scopedPropId] &&
+                    this.propTable[scopedPropId].matches &&
+                    this.propTable[scopedPropId].matches.length) || 0;
             }, this.id);
             return matches > 0;
         },

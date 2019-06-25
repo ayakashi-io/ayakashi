@@ -389,4 +389,21 @@ describe("extraction tests", function() {
         expect(result).toBeArrayOfSize(0);
         await ayakashiInstance.__connection.release();
     });
+
+    test("should return an empty array if parent prop has no matches", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance
+            .selectOne("aParent")
+            .where({id: {eq: "uknownParent"}})
+            .selectChild("myChild")
+            .where({
+                id: {
+                    eq: "someId"
+                }
+            });
+        const result = await ayakashiInstance.extract("myChild");
+        expect(result).toEqual([]);
+        await ayakashiInstance.__connection.release();
+    });
 });
