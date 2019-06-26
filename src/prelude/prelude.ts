@@ -188,14 +188,16 @@ await ayakashi.yield(result);
 */
     yield: (extracted: object | Promise<object>) => Promise<void>;
 /**
- * Sugar method to yield multiple matches.
+ * Yields multiple extractions individually in a single (atomic) operation.
+ * The next step of the pipeline will run for each extraction.
  * Learn more about yield in this example: http://ayakashi.io/guide/building-a-complete-scraping-project.html
  * ```js
 await ayakashi.yieldEach(extractedLinks);
-//is the same as
+//is kinda like this
 for (const link of extractedLinks) {
-    await ayakashi.yield(extractedLinks);
+    await ayakashi.yield(link);
 }
+//but ensures the yields are performed as a single unit
 ```
 */
     yieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;

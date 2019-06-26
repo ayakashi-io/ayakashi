@@ -113,17 +113,25 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
                 opLog.warn("<yieldEach> requires an array");
                 return;
             }
-            await Promise.all(actualExtracted.map(ex => {
-                return ayakashiInstance.yield(ex);
+            await pipeprocClient.commit(actualExtracted.map(ex => {
+                return {
+                    topic: log.body.saveTopic,
+                    body: ex
+                };
             }));
+            yieldedAtLeastOnce = true;
         } else {
             if (!Array.isArray(extracted) || extracted.length === 0) {
                 opLog.warn("<yieldEach> requires an array");
                 return;
             }
-            await Promise.all(extracted.map(ex => {
-                return ayakashiInstance.yield(ex);
+            await pipeprocClient.commit(extracted.map(ex => {
+                return {
+                    topic: log.body.saveTopic,
+                    body: ex
+                };
             }));
+            yieldedAtLeastOnce = true;
         }
     };
     ayakashiInstance.recursiveYield = async function(extracted) {
