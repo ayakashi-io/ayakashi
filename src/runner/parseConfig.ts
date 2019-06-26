@@ -389,6 +389,7 @@ export function createProcGenerators(
 ) {
     const procGenerators: ProcGenerator[] = [];
     const top = (<string>steps[0]).split("_")[0];
+    const initializers = [];
     if (top === "parallel") {
         steps
         .map(function(step, i) {
@@ -409,17 +410,19 @@ export function createProcGenerators(
             if (step[0] !== `subwaterfall_${i}`) {
                 step.unshift(`subwaterfall_${i}`);
             }
-            step.unshift("init");
+            initializers.push(`init_${i}`);
+            step.unshift(`init_${i}`);
             step.push("end");
             _createProcGenerators(config, step, options, procGenerators);
         });
     } else {
+        initializers.push("init");
         steps.unshift("init");
         steps.push("end");
         _createProcGenerators(config, steps, options, procGenerators);
     }
 
-    return procGenerators;
+    return {procGenerators, initializers};
 }
 
 function _createProcGenerators(
@@ -520,7 +523,7 @@ function addStep(
     step: string,
     procGenerators: ProcGenerator[]
 ) {
-    if (step === "init") return;
+    if (step.match("init")) return;
     if (!procGenerators.find(pr => pr.from === `pre_${step}` && pr.to === step)) {
         const objectRef = getObjectReference(config, step);
         if (objectRef.type === "scrapper") {
@@ -570,7 +573,7 @@ function addPreStep(
     },
     procGenerators: ProcGenerator[]
 ) {
-    if (step === "init") return;
+    if (step.match("init")) return;
     if (!procGenerators.find(pr => pr.from === previousStep && pr.to === `pre_${step}`) &&
         !isParallel) {
             procGenerators.push({
@@ -652,7 +655,7 @@ function addParallelPreStep(
     },
     procGenerators: ProcGenerator[]
 ) {
-    if (step === "init") return;
+    if (step.match("init")) return;
     if (Array.isArray(previousPreviousStep)) {
         previousPreviousStep.forEach(function(ppst) {
             if (!procGenerators.find(pr => pr.from === ppst && pr.to === `pre_${step}`)) {

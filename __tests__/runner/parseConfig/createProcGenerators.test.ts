@@ -20,7 +20,7 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             delete p.config;
@@ -56,7 +56,7 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             delete p.config;
@@ -95,14 +95,14 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
-            from: "init",
+            from: "init_0",
             to: "pre_subwaterfall_0"
         }, {
             from: "pre_subwaterfall_0",
@@ -131,14 +131,14 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
-            from: "init",
+            from: "init_0",
             to: "pre_subwaterfall_0"
         }, {
             from: "pre_subwaterfall_0",
@@ -147,7 +147,7 @@ describe("createProcGenerators", function() {
             from: "subwaterfall_0",
             to: "pre_end"
         }, {
-            from: "init",
+            from: "init_1",
             to: "pre_subwaterfall_1"
         }, {
             from: "pre_subwaterfall_1",
@@ -183,7 +183,7 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             delete p.config;
@@ -251,7 +251,7 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             delete p.config;
@@ -325,20 +325,20 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
-            from: "init",
+            from: "init_0",
             to: "pre_subwaterfall_0"
         }, {
             from: "pre_subwaterfall_0",
             to: "subwaterfall_0"
         }, {
-            from: "init",
+            from: "init_1",
             to: "pre_subwaterfall_1"
         }, {
             from: "pre_subwaterfall_1",
@@ -396,20 +396,20 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             delete p.config;
             return p;
         });
         expect(procGenerators).toIncludeAllMembers([{
-            from: "init",
+            from: "init_0",
             to: "pre_subwaterfall_0"
         }, {
             from: "pre_subwaterfall_0",
             to: "subwaterfall_0"
         }, {
-            from: "init",
+            from: "init_1",
             to: "pre_subwaterfall_1"
         }, {
             from: "pre_subwaterfall_1",
@@ -465,7 +465,7 @@ describe("createProcGenerators", function() {
             storeProjectFolder: "",
             operationId: "",
             startDate: ""
-        }).map((p) => {
+        }).procGenerators.map((p) => {
             delete p.processor;
             delete p.name;
             return p;
@@ -485,5 +485,171 @@ describe("createProcGenerators", function() {
             to: "pre_end",
             config: {}
         }]);
+    });
+
+    test("selfTopic is correct, parallel", async function() {
+        const config: Config = {
+            parallel: [{
+                type: "scrapper",
+                module: "test"
+            }, {
+                type: "scrapper",
+                module: "test"
+            }]
+        };
+        const steps = firstPass(config);
+        const procFunctions = createProcGenerators(config, steps, {
+            protocolPort: 1,
+            bridgePort: 1,
+            projectFolder: "",
+            storeProjectFolder: "",
+            operationId: "",
+            startDate: ""
+        }).procGenerators.map((p) => {
+            return p.processor;
+        }).filter(p => typeof p === "function");
+        const selfTopics = (await Promise.all(procFunctions.map(async function(func) {
+            //@ts-ignore
+            const conf = await func({});
+            if (conf.procName === "proc_from_pre_end_to_end") return null;
+            //@ts-ignore
+            return conf.selfTopic;
+        }))).filter(t => t);
+        expect(selfTopics.toString()).toBe(["init_0", "init_1"].toString());
+    });
+
+    test("selfTopic is correct, parallel with nested waterfall", async function() {
+        const config: Config = {
+            parallel: [{
+                type: "scrapper",
+                module: "test",
+                waterfall: [{
+                    type: "scrapper",
+                    module: "test"
+                }, {
+                    type: "scrapper",
+                    module: "test"
+                }]
+            }, {
+                type: "scrapper",
+                module: "test",
+                waterfall: [{
+                    type: "scrapper",
+                    module: "test"
+                }, {
+                    type: "scrapper",
+                    module: "test"
+                }]
+            }]
+        };
+        const steps = firstPass(config);
+        const procFunctions = createProcGenerators(config, steps, {
+            protocolPort: 1,
+            bridgePort: 1,
+            projectFolder: "",
+            storeProjectFolder: "",
+            operationId: "",
+            startDate: ""
+        }).procGenerators.map((p) => {
+            return p.processor;
+        }).filter(p => typeof p === "function");
+        const selfTopics = (await Promise.all(procFunctions.map(async function(func) {
+            //@ts-ignore
+            const conf = await func({});
+            if (conf.procName === "proc_from_pre_end_to_end") return null;
+            //@ts-ignore
+            return conf.selfTopic;
+        }))).filter(t => t);
+        expect(selfTopics.toString()).toBe([
+            "init_0",
+            "subwaterfall_0",
+            "subwaterfall_0_waterfall_0",
+            "init_1",
+            "subwaterfall_1",
+            "subwaterfall_1_waterfall_0"
+        ].toString());
+    });
+
+    test("selfTopic is correct, waterfall", async function() {
+        const config: Config = {
+            waterfall: [{
+                type: "scrapper",
+                module: "test"
+            }, {
+                type: "scrapper",
+                module: "test"
+            }]
+        };
+        const steps = firstPass(config);
+        const procFunctions = createProcGenerators(config, steps, {
+            protocolPort: 1,
+            bridgePort: 1,
+            projectFolder: "",
+            storeProjectFolder: "",
+            operationId: "",
+            startDate: ""
+        }).procGenerators.map((p) => {
+            return p.processor;
+        }).filter(p => typeof p === "function");
+        const selfTopics = (await Promise.all(procFunctions.map(async function(func) {
+            //@ts-ignore
+            const conf = await func({});
+            if (conf.procName === "proc_from_pre_end_to_end") return null;
+            //@ts-ignore
+            return conf.selfTopic;
+        }))).filter(t => t);
+        expect(selfTopics.toString()).toBe(["init", "waterfall_0"].toString());
+    });
+
+    test("selfTopic is correct, waterfall with nested parallel", async function() {
+        const config: Config = {
+            waterfall: [{
+                type: "scrapper",
+                module: "test",
+                parallel: [{
+                    type: "scrapper",
+                    module: "test"
+                }, {
+                    type: "scrapper",
+                    module: "test"
+                }]
+            }, {
+                type: "scrapper",
+                module: "test",
+                parallel: [{
+                    type: "scrapper",
+                    module: "test"
+                }, {
+                    type: "scrapper",
+                    module: "test"
+                }]
+            }]
+        };
+        const steps = firstPass(config);
+        const procFunctions = createProcGenerators(config, steps, {
+            protocolPort: 1,
+            bridgePort: 1,
+            projectFolder: "",
+            storeProjectFolder: "",
+            operationId: "",
+            startDate: ""
+        }).procGenerators.map((p) => {
+            return p.processor;
+        }).filter(p => typeof p === "function");
+        const selfTopics = (await Promise.all(procFunctions.map(async function(func) {
+            //@ts-ignore
+            const conf = await func({});
+            if (conf.procName === "proc_from_pre_end_to_end") return null;
+            //@ts-ignore
+            return conf.selfTopic;
+        }))).filter(t => t);
+        expect(selfTopics.toString()).toBe([
+            "init",
+            "waterfall_0",
+            "waterfall_0",
+            "waterfall_0",
+            "waterfall_1",
+            "waterfall_1"
+        ].toString());
     });
 });

@@ -30,13 +30,14 @@ export async function run(projectFolder: string, config: Config, resume: boolean
     const opLog = getOpLog();
     let steps: (string | string[])[];
     let procGenerators: ProcGenerator[];
+    let initializers: string[];
     const storeProjectFolder =
         await getOrCreateStoreProjectFolder(simpleScrapper ? `${projectFolder}/${simpleScrapper}` : projectFolder);
     try {
         steps = firstPass(config);
         checkStepLevels(steps);
         validateStepFormat(steps);
-        procGenerators = createProcGenerators(config, steps, {
+        const parsedConfig = createProcGenerators(config, steps, {
             bridgePort: (config.config && config.config.bridgePort) || 9731,
             protocolPort: (config.config && config.config.protocolPort) || 9730,
             projectFolder: projectFolder,
@@ -44,6 +45,8 @@ export async function run(projectFolder: string, config: Config, resume: boolean
             operationId: uuid(),
             startDate: dayjs().format("YYYY-MM-DD-HH-mm-ss")
         });
+        procGenerators = parsedConfig.procGenerators;
+        initializers = parsedConfig.initializers;
     } catch (e) {
         opLog.error("Config Error -", e.message);
         throw e;
@@ -116,10 +119,12 @@ export async function run(projectFolder: string, config: Config, resume: boolean
             //register the systemProcs and init the project
             //@ts-ignore
             await Promise.all(procs.map(proc => pipeprocClient.systemProc(proc)));
-            await pipeprocClient.commit({
-                topic: "init",
-                body: {}
-            });
+            await pipeprocClient.commit(initializers.map(init => {
+                return {
+                    topic: init,
+                    body: {}
+                };
+            }));
         }
 
         //close
