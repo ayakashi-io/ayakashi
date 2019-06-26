@@ -36,6 +36,10 @@ yargs
                 type: "boolean",
                 describe: "Run a single scrapper"
             })
+            .option("resume", {
+                type: "boolean",
+                describe: "Resume execution of a previous unfinished run"
+            })
             .option("out", {
                 describe: "Select the saving format when --simple mode is used",
                 default: "stdout",
@@ -46,6 +50,7 @@ yargs
         const opLog = getOpLog();
         opLog.info("Ayakashi version:", packageJson.version);
         await showLineUpdate();
+        const resume = <boolean>argv.resume || false;
         let directory: string;
         let config: Config;
         let simpleScrapper = "";
@@ -59,7 +64,7 @@ yargs
             config = standard.config;
             directory = standard.directory;
         }
-        run(directory, config, simpleScrapper).then(async function() {
+        run(directory, config, resume, simpleScrapper).then(async function() {
             opLog.info("Nothing more to do!");
             await showBoxUpdate();
         }).catch(function(err) {

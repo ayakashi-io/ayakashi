@@ -22,11 +22,11 @@ import {
 import {downloadChromium} from "../chromeDownloader/downloader";
 import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
 import {getManifest} from "../store/manifest";
-import {getOrCreateStoreProjectFolder} from "../store/project";
+import {getOrCreateStoreProjectFolder, hasPreviousRun, clearPreviousRun, getPipeprocFolder} from "../store/project";
 import debug from "debug";
 const d = debug("ayakashi:runner");
 
-export async function run(projectFolder: string, config: Config, simpleScrapper?: string) {
+export async function run(projectFolder: string, config: Config, resume: boolean, simpleScrapper?: string) {
     const opLog = getOpLog();
     let steps: (string | string[])[];
     let procGenerators: ProcGenerator[];
@@ -83,6 +83,14 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
             };
         });
 
+        let previousRunCleared = false;
+        const hasPrevious = await hasPreviousRun(storeProjectFolder);
+        if (!resume && hasPrevious) {
+            opLog.info("cleaning previous run");
+            await clearPreviousRun(storeProjectFolder);
+            previousRunCleared = true;
+        }
+
         //launch pipeproc
         const stepCount = steps.length <= 4 ? 1 : countSteps(steps) - 3;
         const workers = stepCount > cpus().length ? cpus().length : stepCount;
@@ -90,23 +98,33 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
         const pipeprocClient = PipeProc();
         await pipeprocClient.spawn({
             namespace: "ayakashi",
-            memory: true,
+            location: getPipeprocFolder(storeProjectFolder),
             workers: workers
         });
         process.on("SIGINT", function() {
             pipeprocClient.shutdown();
         });
 
-        //register the systemProcs and init the project
-        //@ts-ignore
-        await Promise.all(procs.map(proc => pipeprocClient.systemProc(proc)));
-        await pipeprocClient.commit({
-            topic: "init",
-            body: {}
-        });
+        if (resume && !previousRunCleared && hasPrevious) {
+            opLog.info("resuming previous run");
+            await Promise.all(procs.map(async function(proc) {
+                try {
+                    await pipeprocClient.reclaimProc(proc.name);
+                } catch (_e) {}
+            }));
+        } else {
+            //register the systemProcs and init the project
+            //@ts-ignore
+            await Promise.all(procs.map(proc => pipeprocClient.systemProc(proc)));
+            await pipeprocClient.commit({
+                topic: "init",
+                body: {}
+            });
+        }
 
         //close
         await pipeprocClient.waitForProcs();
+        await clearPreviousRun(storeProjectFolder);
         if (headlessChrome) {
             await headlessChrome.close();
         }
