@@ -63,6 +63,7 @@ describe("select tests", function() {
         }, {
             childProp: "link3"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("trackMissingChildren OFF", async function() {
@@ -81,5 +82,6 @@ describe("select tests", function() {
         }, {
             childProp: "link3"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 });

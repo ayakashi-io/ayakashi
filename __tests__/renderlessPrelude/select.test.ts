@@ -63,6 +63,7 @@ describe("select tests", function() {
         }, {
             links: "link2"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("selectOne", async function() {
@@ -73,6 +74,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             links: "link1"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("selectFirst", async function() {
@@ -83,6 +85,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             links: "link1"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("selectLast", async function() {
@@ -93,6 +96,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             links: "link2"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select all in parent", async function() {
@@ -108,6 +112,7 @@ describe("select tests", function() {
         }, {
             spans: "hello3"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select first in parent", async function() {
@@ -119,6 +124,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select first in parent with order desc", async function() {
@@ -136,6 +142,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select second in parent", async function() {
@@ -147,6 +154,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello2"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select second in parent with order desc", async function() {
@@ -164,6 +172,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello2"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select last in parent", async function() {
@@ -175,6 +184,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello3"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select last in parent with order desc", async function() {
@@ -186,6 +196,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello3"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select all in parent with chaining", async function() {
@@ -204,6 +215,7 @@ describe("select tests", function() {
         }, {
             spans: "hello3"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select first in parent with chaining", async function() {
@@ -218,6 +230,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select first in parent with chaining and order desc", async function() {
@@ -235,6 +248,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select second in parent with chaining", async function() {
@@ -250,6 +264,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello2"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select second in parent with chaining and order desc", async function() {
@@ -267,6 +282,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello2"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select last in parent with chaining", async function() {
@@ -281,6 +297,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello3"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select last in parent with chaining and order desc", async function() {
@@ -297,6 +314,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             spans: "hello3"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("select first in parent with double-chaining", async function() {
@@ -313,6 +331,7 @@ describe("select tests", function() {
         expect(result).toEqual([{
             labels: "a label"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("should throw if an uknown prop is used as parent", async function() {
@@ -321,6 +340,7 @@ describe("select tests", function() {
         expect(function() {
             ayakashiInstance.selectFirst("spans").where({tagName: {eq: "SPAN"}}).from("uknownContainer");
         }).toThrowError("Uknown parent prop : uknownContainer");
+        await ayakashiInstance.__connection.release();
     });
 
     test("using load twice should not reset the propTable", async function() {
@@ -340,5 +360,6 @@ describe("select tests", function() {
         }, {
             links: "link2"
         }]);
+        await ayakashiInstance.__connection.release();
     });
 });

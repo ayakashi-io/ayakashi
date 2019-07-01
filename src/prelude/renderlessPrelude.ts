@@ -28,6 +28,9 @@ export interface IRenderlessAyakashiInstance {
     page: JSDOM;
     load: (url: string, timeout?: number) => Promise<void>;
     attachDOM: (dom: JSDOM) => void;
+    __connection: {
+        release: () => Promise<void>;
+    };
 }
 type PropTable = {
     [key: string]: {
@@ -65,9 +68,28 @@ export async function renderlessPrelude() {
     attachCoreExtractors(<IRenderlessAyakashiInstance>ayakashiInstance);
     attachRetry(<IRenderlessAyakashiInstance>ayakashiInstance);
 
+    (<IRenderlessAyakashiInstance>ayakashiInstance).__connection = {
+        release: function() {
+            return new Promise(resolve => {
+                process.nextTick(() => {
+                    if (ayakashiInstance.page && ayakashiInstance.page.window) {
+                        ayakashiInstance.page.window.close();
+                    }
+                    if (global.gc) {
+                        global.gc();
+                    }
+                    resolve();
+                });
+            });
+        }
+    };
+
     const propTable: PropTable = {};
 
     (<IRenderlessAyakashiInstance>ayakashiInstance).attachDOM = async function(dom) {
+        if (this.page) {
+            await this.__connection.release();
+        }
         this.page = dom;
         this.page.window.ayakashi = {
             //@ts-ignore

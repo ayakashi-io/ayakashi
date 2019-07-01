@@ -48,6 +48,7 @@ describe("extraction tests", function() {
         ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
         const result = await ayakashiInstance.extract("myDiv");
         expect(result).toEqual([{myDiv: "hello"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with multiple matches", async function() {
@@ -57,6 +58,7 @@ describe("extraction tests", function() {
         const result = await ayakashiInstance.extract("divs");
         expect(result).toBeArrayOfSize(3);
         expect(result).toEqual([{divs: "hello"}, {divs: "hello2"}, {divs: "hello3"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction wrapped", async function() {
@@ -67,6 +69,7 @@ describe("extraction tests", function() {
             greeting: "text"
         });
         expect(result).toEqual([{greeting: "hello"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction wrapped nested", async function() {
@@ -79,6 +82,7 @@ describe("extraction tests", function() {
             }
         });
         expect(result).toEqual([{greeting: {myGreeting: "hello"}}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with multiple matches wrapped", async function() {
@@ -90,6 +94,7 @@ describe("extraction tests", function() {
         });
         expect(result).toBeArrayOfSize(3);
         expect(result).toEqual([{greeting: "hello"}, {greeting: "hello2"}, {greeting: "hello3"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with multiple matches wrapped nested", async function() {
@@ -107,6 +112,7 @@ describe("extraction tests", function() {
             {greeting: {myGreeting: "hello2"}},
             {greeting: {myGreeting: "hello3"}}
         ]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with regex", async function() {
@@ -116,6 +122,7 @@ describe("extraction tests", function() {
         const result = await ayakashiInstance.extract("divs", /hello3/);
         expect(result).toBeArrayOfSize(3);
         expect(result).toEqual([{divs: ""}, {divs: ""}, {divs: "hello3"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with regex, extract substring", async function() {
@@ -125,6 +132,7 @@ describe("extraction tests", function() {
         const result = await ayakashiInstance.extract("myContentDiv", /hello there/);
         expect(result).toBeArrayOfSize(1);
         expect(result).toEqual([{myContentDiv: "hello there"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with regex wrapped", async function() {
@@ -136,6 +144,7 @@ describe("extraction tests", function() {
         });
         expect(result).toBeArrayOfSize(3);
         expect(result).toEqual([{greeting: ""}, {greeting: ""}, {greeting: "hello3"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with regex wrapped nested", async function() {
@@ -153,6 +162,7 @@ describe("extraction tests", function() {
             {greeting: {myGreeting: ""}},
             {greeting: {myGreeting: "hello3"}}
         ]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with regex and default", async function() {
@@ -162,6 +172,7 @@ describe("extraction tests", function() {
         const result = await ayakashiInstance.extract("divs", [/hello3/, "sorry"]);
         expect(result).toBeArrayOfSize(3);
         expect(result).toEqual([{divs: "sorry"}, {divs: "sorry"}, {divs: "hello3"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with regex and default wrapped", async function() {
@@ -173,6 +184,7 @@ describe("extraction tests", function() {
         });
         expect(result).toBeArrayOfSize(3);
         expect(result).toEqual([{greeting: "sorry"}, {greeting: "sorry"}, {greeting: "hello3"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with regex and default wrapped nested", async function() {
@@ -190,6 +202,7 @@ describe("extraction tests", function() {
             {greeting: {myGreeting: "sorry"}},
             {greeting: {myGreeting: "hello3"}}
         ]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction by attribute", async function() {
@@ -198,6 +211,7 @@ describe("extraction tests", function() {
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
         const result = await ayakashiInstance.extract("myLink", "href");
         expect(result).toEqual([{myLink: "http://example.com/"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction by attribute and default", async function() {
@@ -207,6 +221,7 @@ describe("extraction tests", function() {
         //defaults are not evaluated
         const result = await ayakashiInstance.extract("myLink", ["uknownAttribute", "href"]);
         expect(result).toEqual([{myLink: "href"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction by attribute wrapped", async function() {
@@ -217,6 +232,7 @@ describe("extraction tests", function() {
             link: "href"
         });
         expect(result).toEqual([{link: "http://example.com/"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction by attribute wrapped nested", async function() {
@@ -229,6 +245,7 @@ describe("extraction tests", function() {
             }
         });
         expect(result).toEqual([{link: {theLink: "http://example.com/"}}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with function", async function() {
@@ -239,6 +256,7 @@ describe("extraction tests", function() {
             return el.href;
         });
         expect(result).toEqual([{myLink: "http://example.com/"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with function wrapped", async function() {
@@ -251,6 +269,7 @@ describe("extraction tests", function() {
             }
         });
         expect(result).toEqual([{link: "http://example.com/"}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction with function wrapped nested", async function() {
@@ -265,6 +284,7 @@ describe("extraction tests", function() {
             }
         });
         expect(result).toEqual([{link: {theLink: "http://example.com/"}}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("integer extraction", async function() {
@@ -273,6 +293,7 @@ describe("extraction tests", function() {
         ayakashiInstance.selectOne("myNumber").where({id: {eq: "myNumber"}});
         const result = await ayakashiInstance.extract("myNumber", "number");
         expect(result).toEqual([{myNumber: 123}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("integer extraction alias", async function() {
@@ -281,6 +302,7 @@ describe("extraction tests", function() {
         ayakashiInstance.selectOne("myNumber").where({id: {eq: "myNumber"}});
         const result = await ayakashiInstance.extract("myNumber", "integer");
         expect(result).toEqual([{myNumber: 123}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("float extraction", async function() {
@@ -289,6 +311,7 @@ describe("extraction tests", function() {
         ayakashiInstance.selectOne("pi").where({id: {eq: "pi"}});
         const result = await ayakashiInstance.extract("pi", "float");
         expect(result).toEqual([{pi: 3.14}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("float extraction with comma", async function() {
@@ -297,6 +320,7 @@ describe("extraction tests", function() {
         ayakashiInstance.selectOne("piComma").where({id: {eq: "piComma"}});
         const result = await ayakashiInstance.extract("piComma", "float");
         expect(result).toEqual([{piComma: 3.14}]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("text extraction wrapped mixed", async function() {
@@ -323,6 +347,7 @@ describe("extraction tests", function() {
                 myDefaultText: "oops"
             }
         }]);
+        await ayakashiInstance.__connection.release();
     });
 
     test("should throw if an uknown prop is used", async function() {
@@ -331,6 +356,7 @@ describe("extraction tests", function() {
         expect((async function() {
             await ayakashiInstance.extract("uknownPROP");
         })()).rejects.toThrowError("<extract> needs a valid prop");
+        await ayakashiInstance.__connection.release();
     });
 
     test("should return an empty array if prop has no matches", async function() {
@@ -339,6 +365,7 @@ describe("extraction tests", function() {
         ayakashiInstance.selectOne("myUknownDiv").where({id: {eq: "myUknownDiv"}});
         const result = await ayakashiInstance.extract("myUknownDiv");
         expect(result).toBeArrayOfSize(0);
+        await ayakashiInstance.__connection.release();
     });
 
     test("using load twice should not reset the extractors", async function() {
@@ -350,5 +377,6 @@ describe("extraction tests", function() {
         await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
         const result2 = await ayakashiInstance.extract("myDiv");
         expect(result2).toEqual([{myDiv: "hello"}]);
+        await ayakashiInstance.__connection.release();
     });
 });
