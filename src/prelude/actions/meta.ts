@@ -107,7 +107,7 @@ export function attachMetaActions(
                 }));
             }
             await ayakashiInstance.evaluate(function(name: string, fn: ExtractorFn) {
-                this.extractors[name] = fn;
+                this.extractors[name] = fn.bind(this);
             }, extractorName, extractorFn);
         };
     };
