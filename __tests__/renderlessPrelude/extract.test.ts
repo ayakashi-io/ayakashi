@@ -340,4 +340,15 @@ describe("extraction tests", function() {
         const result = await ayakashiInstance.extract("myUknownDiv");
         expect(result).toBeArrayOfSize(0);
     });
+
+    test("using load twice should not reset the extractors", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
+        const result = await ayakashiInstance.extract("myDiv");
+        expect(result).toEqual([{myDiv: "hello"}]);
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        const result2 = await ayakashiInstance.extract("myDiv");
+        expect(result2).toEqual([{myDiv: "hello"}]);
+    });
 });

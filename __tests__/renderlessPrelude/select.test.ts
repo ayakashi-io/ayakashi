@@ -322,4 +322,23 @@ describe("select tests", function() {
             ayakashiInstance.selectFirst("spans").where({tagName: {eq: "SPAN"}}).from("uknownContainer");
         }).toThrowError("Uknown parent prop : uknownContainer");
     });
+
+    test("using load twice should not reset the propTable", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({tagName: {eq: "A"}});
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual([{
+            links: "link1"
+        }, {
+            links: "link2"
+        }]);
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        const result2 = await ayakashiInstance.extract("links", "id");
+        expect(result2).toEqual([{
+            links: "link1"
+        }, {
+            links: "link2"
+        }]);
+    });
 });

@@ -29,16 +29,17 @@ export interface IRenderlessAyakashiInstance {
     load: (url: string, timeout?: number) => Promise<void>;
     attachDOM: (dom: JSDOM) => void;
 }
+type PropTable = {
+    [key: string]: {
+        matches: HTMLElement[]
+    }
+};
 
 //tslint:disable interface-name
 declare module JSDOM {
     interface DOMWindow {
         ayakashi: {
-            propTable: {
-                [key: string]: {
-                    matches: HTMLElement[]
-                }
-            },
+            propTable: PropTable,
             extractors: {
                 [key: string]: ExtractorFn
             },
@@ -64,6 +65,8 @@ export async function renderlessPrelude() {
     attachCoreExtractors(<IRenderlessAyakashiInstance>ayakashiInstance);
     attachRetry(<IRenderlessAyakashiInstance>ayakashiInstance);
 
+    const propTable: PropTable = {};
+
     (<IRenderlessAyakashiInstance>ayakashiInstance).attachDOM = async function(dom) {
         this.page = dom;
         this.page.window.ayakashi = {
@@ -74,7 +77,7 @@ export async function renderlessPrelude() {
                 }
             },
             extractors: {},
-            propTable: {}
+            propTable: propTable
         };
         attachQuery(<IRenderlessAyakashiInstance>ayakashiInstance, this.page.window);
     };
