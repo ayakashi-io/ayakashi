@@ -50,7 +50,9 @@ declare module JSDOM {
                 domQL: {
                     domQuery: (q: Query, opts?: QueryOptions) => HTMLElement[]
                 }
-            }
+            },
+            document: Document;
+            window: Window;
         };
     }
 }
@@ -99,7 +101,9 @@ export async function renderlessPrelude() {
                 }
             },
             extractors: {},
-            propTable: propTable
+            propTable: propTable,
+            document: dom.window.document,
+            window: dom.window
         };
         attachQuery(<IRenderlessAyakashiInstance>ayakashiInstance, this.page.window);
     };

@@ -124,7 +124,7 @@ ayakashi.defineProp(function() {
 }, "mainSection");
 ```
 */
-    defineProp: (fn: () => HTMLElement | HTMLElement[] | NodeList, propId?: string) => IDomProp;
+    defineProp: (fn: (this: Window["ayakashi"]) => HTMLElement | HTMLElement[] | NodeList, propId?: string) => IDomProp;
     //tslint:disable no-any
 /**
  * Registers a new action and makes it available in the ayakashi instance.
@@ -240,6 +240,8 @@ declare global {
             },
             paused: boolean,
             resume: () => void;
+            document: Document;
+            window: Window;
         };
     }
 }

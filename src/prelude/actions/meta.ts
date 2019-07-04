@@ -36,13 +36,16 @@ export function attachMetaActions(
             propId: propId,
             triggerFn: function() {
                 return ayakashiInstance.evaluate<number>(function(
-                    propConstructor: () => HTMLElement[] | NodeList,
-                id: string) {
-                    const elements = propConstructor();
+                    propConstructor: (this: Window["ayakashi"]) => HTMLElement[] | NodeList,
+                    id: string
+                ) {
+                    const elements = propConstructor.call(this);
                     let matches: HTMLElement[];
-                    if (Array.isArray(elements) || elements instanceof NodeList) {
+                    //@ts-ignore
+                    if (Array.isArray(elements) || elements instanceof this.window.NodeList) {
                         matches = <HTMLElement[]>Array.from(elements);
                     } else {
+                        //@ts-ignore
                         matches = [elements];
                     }
                     this.propTable[id] = {

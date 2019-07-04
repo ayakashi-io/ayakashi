@@ -289,6 +289,8 @@ export async function createConnection(
                         window['${this.namespace}'].propTable = {};
                         window['${this.namespace}'].extractors = {};
                         window['${this.namespace}'].preloaders = {};
+                        window['${this.namespace}'].document = document;
+                        window['${this.namespace}'].window = window;
                     `
                 });
                 connection.preloaderIds.push(scriptId);
