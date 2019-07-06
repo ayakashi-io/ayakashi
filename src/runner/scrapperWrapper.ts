@@ -1,4 +1,4 @@
-import request from "request-promise-native";
+import request from "@ayakashi/request";
 import {createConnection, EmulatorOptions, IConnection} from "../engine/createConnection";
 import {Target} from "../engine/createTarget";
 import {prelude, IAyakashiInstance} from "../prelude/prelude";

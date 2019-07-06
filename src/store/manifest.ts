@@ -1,4 +1,4 @@
-import request from "request-promise-native";
+import request from "@ayakashi/request";
 const packageJson = require("../../package.json");
 
 type Manifest = {

@@ -1,4 +1,4 @@
-import request from "request-promise-native";
+import request from "@ayakashi/request";
 import {resolve as pathResolve} from "path";
 import {JSDOM} from "jsdom";
 import {
@@ -72,12 +72,13 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
                 headers: {
                     "User-Agent": userAgent.toString(),
                     Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-                    "accept-language": "en-US,en;q=0.9"
+                    "accept-language": "en-US,en;q=0.9",
+                    "accept-encoding": "br, gzip, deflate"
                 },
                 proxy: log.body.proxyUrl || undefined,
                 strictSSL: !log.body.ignoreCertificateErrors,
                 timeout: timeout || 10000,
-                gzip: true
+                gzipOrBrotli: true
             });
             d("url loaded");
             d("building DOM");

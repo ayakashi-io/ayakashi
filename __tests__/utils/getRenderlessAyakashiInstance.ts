@@ -1,5 +1,5 @@
 import {renderlessPrelude} from "../../src/prelude/renderlessPrelude";
-import request from "request-promise-native";
+import request from "@ayakashi/request";
 import {JSDOM} from "jsdom";
 
 export async function getAyakashiInstance() {

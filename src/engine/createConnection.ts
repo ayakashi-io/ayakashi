@@ -6,7 +6,7 @@ import {isRegExp} from "util";
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
 import {retry as asyncRetry} from "async";
 import {ExponentialStrategy} from "backoff";
-import request from "request-promise-native";
+import request from "@ayakashi/request";
 
 const d = debug("ayakashi:engine:connection");
 
