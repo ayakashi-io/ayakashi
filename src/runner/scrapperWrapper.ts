@@ -2,20 +2,21 @@ import request from "request-promise-native";
 import {createConnection, EmulatorOptions, IConnection} from "../engine/createConnection";
 import {Target} from "../engine/createTarget";
 import {prelude, IAyakashiInstance} from "../prelude/prelude";
-//@ts-ignore
-import requireAll from "require-all";
 import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {compile} from "../preloaderCompiler/compiler";
-import dir from "node-dir";
-import {existsSync} from "fs";
 import {getOpLog} from "../opLog/opLog";
+import {
+    loadLocalActions,
+    loadLocalExtractors,
+    loadLocalPreloaders,
+    loadLocalProps,
+    loadExternalActions,
+    loadExternalExtractors,
+    loadExternalPreloaders
+} from "./loaders";
 import debug from "debug";
 const d = debug("ayakashi:scrapperWrapper");
-
-declare module "node-dir" {
-    export function promiseFiles(dir: string): Promise<string[]>;
-}
 
 type PassedLog = {
     id: string,
@@ -272,115 +273,19 @@ async function getTarget(port: number): Promise<Target | null> {
     }
 }
 
-async function loadPreloaders(
-    connection: IConnection,
-    preloaderDefinitions: {
-        module: string,
-        as: string | null,
-        waitForDOM: boolean
-    }[],
-    projectFolder: string,
-    storeProjectFolder: string
-) {
-    const opLog = getOpLog();
-    const preloaders = await Promise.all(preloaderDefinitions.map(function(preloaderDefinition) {
-        return new Promise(function(resolve, reject) {
-            compile(
-                projectFolder,
-                preloaderDefinition.module,
-                "ayakashi",
-                `${storeProjectFolder}/.cache/preloaders/`
-            ).then(function(compiled) {
-                resolve({
-                    compiled: compiled,
-                    as: preloaderDefinition.as,
-                    waitForDOM: preloaderDefinition.waitForDOM
-                });
-            }).catch(function(err) {
-                opLog.error(`Failed to compile preloader ${preloaderDefinition.module}`);
-                reject(err);
-            });
-        });
-    }));
-    return Promise.all(preloaders.map(async function(preloader) {
-        try {
-            //@ts-ignore
-            await connection.injectPreloader(preloader);
-        } catch (e) {
-            //@ts-ignore
-            opLog.error(`Failed to load preloader ${preloader.module}`);
-            throw e;
-        }
-    }));
-}
-
 async function loadExternals(
     connection: IConnection,
     ayakashiInstance: IAyakashiInstance,
     log: PassedLog
 ) {
-    const opLog = getOpLog();
-    //load external preloaders
-    if (log.body.load.preloaders && Array.isArray(log.body.load.preloaders)) {
-        const preloaderDefinitions: {
-            module: string,
-            as: string | null,
-            waitForDOM: boolean
-            //@ts-ignore
-        }[] = log.body.load.preloaders.map(function(preloader) {
-            if (typeof preloader === "string") {
-                return {
-                    module: preloader,
-                    as: null,
-                    waitForDOM: false
-                };
-            } else if (typeof preloader === "object" && typeof preloader.module === "string") {
-                return {
-                    module: preloader.module,
-                    as: preloader.as || null,
-                    waitForDOM: preloader.waitForDOM || null
-                };
-            } else {
-                return null;
-            }
-            //@ts-ignore
-        }).filter(preloader => !!preloader);
-        await loadPreloaders(connection, preloaderDefinitions, log.body.projectFolder, log.body.storeProjectFolder);
-    }
-    //load external actions
-    if (log.body.load.actions && Array.isArray(log.body.load.actions)) {
-        log.body.load.actions.forEach(function(actionModule) {
-            try {
-                const action = require(actionModule);
-                if (typeof action === "function") {
-                    d(`loading external action: ${actionModule}`);
-                    action(ayakashiInstance);
-                } else {
-                    throw new Error("invalid_action");
-                }
-            } catch (e) {
-                opLog.error(`Action <${actionModule}> is invalid`);
-                throw e;
-            }
-        });
-    }
-    //load external extractors
-    if (log.body.load.extractors && Array.isArray(log.body.load.extractors)) {
-        log.body.load.extractors.forEach(function(extractorModule) {
-            try {
-                const registerExtractor = require(extractorModule);
-                if (typeof extractorModule === "function") {
-                    d(`loading external extractor: ${extractorModule}`);
-                    registerExtractor(ayakashiInstance);
-                } else {
-                    throw new Error("invalid_extractor");
-                }
-            } catch (e) {
-                opLog.error(`Extractor <${extractorModule}> is invalid`);
-                throw e;
-            }
-        });
-    }
+    loadExternalActions(ayakashiInstance, log.body.load.actions);
+    loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
+    await loadExternalPreloaders(
+        connection,
+        log.body.projectFolder,
+        log.body.storeProjectFolder,
+        log.body.load.preloaders
+    );
 }
 
 async function loadLocals(
@@ -388,77 +293,8 @@ async function loadLocals(
     ayakashiInstance: IAyakashiInstance,
     log: PassedLog
 ) {
-    const opLog = getOpLog();
-    //autoload local props
-    const localPropsDir = pathResolve(log.body.projectFolder, "props");
-    if (existsSync(localPropsDir)) {
-        const props = requireAll(localPropsDir);
-        Object.keys(props).forEach(function(propName) {
-            try {
-                if (typeof props[propName] === "function") {
-                    d(`autoloading prop: ${propName}`);
-                    props[propName](ayakashiInstance);
-                } else {
-                    throw new Error("invalid_prop");
-                }
-            } catch (e) {
-                opLog.error(`Local prop <${propName}> is invalid`);
-                throw e;
-            }
-        });
-    }
-    //autoload local actions
-    const localActionsDir = pathResolve(log.body.projectFolder, "actions");
-    if (existsSync(localActionsDir)) {
-        const actions = requireAll(localActionsDir);
-        Object.keys(actions).forEach(function(actionName) {
-            try {
-                if (typeof actions[actionName] === "function") {
-                    d(`autoloading action: ${actionName}`);
-                    actions[actionName](ayakashiInstance);
-                } else {
-                    throw new Error("invalid_action");
-                }
-            } catch (e) {
-                opLog.error(`Local action <${actionName}> is invalid`);
-                throw e;
-            }
-        });
-    }
-    // //autoload local extractors
-    const localExtractorsDir = pathResolve(log.body.projectFolder, "extractors");
-    if (existsSync(localExtractorsDir)) {
-        const extractors = requireAll(localExtractorsDir);
-        Object.keys(extractors).forEach(function(extractor) {
-            try {
-                if (typeof extractors[extractor] === "function") {
-                    d(`autoloading extractor: ${extractor}`);
-                    extractors[extractor](ayakashiInstance);
-                } else {
-                    throw new Error("invalid_extractor");
-                }
-            } catch (e) {
-                opLog.error(`Local extractor <${extractor}> is invalid`);
-                throw e;
-            }
-        });
-    }
-    // //autoload local preloaders
-    const localPreloadersDir = pathResolve(log.body.projectFolder, "preloaders");
-    if (existsSync(localPreloadersDir)) {
-        const localPreloaders: string[] = await dir.promiseFiles(localPreloadersDir);
-        const localPreloaderDefinitions = localPreloaders.map(function(preloader: string) {
-            return {
-                module: preloader,
-                as: null,
-                waitForDOM: false
-            };
-        });
-        await loadPreloaders(
-            connection,
-            localPreloaderDefinitions,
-            log.body.projectFolder,
-            log.body.storeProjectFolder
-        );
-    }
+    loadLocalProps(ayakashiInstance, log.body.projectFolder);
+    loadLocalActions(ayakashiInstance, log.body.projectFolder);
+    loadLocalExtractors(ayakashiInstance, log.body.projectFolder);
+    await loadLocalPreloaders(connection, log.body.projectFolder, log.body.storeProjectFolder);
 }

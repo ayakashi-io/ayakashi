@@ -379,4 +379,51 @@ describe("extraction tests", function() {
         expect(result2).toEqual([{myDiv: "hello"}]);
         await ayakashiInstance.__connection.release();
     });
+
+    test("using a custom extractor", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        ayakashiInstance.registerExtractor("getClassName", function() {
+            return {
+                extract: function(element) {
+                    return element.className;
+                },
+                isValid: function(extractorResult: string) {
+                    return typeof extractorResult === "string";
+                },
+                useDefault: function() {
+                    return "no-class";
+                }
+            };
+        });
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
+        const result = await ayakashiInstance.extract("myDiv", "getClassName");
+        expect(result).toEqual([{myDiv: "divs"}]);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("using a custom extractor with a dependency", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        ayakashiInstance.registerExtractor("myText", function() {
+            const self = this;
+            return {
+                extract: function(element) {
+                    //@ts-ignore
+                    const textExtractor = self.extractors.text();
+                    return textExtractor.extract(element) + "-custom";
+                },
+                isValid: function(extractorResult: string) {
+                    return typeof extractorResult === "string";
+                },
+                useDefault: function() {
+                    return "no-text";
+                }
+            };
+        }, ["text"]);
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
+        const result = await ayakashiInstance.extract("myDiv", "myText");
+        expect(result).toEqual([{myDiv: "hello-custom"}]);
+        await ayakashiInstance.__connection.release();
+    });
 });

@@ -1,6 +1,11 @@
 import request from "request-promise-native";
 import {resolve as pathResolve} from "path";
 import {JSDOM} from "jsdom";
+import {
+    loadLocalExtractors,
+    loadLocalProps,
+    loadExternalExtractors
+} from "./loaders";
 //@ts-ignore
 import UserAgent from "user-agents";
 import {PipeProc} from "pipeproc";
@@ -78,6 +83,7 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
             d("building DOM");
             if (html) {
                 this.attachDOM(new JSDOM(html));
+                loadLocalProps(ayakashiInstance, log.body.projectFolder);
             } else {
                 await ayakashiInstance.__connection.release();
                 throw new Error("Invalid page");
@@ -152,6 +158,9 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
                 });
             }
         };
+
+        loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
+        loadLocalExtractors(ayakashiInstance, log.body.projectFolder);
 
         let scrapperModule;
         try {
