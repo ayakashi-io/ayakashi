@@ -207,6 +207,11 @@ for (const link of extractedLinks) {
 */
     recursiveYield: (extracted: object | Promise<object>) => Promise<void>;
 /**
+ * Recursively re-run the scrapper by yielding multiple extractions individually in a single (atomic) operation.
+ * The data will be available in the input object.
+*/
+    recursiveYieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;
+/**
  * Retry an async operation.
  * Default is 10 retries.
  * If the operation returns a result, that result will also be returned by retry.

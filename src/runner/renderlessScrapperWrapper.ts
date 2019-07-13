@@ -10,6 +10,7 @@ import {
 import UserAgent from "user-agents";
 import {PipeProc} from "pipeproc";
 import {renderlessPrelude} from "../prelude/renderlessPrelude";
+import {attachYields} from "../prelude/actions/yield";
 import {getOpLog} from "../opLog/opLog";
 import debug from "debug";
 const d = debug("ayakashi:renderlessScrapperWrapper");
@@ -95,70 +96,9 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
         const pipeprocClient = PipeProc();
         await pipeprocClient.connect({namespace: "ayakashi"});
 
-        //define the .yield() method
-        let yieldedAtLeastOnce = false;
-        ayakashiInstance.yield = async function(extracted) {
-            if (extracted instanceof Promise) {
-                const actualExtracted = await extracted;
-                if (!actualExtracted || typeof actualExtracted !== "object") return;
-                await pipeprocClient.commit({
-                    topic: log.body.saveTopic,
-                    body: actualExtracted
-                });
-                yieldedAtLeastOnce = true;
-            } else {
-                if (!extracted || typeof extracted !== "object") return;
-                await pipeprocClient.commit({
-                    topic: log.body.saveTopic,
-                    body: extracted
-                });
-                yieldedAtLeastOnce = true;
-            }
-        };
-        ayakashiInstance.yieldEach = async function(extracted) {
-            if (extracted instanceof Promise) {
-                const actualExtracted = await extracted;
-                if (!Array.isArray(actualExtracted) || actualExtracted.length === 0) {
-                    opLog.warn("<yieldEach> requires an array");
-                    return;
-                }
-                await pipeprocClient.commit(actualExtracted.map(ex => {
-                    return {
-                        topic: log.body.saveTopic,
-                        body: ex
-                    };
-                }));
-                yieldedAtLeastOnce = true;
-            } else {
-                if (!Array.isArray(extracted) || extracted.length === 0) {
-                    opLog.warn("<yieldEach> requires an array");
-                    return;
-                }
-                await pipeprocClient.commit(extracted.map(ex => {
-                    return {
-                        topic: log.body.saveTopic,
-                        body: ex
-                    };
-                }));
-                yieldedAtLeastOnce = true;
-            }
-        };
-        ayakashiInstance.recursiveYield = async function(extracted) {
-            if (extracted instanceof Promise) {
-                const actualExtracted = await extracted;
-                if (!actualExtracted || typeof actualExtracted !== "object") return;
-                await pipeprocClient.commit({
-                    topic: log.body.selfTopic,
-                    body: actualExtracted
-                });
-            } else {
-                if (!extracted || typeof extracted !== "object") return;
-                await pipeprocClient.commit({
-                    topic: log.body.selfTopic,
-                    body: extracted
-                });
-            }
-        };
+        //attach the yield methods
+        const yieldWatcher = {yieldedAtLeastOnce: false};
+        attachYields(ayakashiInstance, pipeprocClient, log.body.saveTopic, log.body.selfTopic, yieldWatcher);
 
         loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
         loadLocalExtractors(ayakashiInstance, log.body.projectFolder);
@@ -195,7 +135,7 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
         if (result) {
             await ayakashiInstance.yield(result);
         }
-        if (!result && !yieldedAtLeastOnce) {
+        if (!result && !yieldWatcher.yieldedAtLeastOnce) {
             await ayakashiInstance.yield({continue: true});
         }
         await ayakashiInstance.__connection.release();
