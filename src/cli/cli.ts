@@ -14,6 +14,7 @@ import {generateAction} from "./scaffold/generateAction";
 import {generateExtractor} from "./scaffold/generateExtractor";
 import {generatePreloader} from "./scaffold/generatePreloader";
 import {generateScrapper} from "./scaffold/generateScrapper";
+import {generateRenderlessScrapper} from "./scaffold/generateRenderlessScrapper";
 import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
 import {showBoxUpdate, showLineUpdate} from "./update/showUpdate";
@@ -87,6 +88,10 @@ yargs
                 type: "boolean",
                 describe: "Generate a new scrapper"
             })
+            .option("renderlessScrapper", {
+                type: "boolean",
+                describe: "Generate a new renderlessScrapper"
+            })
             .option("script", {
                 type: "boolean",
                 describe: "Generate a new script"
@@ -109,7 +114,7 @@ yargs
             })
             .option("name", {
                 type: "string",
-                describe: "The name of the new scrapper|script|prop|action|extractor|preloader"
+                describe: "The name of the new scrapper|renderlessScrapper|script|prop|action|extractor|preloader"
             })
             .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#new");
         //@ts-ignore
@@ -117,7 +122,7 @@ yargs
         //tslint:disable cyclomatic-complexity
         const opLog = getOpLog();
         if ((!argv.prop && !argv.project && !argv.action && !argv.extractor &&
-            !argv.preloader && !argv.scrapper && !argv.script) || argv.project) {
+            !argv.preloader && !argv.scrapper && !argv.renderlessScrapper && !argv.script) || argv.project) {
             if (argv.dir === ".") {
                 await generateProject(getDirectory(argv.dir), true);
             } else {
@@ -158,6 +163,13 @@ yargs
                 process.exit(1);
             }
             await generateScrapper(getDirectory(argv.dir), name);
+        } else if (argv.renderlessScrapper) {
+            const name = await getName(argv.name, "renderlessScrapper");
+            if (!name) {
+                opLog.error("Invalid renderlessScrapper name");
+                process.exit(1);
+            }
+            await generateRenderlessScrapper(getDirectory(argv.dir), name);
         } else if (argv.script) {
             const name = await getName(argv.name, "script");
             if (!name) {
