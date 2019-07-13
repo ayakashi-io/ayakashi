@@ -2,7 +2,7 @@ module.exports = {
     "transform": {
         "^.+\\.tsx?$": "ts-jest"
     },
-    "setupTestFrameworkScriptFile": "jest-extended",
+    "setupFilesAfterEnv": ["jest-extended"],
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "moduleFileExtensions": [
         "ts",
