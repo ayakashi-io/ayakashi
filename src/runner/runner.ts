@@ -40,6 +40,7 @@ export async function run(projectFolder: string, config: Config, resume: boolean
         const parsedConfig = createProcGenerators(config, steps, {
             bridgePort: (config.config && config.config.bridgePort) || 9731,
             protocolPort: (config.config && config.config.protocolPort) || 9730,
+            persistentSession: (config.config && config.config.persistentSession === true) || false,
             projectFolder: projectFolder,
             storeProjectFolder: storeProjectFolder,
             operationId: uuid(),

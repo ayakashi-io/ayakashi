@@ -39,6 +39,7 @@ type PassedLog = {
         selfTopic: string,
         projectFolder: string,
         storeProjectFolder: string,
+        persistentSession: boolean,
         operationId: string,
         startDate: string,
         procName: string,
@@ -72,8 +73,7 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
                 headers: {
                     "User-Agent": userAgent.toString(),
                     Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-                    "accept-language": "en-US,en;q=0.9",
-                    "accept-encoding": "br, gzip, deflate"
+                    "accept-language": "en-US,en;q=0.9"
                 },
                 proxy: log.body.proxyUrl || undefined,
                 strictSSL: !log.body.ignoreCertificateErrors,

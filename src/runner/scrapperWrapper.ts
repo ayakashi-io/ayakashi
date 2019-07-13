@@ -48,6 +48,7 @@ type PassedLog = {
         selfTopic: string,
         projectFolder: string,
         storeProjectFolder: string,
+        persistentSession: boolean,
         operationId: string,
         startDate: string,
         procName: string,

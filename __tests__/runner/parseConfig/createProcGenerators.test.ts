@@ -18,6 +18,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -54,6 +55,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -93,6 +95,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -129,6 +132,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -181,6 +185,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -249,6 +254,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -323,6 +329,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -394,6 +401,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -463,6 +471,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -503,6 +512,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -548,6 +558,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -586,6 +597,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
@@ -631,6 +643,7 @@ describe("createProcGenerators", function() {
             bridgePort: 1,
             projectFolder: "",
             storeProjectFolder: "",
+            persistentSession: false,
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {

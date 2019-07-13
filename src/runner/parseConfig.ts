@@ -381,6 +381,7 @@ export function createProcGenerators(
     options: {
         bridgePort: number,
         protocolPort: number,
+        persistentSession: boolean,
         projectFolder: string,
         operationId: string,
         storeProjectFolder: string,
@@ -431,6 +432,7 @@ function _createProcGenerators(
     options: {
         bridgePort: number,
         protocolPort: number,
+        persistentSession: boolean,
         projectFolder: string,
         storeProjectFolder: string,
         operationId: string,
@@ -566,6 +568,7 @@ function addPreStep(
     options: {
         bridgePort: number,
         protocolPort: number,
+        persistentSession: boolean,
         projectFolder: string,
         storeProjectFolder: string,
         operationId: string,
@@ -595,6 +598,7 @@ function addPreStep(
                             saveTopic: "${step}",
                             projectFolder: "${options.projectFolder}",
                             storeProjectFolder: "${options.storeProjectFolder}",
+                            persistentSession: ${options.persistentSession},
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
@@ -611,6 +615,7 @@ function addPreStep(
                             saveTopic: "${step}",
                             projectFolder: "${options.projectFolder}",
                             storeProjectFolder: "${options.storeProjectFolder}",
+                            persistentSession: ${options.persistentSession},
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
@@ -648,6 +653,7 @@ function addParallelPreStep(
     options: {
         bridgePort: number,
         protocolPort: number,
+        persistentSession: boolean,
         projectFolder: string,
         storeProjectFolder: string,
         operationId: string,
@@ -678,6 +684,7 @@ function addParallelPreStep(
                                 saveTopic: "${step}",
                                 projectFolder: "${options.projectFolder}",
                                 storeProjectFolder: "${options.storeProjectFolder}",
+                                persistentSession: ${options.persistentSession},
                                 operationId: "${options.operationId}",
                                 startDate: "${options.startDate}",
                                 procName: "proc_from_pre_${step}_to_${step}",
@@ -694,6 +701,7 @@ function addParallelPreStep(
                                 saveTopic: "${step}",
                                 projectFolder: "${options.projectFolder}",
                                 storeProjectFolder: "${options.storeProjectFolder}",
+                                persistentSession: ${options.persistentSession},
                                 operationId: "${options.operationId}",
                                 startDate: "${options.startDate}",
                                 procName: "proc_from_pre_${step}_to_${step}",
