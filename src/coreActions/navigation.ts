@@ -65,7 +65,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         if (matchCount === 0) throw new Error("<navigationClick> needs a prop with at least 1 match");
         await ayakashiInstance.__connection.client.Page.stopLoading();
         await ayakashiInstance.evaluate(function(scopedPropId: string) {
-            window.ayakashi.propTable[scopedPropId].matches.forEach(function(link) {
+            this.propTable[scopedPropId].matches.forEach(function(link) {
                 if ((<HTMLAnchorElement>link).target === "_blank") {
                     (<HTMLAnchorElement>link).target = "_self";
                 }

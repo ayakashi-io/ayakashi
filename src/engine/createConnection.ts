@@ -6,7 +6,7 @@ import {isRegExp} from "util";
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
 import {retry as asyncRetry} from "async";
 import {ExponentialStrategy} from "backoff";
-import request from "request-promise-native";
+import request from "@ayakashi/request";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -289,6 +289,8 @@ export async function createConnection(
                         window['${this.namespace}'].propTable = {};
                         window['${this.namespace}'].extractors = {};
                         window['${this.namespace}'].preloaders = {};
+                        window['${this.namespace}'].document = document;
+                        window['${this.namespace}'].window = window;
                     `
                 });
                 connection.preloaderIds.push(scriptId);
@@ -396,13 +398,14 @@ async function evaluate<T>(
             //tslint:disable
             exp = `(function() {
                 "use strict";
-                const args = ${JSON.stringify(args)};` +
+                const args = ${JSON.stringify(args)};
+                const ns = ${namespace};\n` +
                 "args.forEach(function(arg, i) {\
                     if (arg && typeof arg.indexOf === 'function' && (arg.indexOf('function') === 0 || arg.indexOf('=>') > -1)) {\
                         const func = args[i];\
                         args[i] = function(results) {\
-                            let exec = new Function('results', `return (${func}).call(null, results);`);\
-                            return exec(results);\
+                            let exec = new Function('results', `return (${func}).call(this, results);`);\
+                            return exec.call(ns, results);\
                         };\
                     }\
                     if (arg && arg.isRegex) {\

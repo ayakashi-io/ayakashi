@@ -1,5 +1,6 @@
 import {IConnection} from "../../engine/createConnection";
 import {IAyakashiInstance} from "../prelude";
+import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {createQuery} from "../query/query";
 import {getOpLog} from "../../opLog/opLog";
 
@@ -7,7 +8,10 @@ import debug from "debug";
 import {ExtractorFn} from "./extract";
 const d = debug("ayakashi:prelude:meta");
 
-export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connection: IConnection) {
+export function attachMetaActions(
+    ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
+    connection: IConnection
+) {
     const opLog = getOpLog();
     ayakashiInstance.prop = function(propId) {
         if (typeof propId === "string" && ayakashiInstance.propRefs[propId]) {
@@ -32,16 +36,19 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
             propId: propId,
             triggerFn: function() {
                 return ayakashiInstance.evaluate<number>(function(
-                    propConstructor: () => HTMLElement[] | NodeList,
-                id: string) {
-                    const elements = propConstructor();
+                    propConstructor: (this: Window["ayakashi"]) => HTMLElement[] | NodeList,
+                    id: string
+                ) {
+                    const elements = propConstructor.call(this);
                     let matches: HTMLElement[];
-                    if (Array.isArray(elements) || elements instanceof NodeList) {
+                    //@ts-ignore
+                    if (Array.isArray(elements) || elements instanceof this.window.NodeList) {
                         matches = <HTMLElement[]>Array.from(elements);
                     } else {
+                        //@ts-ignore
                         matches = [elements];
                     }
-                    window.ayakashi.propTable[id] = {
+                    this.propTable[id] = {
                         matches: matches
                     };
                     return matches.length;
@@ -52,16 +59,16 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
         return query;
     };
 
-    ayakashiInstance.pause = async function() {
+    (<IAyakashiInstance>ayakashiInstance).pause = async function() {
         try {
             await ayakashiInstance.evaluate(function() {
                 console.warn("[Ayakashi]: scrapper execution is paused, run ayakashi.resume() in devtools to resume");
-                window.ayakashi.paused = true;
+                this.paused = true;
             });
             opLog.warn("scrapper execution is paused, run ayakashi.resume() in devtools to resume");
-            await ayakashiInstance.waitUntil<boolean>(function() {
+            await (<IAyakashiInstance>ayakashiInstance).waitUntil<boolean>(function() {
                 return ayakashiInstance.evaluate<boolean>(function() {
-                    return window.ayakashi.paused === false;
+                    return this.paused === false;
                 });
             }, 100, 0);
             opLog.warn("scrapper execution is resumed");
@@ -70,7 +77,7 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
         }
     };
 
-    ayakashiInstance.registerAction = function(name, actionFn) {
+    (<IAyakashiInstance>ayakashiInstance).registerAction = function(name, actionFn) {
         d("registering action:", name);
         if (!name || typeof name !== "string" ||
             !actionFn || typeof actionFn !== "function") {
@@ -79,7 +86,7 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
         if (name in ayakashiInstance) throw new Error(`There is an action "${name}" already registered`);
         //@ts-ignore
         ayakashiInstance[name] = function(...args) {
-            return actionFn.call(ayakashiInstance, ...args);
+            return actionFn.call(<IAyakashiInstance>ayakashiInstance, ...args);
         };
     };
 
@@ -103,7 +110,7 @@ export function attachMetaActions(ayakashiInstance: IAyakashiInstance, connectio
                 }));
             }
             await ayakashiInstance.evaluate(function(name: string, fn: ExtractorFn) {
-                window.ayakashi.extractors[name] = fn;
+                this.extractors[name] = fn.bind(this);
             }, extractorName, extractorFn);
         };
     };

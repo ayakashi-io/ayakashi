@@ -1,22 +1,18 @@
 import request from "@ayakashi/request";
-import {createConnection, EmulatorOptions, IConnection} from "../engine/createConnection";
-import {Target} from "../engine/createTarget";
-import {prelude, IAyakashiInstance} from "../prelude/prelude";
 import {resolve as pathResolve} from "path";
-import {PipeProc} from "pipeproc";
-import {compile} from "../preloaderCompiler/compiler";
-import {getOpLog} from "../opLog/opLog";
+import {JSDOM} from "jsdom";
 import {
-    loadLocalActions,
     loadLocalExtractors,
-    loadLocalPreloaders,
     loadLocalProps,
-    loadExternalActions,
-    loadExternalExtractors,
-    loadExternalPreloaders
+    loadExternalExtractors
 } from "./loaders";
+//@ts-ignore
+import UserAgent from "user-agents";
+import {PipeProc} from "pipeproc";
+import {renderlessPrelude} from "../prelude/renderlessPrelude";
+import {getOpLog} from "../opLog/opLog";
 import debug from "debug";
-const d = debug("ayakashi:scrapperWrapper");
+const d = debug("ayakashi:renderlessScrapperWrapper");
 
 type PassedLog = {
     id: string,
@@ -27,7 +23,6 @@ type PassedLog = {
             pipeConsole?: boolean,
             pipeExceptions?: boolean,
             localAutoLoad?: boolean,
-            emulatorOptions?: EmulatorOptions,
             simple?: boolean
         },
         load: {
@@ -40,10 +35,6 @@ type PassedLog = {
             }[]
         },
         module: string,
-        connectionConfig: {
-            bridgePort: number,
-            protocolPort: number
-        },
         saveTopic: string,
         selfTopic: string,
         projectFolder: string,
@@ -52,58 +43,54 @@ type PassedLog = {
         operationId: string,
         startDate: string,
         procName: string,
-        appRoot: string
+        appRoot: string,
+        userAgent?: string,
+        proxyUrl?: string,
+        ignoreCertificateErrors: boolean
     }
 };
 
-export default async function scrapperWrapper(log: PassedLog) {
+export default async function renderlessScrapperWrapper(log: PassedLog) {
     try {
         const opLog = getOpLog();
         opLog.info("running scrapper", log.body.module);
-        //get a tab and create a connection
-        let tab;
-        try {
-            tab = await getTarget(log.body.connectionConfig.bridgePort);
-            if (!tab) {
-                throw new Error("no_target");
+
+        const ayakashiInstance = await renderlessPrelude();
+
+        ayakashiInstance.load = async function(url, timeout) {
+            let userAgent = "";
+            if (!log.body.userAgent || log.body.userAgent === "random") {
+                userAgent = new UserAgent();
             }
-        } catch (e) {
-            d(e);
-            opLog.error("Could not create a chrome target");
-            throw e;
-        }
-
-        let connection;
-        try {
-            connection = await createConnection(
-                tab,
-                log.body.connectionConfig.bridgePort,
-                log.body.config.emulatorOptions
-            );
-            if (!connection) {
-                throw new Error("no_connection");
+            if (log.body.userAgent && log.body.userAgent === "desktop") {
+                userAgent = new UserAgent({deviceCategory: "desktop"});
             }
-        } catch (e) {
-            d(e);
-            opLog.error("Could not create a connection");
-            throw e;
-        }
-
-        //check pipes and initialize the instance using the prelude
-        if (log.body.config.pipeConsole !== false) {
-            connection.pipe.console(function(text) {
-                if (text && text.indexOf("[Ayakashi]") === -1) {
-                    opLog.debug(`<Scrapper:${log.body.module}:Browser>`, text);
-                }
+            if (log.body.userAgent && log.body.userAgent === "mobile") {
+                userAgent = new UserAgent({deviceCategory: "mobile"});
+            }
+            d("loading url: ", url);
+            const html = await request.get(url, {
+                headers: {
+                    "User-Agent": userAgent.toString(),
+                    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+                    "accept-language": "en-US,en;q=0.9"
+                },
+                proxy: log.body.proxyUrl || undefined,
+                strictSSL: !log.body.ignoreCertificateErrors,
+                timeout: timeout || 10000,
+                gzipOrBrotli: true
             });
-        }
-        if (log.body.config.pipeExceptions !== false) {
-            connection.pipe.uncaughtException(function(exception) {
-                opLog.debug(`<Scrapper:${log.body.module}:Browser:Exception>`, JSON.stringify(exception, null, 2));
-            });
-        }
-        const ayakashiInstance = await prelude(connection);
-
+            d("url loaded");
+            d("building DOM");
+            if (html) {
+                this.attachDOM(new JSDOM(html));
+                loadLocalProps(ayakashiInstance, log.body.projectFolder);
+            } else {
+                await ayakashiInstance.__connection.release();
+                throw new Error("Invalid page");
+            }
+            d("DOM built");
+        };
         //connect to pipeproc
         const pipeprocClient = PipeProc();
         await pipeprocClient.connect({namespace: "ayakashi"});
@@ -173,50 +160,9 @@ export default async function scrapperWrapper(log: PassedLog) {
             }
         };
 
-        //load domQL as a preloader
-        const domqlPreloader = await compile(
-            log.body.appRoot,
-            `./lib/domQL/domQL`,
-            "ayakashi",
-            `${log.body.storeProjectFolder}/.cache/preloaders/`
-        );
-        await connection.injectPreloader({compiled: domqlPreloader, as: "domQL", waitForDOM: false});
+        loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
+        loadLocalExtractors(ayakashiInstance, log.body.projectFolder);
 
-        //load findCssSelector as a preloader
-        const findCssSelectorPreloader = await compile(
-            log.body.appRoot,
-            `@ayakashi/get-node-selector`,
-            "ayakashi",
-            `${log.body.storeProjectFolder}/.cache/preloaders/`
-        );
-        await connection.injectPreloader({
-            compiled: findCssSelectorPreloader,
-            as: "getNodeSelector",
-            waitForDOM: false
-        });
-        //load detection patches
-        const detectionPatches = await compile(
-            log.body.appRoot,
-            "./lib/detection/patch",
-            "ayakashi",
-            `${log.body.storeProjectFolder}/.cache/preloaders/`
-        );
-        await connection.injectPreloader({
-            compiled: detectionPatches,
-            as: "detectionPatches",
-            waitForDOM: false
-        });
-
-        //load external actions/extractors/preloaders
-        await loadExternals(connection, ayakashiInstance, log);
-
-        //autoLoad local actions/extractors/preloaders
-        if (log.body.config.localAutoLoad !== false) {
-            await loadLocals(connection, ayakashiInstance, log);
-        }
-
-        //activate the connection and load the scrapper
-        await connection.activate();
         let scrapperModule;
         try {
             if (log.body.config.simple) {
@@ -232,7 +178,7 @@ export default async function scrapperWrapper(log: PassedLog) {
             }
         } catch (e) {
             opLog.error(e.message);
-            await connection.release();
+            await ayakashiInstance.__connection.release();
             throw e;
         }
         //run the scrapper
@@ -243,7 +189,7 @@ export default async function scrapperWrapper(log: PassedLog) {
             result = await scrapperModule(ayakashiInstance, log.body.input || {}, log.body.params || {});
         } catch (e) {
             opLog.error(`There was an error while running scrapper <${log.body.module}> -`, e.message, e.stack);
-            await connection.release();
+            await ayakashiInstance.__connection.release();
             throw e;
         }
         if (result) {
@@ -252,50 +198,9 @@ export default async function scrapperWrapper(log: PassedLog) {
         if (!result && !yieldedAtLeastOnce) {
             await ayakashiInstance.yield({continue: true});
         }
-        await connection.release();
+        await ayakashiInstance.__connection.release();
     } catch (e) {
         d(e);
         throw e;
     }
-}
-
-async function getTarget(port: number): Promise<Target | null> {
-    const resp = await request.post(`http://localhost:${port}/create_target`);
-    d("bridge response:", resp);
-    if (resp) {
-        const parsedResp = JSON.parse(resp);
-        if (parsedResp.ok) {
-            return parsedResp.target;
-        } else {
-            return null;
-        }
-    } else {
-        return null;
-    }
-}
-
-async function loadExternals(
-    connection: IConnection,
-    ayakashiInstance: IAyakashiInstance,
-    log: PassedLog
-) {
-    loadExternalActions(ayakashiInstance, log.body.load.actions);
-    loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
-    await loadExternalPreloaders(
-        connection,
-        log.body.projectFolder,
-        log.body.storeProjectFolder,
-        log.body.load.preloaders
-    );
-}
-
-async function loadLocals(
-    connection: IConnection,
-    ayakashiInstance: IAyakashiInstance,
-    log: PassedLog
-) {
-    loadLocalProps(ayakashiInstance, log.body.projectFolder);
-    loadLocalActions(ayakashiInstance, log.body.projectFolder);
-    loadLocalExtractors(ayakashiInstance, log.body.projectFolder);
-    await loadLocalPreloaders(connection, log.body.projectFolder, log.body.storeProjectFolder);
 }

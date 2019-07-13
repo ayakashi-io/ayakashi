@@ -1,7 +1,8 @@
 import {IAyakashiInstance} from "../prelude/prelude";
+import {IRenderlessAyakashiInstance} from "../prelude/renderlessPrelude";
 import {ExtractorFn} from "../prelude/actions/extract";
 
-export function attachCoreExtractors(ayakashiInstance: IAyakashiInstance) {
+export function attachCoreExtractors(ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance) {
     ayakashiInstance.registerExtractor("text", function() {
         return {
             extract: function(element): string | null {
@@ -27,9 +28,11 @@ export function attachCoreExtractors(ayakashiInstance: IAyakashiInstance) {
     });
 
     const integerExtractor: ExtractorFn = function() {
+        const self = this;
         return {
             extract: function(element) {
-                const textExtractor = window.ayakashi.extractors.text();
+                //@ts-ignore
+                const textExtractor = self.extractors.text();
                 let textResult: string = textExtractor.extract(element);
                 if (!textExtractor.isValid(textResult)) {
                     textResult = textExtractor.useDefault();
@@ -53,9 +56,11 @@ export function attachCoreExtractors(ayakashiInstance: IAyakashiInstance) {
     ayakashiInstance.registerExtractor("number", integerExtractor, ["text"]);
 
     ayakashiInstance.registerExtractor("float", function() {
+        const self = this;
         return {
             extract: function(element) {
-                const textExtractor = window.ayakashi.extractors.text();
+                //@ts-ignore
+                const textExtractor = self.extractors.text();
                 let textResult: string = textExtractor.extract(element);
                 if (!textExtractor.isValid(textResult)) {
                     textResult = textExtractor.useDefault();

@@ -14,6 +14,7 @@ import {generateAction} from "./scaffold/generateAction";
 import {generateExtractor} from "./scaffold/generateExtractor";
 import {generatePreloader} from "./scaffold/generatePreloader";
 import {generateScrapper} from "./scaffold/generateScrapper";
+import {generateRenderlessScrapper} from "./scaffold/generateRenderlessScrapper";
 import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
 import {showBoxUpdate, showLineUpdate} from "./update/showUpdate";
@@ -36,6 +37,10 @@ yargs
                 type: "boolean",
                 describe: "Run a single scrapper"
             })
+            .option("resume", {
+                type: "boolean",
+                describe: "Resume execution of a previous unfinished run"
+            })
             .option("out", {
                 describe: "Select the saving format when --simple mode is used",
                 default: "stdout",
@@ -46,6 +51,7 @@ yargs
         const opLog = getOpLog();
         opLog.info("Ayakashi version:", packageJson.version);
         await showLineUpdate();
+        const resume = <boolean>argv.resume || false;
         let directory: string;
         let config: Config;
         let simpleScrapper = "";
@@ -59,7 +65,7 @@ yargs
             config = standard.config;
             directory = standard.directory;
         }
-        run(directory, config, simpleScrapper).then(async function() {
+        run(directory, config, resume, simpleScrapper).then(async function() {
             opLog.info("Nothing more to do!");
             await showBoxUpdate();
         }).catch(function(err) {
@@ -81,6 +87,10 @@ yargs
             .option("scrapper", {
                 type: "boolean",
                 describe: "Generate a new scrapper"
+            })
+            .option("renderlessScrapper", {
+                type: "boolean",
+                describe: "Generate a new renderlessScrapper"
             })
             .option("script", {
                 type: "boolean",
@@ -104,7 +114,7 @@ yargs
             })
             .option("name", {
                 type: "string",
-                describe: "The name of the new scrapper|script|prop|action|extractor|preloader"
+                describe: "The name of the new scrapper|renderlessScrapper|script|prop|action|extractor|preloader"
             })
             .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#new");
         //@ts-ignore
@@ -112,7 +122,7 @@ yargs
         //tslint:disable cyclomatic-complexity
         const opLog = getOpLog();
         if ((!argv.prop && !argv.project && !argv.action && !argv.extractor &&
-            !argv.preloader && !argv.scrapper && !argv.script) || argv.project) {
+            !argv.preloader && !argv.scrapper && !argv.renderlessScrapper && !argv.script) || argv.project) {
             if (argv.dir === ".") {
                 await generateProject(getDirectory(argv.dir), true);
             } else {
@@ -153,6 +163,13 @@ yargs
                 process.exit(1);
             }
             await generateScrapper(getDirectory(argv.dir), name);
+        } else if (argv.renderlessScrapper) {
+            const name = await getName(argv.name, "renderlessScrapper");
+            if (!name) {
+                opLog.error("Invalid renderlessScrapper name");
+                process.exit(1);
+            }
+            await generateRenderlessScrapper(getDirectory(argv.dir), name);
         } else if (argv.script) {
             const name = await getName(argv.name, "script");
             if (!name) {

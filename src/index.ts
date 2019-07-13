@@ -1,5 +1,8 @@
+//only used to build the @ayakashi/types package
+
 //prelude
 export * from "./prelude/prelude";
+export * from "./prelude/renderlessPrelude";
 export * from "./prelude/actions/extract";
 export * from "./prelude/actions/meta";
 export * from "./prelude/actions/select";

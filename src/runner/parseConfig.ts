@@ -125,7 +125,7 @@ export type Config = {
         /**
          * The type of the step.
          */
-        type: "scrapper" | "script",
+        type: "scrapper" | "renderlessScrapper" | "script",
         /**
          * The name of the module.
          */
@@ -149,7 +149,7 @@ export type Config = {
             /**
              * The type of the step.
              */
-            type: "scrapper" | "script",
+            type: "scrapper" | "renderlessScrapper" | "script",
             /**
              * The name of the module.
              */
@@ -175,7 +175,7 @@ export type Config = {
         /**
          * The type of the step.
          */
-        type: "scrapper" | "script",
+        type: "scrapper" | "renderlessScrapper" | "script",
         /**
          * The name of the module.
          */
@@ -199,7 +199,7 @@ export type Config = {
             /**
              * The type of the step.
              */
-            type: "scrapper" | "script",
+            type: "scrapper" | "renderlessScrapper" | "script",
             /**
              * The name of the module.
              */
@@ -345,6 +345,24 @@ export function countSteps(steps: (string | string[])[]) {
     return count;
 }
 
+export function isUsingNormalScrapper(steps: (string | string[])[], config: Config) {
+    let using = false;
+    for (const step of steps) {
+        if (Array.isArray(step)) {
+            for (const st of step) {
+                if (getObjectReference(config, st).type === "scrapper") {
+                    using = true;
+                }
+            }
+        } else {
+            if (getObjectReference(config, step).type === "scrapper") {
+                using = true;
+            }
+        }
+    }
+    return using;
+}
+
 export function getObjectReference(
     config: Config,
     stepName: string
@@ -363,6 +381,7 @@ export function createProcGenerators(
     options: {
         bridgePort: number,
         protocolPort: number,
+        persistentSession: boolean,
         projectFolder: string,
         operationId: string,
         storeProjectFolder: string,
@@ -371,6 +390,7 @@ export function createProcGenerators(
 ) {
     const procGenerators: ProcGenerator[] = [];
     const top = (<string>steps[0]).split("_")[0];
+    const initializers = [];
     if (top === "parallel") {
         steps
         .map(function(step, i) {
@@ -391,17 +411,19 @@ export function createProcGenerators(
             if (step[0] !== `subwaterfall_${i}`) {
                 step.unshift(`subwaterfall_${i}`);
             }
-            step.unshift("init");
+            initializers.push(`init_${i}`);
+            step.unshift(`init_${i}`);
             step.push("end");
             _createProcGenerators(config, step, options, procGenerators);
         });
     } else {
+        initializers.push("init");
         steps.unshift("init");
         steps.push("end");
         _createProcGenerators(config, steps, options, procGenerators);
     }
 
-    return procGenerators;
+    return {procGenerators, initializers};
 }
 
 function _createProcGenerators(
@@ -410,6 +432,7 @@ function _createProcGenerators(
     options: {
         bridgePort: number,
         protocolPort: number,
+        persistentSession: boolean,
         projectFolder: string,
         storeProjectFolder: string,
         operationId: string,
@@ -502,7 +525,7 @@ function addStep(
     step: string,
     procGenerators: ProcGenerator[]
 ) {
-    if (step === "init") return;
+    if (step.match("init")) return;
     if (!procGenerators.find(pr => pr.from === `pre_${step}` && pr.to === step)) {
         const objectRef = getObjectReference(config, step);
         if (objectRef.type === "scrapper") {
@@ -512,6 +535,15 @@ function addStep(
                 from: `pre_${step}`,
                 to: step,
                 processor: pathResolve(appRoot, "lib/runner/scrapperWrapper.js"),
+                config: objectRef.config || {}
+            });
+        } else if (objectRef.type === "renderlessScrapper") {
+            if (!objectRef.module) return;
+            procGenerators.push({
+                name: `proc_from_pre_${step}_to_${step}`,
+                from: `pre_${step}`,
+                to: step,
+                processor: pathResolve(appRoot, "lib/runner/renderlessScrapperWrapper.js"),
                 config: objectRef.config || {}
             });
         } else {
@@ -536,6 +568,7 @@ function addPreStep(
     options: {
         bridgePort: number,
         protocolPort: number,
+        persistentSession: boolean,
         projectFolder: string,
         storeProjectFolder: string,
         operationId: string,
@@ -543,7 +576,7 @@ function addPreStep(
     },
     procGenerators: ProcGenerator[]
 ) {
-    if (step === "init") return;
+    if (step.match("init")) return;
     if (!procGenerators.find(pr => pr.from === previousStep && pr.to === `pre_${step}`) &&
         !isParallel) {
             procGenerators.push({
@@ -565,11 +598,32 @@ function addPreStep(
                             saveTopic: "${step}",
                             projectFolder: "${options.projectFolder}",
                             storeProjectFolder: "${options.storeProjectFolder}",
+                            persistentSession: ${options.persistentSession},
                             operationId: "${options.operationId}",
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousStep}",
                             appRoot: "${appRoot}"
+                        });
+                    } else if (obj.type === "renderlessScrapper") {
+                        return Promise.resolve({
+                            input: log.body,
+                            config: (obj && obj.config) || {},
+                            params: (obj && obj.params) || {},
+                            load: (obj && obj.load) || {},
+                            module: (obj && obj.module) || "",
+                            saveTopic: "${step}",
+                            projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
+                            persistentSession: ${options.persistentSession},
+                            operationId: "${options.operationId}",
+                            startDate: "${options.startDate}",
+                            procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousStep}",
+                            appRoot: "${appRoot}",
+                            userAgent: "${(config.config && config.config.userAgent) || ""}",
+                            proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                            ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
                     } else {
                         return Promise.resolve({
@@ -599,6 +653,7 @@ function addParallelPreStep(
     options: {
         bridgePort: number,
         protocolPort: number,
+        persistentSession: boolean,
         projectFolder: string,
         storeProjectFolder: string,
         operationId: string,
@@ -606,7 +661,7 @@ function addParallelPreStep(
     },
     procGenerators: ProcGenerator[]
 ) {
-    if (step === "init") return;
+    if (step.match("init")) return;
     if (Array.isArray(previousPreviousStep)) {
         previousPreviousStep.forEach(function(ppst) {
             if (!procGenerators.find(pr => pr.from === ppst && pr.to === `pre_${step}`)) {
@@ -629,11 +684,32 @@ function addParallelPreStep(
                                 saveTopic: "${step}",
                                 projectFolder: "${options.projectFolder}",
                                 storeProjectFolder: "${options.storeProjectFolder}",
+                                persistentSession: ${options.persistentSession},
                                 operationId: "${options.operationId}",
                                 startDate: "${options.startDate}",
                                 procName: "proc_from_pre_${step}_to_${step}",
                                 selfTopic: "${ppst}",
                                 appRoot: "${appRoot}"
+                            });
+                        } else if (obj.type === "renderlessScrapper") {
+                            return Promise.resolve({
+                                input: log.body,
+                                config: (obj && obj.config) || {},
+                                params: (obj && obj.params) || {},
+                                load: (obj && obj.load) || {},
+                                module: (obj && obj.module) || "",
+                                saveTopic: "${step}",
+                                projectFolder: "${options.projectFolder}",
+                                storeProjectFolder: "${options.storeProjectFolder}",
+                                persistentSession: ${options.persistentSession},
+                                operationId: "${options.operationId}",
+                                startDate: "${options.startDate}",
+                                procName: "proc_from_pre_${step}_to_${step}",
+                                selfTopic: "${ppst}",
+                                appRoot: "${appRoot}",
+                                userAgent: "${(config.config && config.config.userAgent) || ""}",
+                                proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                                ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                             });
                         } else {
                             return Promise.resolve({
@@ -681,6 +757,25 @@ function addParallelPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousPreviousStep}",
                             appRoot: "${appRoot}"
+                        });
+                    } else if (obj.type === "renderlessScrapper") {
+                        return Promise.resolve({
+                            input: log.body,
+                            config: (obj && obj.config) || {},
+                            params: (obj && obj.params) || {},
+                            load: (obj && obj.load) || {},
+                            module: (obj && obj.module) || "",
+                            saveTopic: "${step}",
+                            projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
+                            operationId: "${options.operationId}",
+                            startDate: "${options.startDate}",
+                            procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousPreviousStep}",
+                            appRoot: "${appRoot}",
+                            userAgent: "${(config.config && config.config.userAgent) || ""}",
+                            proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                            ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
                     } else {
                         return Promise.resolve({

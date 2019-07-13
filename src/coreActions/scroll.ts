@@ -78,7 +78,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         const matchCount = await myProp.trigger();
         if (matchCount === 0) throw new Error("<scrollIntoView> needs a prop with at least 1 match");
         return this.evaluateAsync(function(scopedPropId) {
-            const node = window.ayakashi.propTable[scopedPropId].matches[0];
+            const node = this.propTable[scopedPropId].matches[0];
             return new Promise(resolve => {
                 const observer = new IntersectionObserver(function(entries) {
                   resolve(entries[0].intersectionRatio);
@@ -100,7 +100,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         if (matchCount === 0) throw new Error("<scrollIn> needs a prop with at least 1 match");
         await this.scrollIntoView(myProp);
         return this.evaluate<number>(function(scopedPropId: string, scopedpixelsToScroll?: number) {
-            const node = window.ayakashi.propTable[scopedPropId].matches[0];
+            const node = this.propTable[scopedPropId].matches[0];
             if (scopedpixelsToScroll) {
                 node.scrollTop += scopedpixelsToScroll;
             } else {

@@ -15,34 +15,39 @@ import {
     checkStepLevels,
     validateStepFormat,
     createProcGenerators,
-    countSteps
+    countSteps,
+    isUsingNormalScrapper
 } from "./parseConfig";
 
 import {downloadChromium} from "../chromeDownloader/downloader";
 import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
 import {getManifest} from "../store/manifest";
-import {getOrCreateStoreProjectFolder} from "../store/project";
-// import debug from "debug";
-// const d = debug("ayakashi:runner");
+import {getOrCreateStoreProjectFolder, hasPreviousRun, clearPreviousRun, getPipeprocFolder} from "../store/project";
+import debug from "debug";
+const d = debug("ayakashi:runner");
 
-export async function run(projectFolder: string, config: Config, simpleScrapper?: string) {
+export async function run(projectFolder: string, config: Config, resume: boolean, simpleScrapper?: string) {
     const opLog = getOpLog();
     let steps: (string | string[])[];
     let procGenerators: ProcGenerator[];
+    let initializers: string[];
     const storeProjectFolder =
         await getOrCreateStoreProjectFolder(simpleScrapper ? `${projectFolder}/${simpleScrapper}` : projectFolder);
     try {
         steps = firstPass(config);
         checkStepLevels(steps);
         validateStepFormat(steps);
-        procGenerators = createProcGenerators(config, steps, {
+        const parsedConfig = createProcGenerators(config, steps, {
             bridgePort: (config.config && config.config.bridgePort) || 9731,
             protocolPort: (config.config && config.config.protocolPort) || 9730,
+            persistentSession: (config.config && config.config.persistentSession === true) || false,
             projectFolder: projectFolder,
             storeProjectFolder: storeProjectFolder,
             operationId: uuid(),
             startDate: dayjs().format("YYYY-MM-DD-HH-mm-ss")
         });
+        procGenerators = parsedConfig.procGenerators;
+        initializers = parsedConfig.initializers;
     } catch (e) {
         opLog.error("Config Error -", e.message);
         throw e;
@@ -58,9 +63,15 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
         }
         chromePath = await getChromePath();
     }
+    let headlessChrome = null;
     try {
         //launch chrome
-        const headlessChrome = await launch(config, storeProjectFolder, chromePath);
+        if (isUsingNormalScrapper(steps, config)) {
+            d("using normal scrapper(s), chrome will be spawned");
+            headlessChrome = await launch(config, storeProjectFolder, chromePath);
+        } else {
+            d("using renderless scrapper(s) only, chrome will not be spawned");
+        }
 
         //finalize systemProcs
         const procs = procGenerators.map(function(generator) {
@@ -76,6 +87,14 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
             };
         });
 
+        let previousRunCleared = false;
+        const hasPrevious = await hasPreviousRun(storeProjectFolder);
+        if (!resume && hasPrevious) {
+            opLog.info("cleaning previous run");
+            await clearPreviousRun(storeProjectFolder);
+            previousRunCleared = true;
+        }
+
         //launch pipeproc
         const stepCount = steps.length <= 4 ? 1 : countSteps(steps) - 3;
         const workers = stepCount > cpus().length ? cpus().length : stepCount;
@@ -83,24 +102,38 @@ export async function run(projectFolder: string, config: Config, simpleScrapper?
         const pipeprocClient = PipeProc();
         await pipeprocClient.spawn({
             namespace: "ayakashi",
-            memory: true,
+            location: getPipeprocFolder(storeProjectFolder),
             workers: workers
         });
         process.on("SIGINT", function() {
             pipeprocClient.shutdown();
         });
 
-        //register the systemProcs and init the project
-        //@ts-ignore
-        await Promise.all(procs.map(proc => pipeprocClient.systemProc(proc)));
-        await pipeprocClient.commit({
-            topic: "init",
-            body: {}
-        });
+        if (resume && !previousRunCleared && hasPrevious) {
+            opLog.info("resuming previous run");
+            await Promise.all(procs.map(async function(proc) {
+                try {
+                    await pipeprocClient.reclaimProc(proc.name);
+                } catch (_e) {}
+            }));
+        } else {
+            //register the systemProcs and init the project
+            //@ts-ignore
+            await Promise.all(procs.map(proc => pipeprocClient.systemProc(proc)));
+            await pipeprocClient.commit(initializers.map(init => {
+                return {
+                    topic: init,
+                    body: {}
+                };
+            }));
+        }
 
         //close
         await pipeprocClient.waitForProcs();
-        await headlessChrome.close();
+        await clearPreviousRun(storeProjectFolder);
+        if (headlessChrome) {
+            await headlessChrome.close();
+        }
         await pipeprocClient.shutdown();
     } catch (e) {
         opLog.error("Failed to run project");

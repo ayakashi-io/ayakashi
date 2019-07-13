@@ -32,6 +32,7 @@ ayakashi.prop("myProp");
 ```
 */
     prop: (propId: IDomProp | string) => IDomProp | null;
+    //tslint:disable no-any
 /**
  * Evaluates a javascript function in the current page.
  * Learn more here: http://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
@@ -41,7 +42,7 @@ const title = await ayakashi.evaluate(function() {
 });
 ```
 */
-    evaluate: IConnection["evaluate"];
+    evaluate: <T>(fn: (this: Window["ayakashi"], ...args: any[]) => T, ...args: any[]) => Promise<T>;
 /**
  * Evaluates an asynchronous javascript function in the current page.
  * Learn more here: http://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
@@ -55,7 +56,8 @@ await ayakashi.evaluateAsync(function() {
 });
 ```
 */
-    evaluateAsync: IConnection["evaluateAsync"];
+    evaluateAsync: <T>(fn: (this: Window["ayakashi"], ...args: any[]) => Promise<T>, ...args: any[]) => Promise<T>;
+    //tslint:enable no-any
 /**
  * Defines a new domQL prop with no match limit.
  * Learn more here: http://ayakashi.io/docs/guide/querying-with-domql.html
@@ -72,7 +74,7 @@ ayakashi
     select: (propId?: string) => IDomProp;
 /**
  * Defines a new domQL prop with a limit of 1 match.
- * Learn more here: http://ayakashi.io/docs/guide/querying-with-domql.html
+ * Learn more here: http://ayakashi.io/docs/guide/querying-with-domql.html#limit-skip-and-order
  * ```js
 ayakashi
     .selectOne("myProp")
@@ -118,11 +120,11 @@ ayakashi
  * Learn more here: http://ayakashi.io/docs/going_deeper/defining-props-without-domql.html
  * ```js
 ayakashi.defineProp(function() {
-    return document.getElementById("main");
+    return this.document.getElementById("main");
 }, "mainSection");
 ```
 */
-    defineProp: (fn: () => HTMLElement | HTMLElement[] | NodeList, propId?: string) => IDomProp;
+    defineProp: (fn: (this: Window["ayakashi"]) => HTMLElement | HTMLElement[] | NodeList, propId?: string) => IDomProp;
     //tslint:disable no-any
 /**
  * Registers a new action and makes it available in the ayakashi instance.
@@ -186,14 +188,16 @@ await ayakashi.yield(result);
 */
     yield: (extracted: object | Promise<object>) => Promise<void>;
 /**
- * Sugar method to yield multiple matches.
+ * Yields multiple extractions individually in a single (atomic) operation.
+ * The next step of the pipeline will run for each extraction.
  * Learn more about yield in this example: http://ayakashi.io/guide/building-a-complete-scraping-project.html
  * ```js
 await ayakashi.yieldEach(extractedLinks);
-//is the same as
+//is kinda like this
 for (const link of extractedLinks) {
-    await ayakashi.yield(extractedLinks);
+    await ayakashi.yield(link);
 }
+//but ensures the yields are performed as a single unit
 ```
 */
     yieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;
@@ -216,27 +220,31 @@ await ayakashi.retry(async function() {
     retry: <T>(task: (currentRetry: number) => Promise<T>, retries?: number) => Promise<T>;
 }
 
+export type AyakashiPage = {
+    propTable: {
+        [key: string]: {
+            matches: HTMLElement[]
+        }
+    },
+    extractors: {
+        [key: string]: ExtractorFn
+    },
+    preloaders: {
+        domQL: {
+            domQuery: (q: Query, opts?: QueryOptions) => HTMLElement[]
+        },
+        getNodeSelector: (el: HTMLElement) => string;
+    },
+    paused: boolean,
+    resume: () => void;
+    document: Document;
+    window: Window;
+};
+
 //tslint:disable interface-name
 declare global {
     interface Window {
-        ayakashi: {
-            propTable: {
-                [key: string]: {
-                    matches: HTMLElement[]
-                }
-            },
-            extractors: {
-                [key: string]: ExtractorFn
-            },
-            preloaders: {
-                domQL: {
-                    domQuery: (q: Query, opts?: QueryOptions) => HTMLElement[]
-                },
-                getNodeSelector: (el: HTMLElement) => string;
-            },
-            paused: boolean,
-            resume: () => void;
-        };
+        ayakashi: AyakashiPage;
     }
 }
 //tslint:enable

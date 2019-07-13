@@ -1,9 +1,10 @@
 import {IDomProp} from "../query/query";
 import {IAyakashiInstance} from "../prelude";
+import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {isRegExp} from "util";
 
 //tslint:disable no-any
-export type ExtractorFn = () => {
+export type ExtractorFn = (this: Window["ayakashi"]) => {
     extract: (el: any) => any,
     isValid: (result: any) => boolean,
     useDefault: () => any
@@ -18,7 +19,7 @@ export type Extractable =
     [string | RegExp, any];
 //tslint:enable no-any
 
-export function attachExtract(ayakashiInstance: IAyakashiInstance) {
+export function attachExtract(ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance) {
     ayakashiInstance.extract =
     async function(
         propId: string | IDomProp,
@@ -41,7 +42,7 @@ export function attachExtract(ayakashiInstance: IAyakashiInstance) {
 }
 
 async function recursiveExtract(
-    ayakashiInstance: IAyakashiInstance,
+    ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
     extractable: Extractable,
     prop: IDomProp
 //tslint:disable no-any
@@ -51,8 +52,9 @@ async function recursiveExtract(
         if (extractable in ayakashiInstance.extractors) {
             await ayakashiInstance.extractors[extractable]();
             return ayakashiInstance.evaluate(function(scopedPropId: string, scopedExtractorName: string) {
-                const extractor = window.ayakashi.extractors[scopedExtractorName]();
-                return window.ayakashi.propTable[scopedPropId].matches.map(function(match) {
+                //@ts-ignore
+                const extractor = this.extractors[scopedExtractorName]();
+                return this.propTable[scopedPropId].matches.map(function(match) {
                     const result = extractor.extract(match);
                     if (extractor.isValid(result) && result !== undefined) {
                         return {isMatch: true, result: result};
@@ -67,7 +69,7 @@ async function recursiveExtract(
             }, prop.id, extractable);
         } else {
             return ayakashiInstance.evaluate(function(scopedPropId: string, attr: string) {
-                return window.ayakashi.propTable[scopedPropId].matches.map(function(match) {
+                return this.propTable[scopedPropId].matches.map(function(match) {
                     //@ts-ignore
                     if (match[attr]) {
                         //@ts-ignore
@@ -95,13 +97,13 @@ async function recursiveExtract(
         //tslint:enable no-any
     } else if (typeof extractable === "function") {
         return ayakashiInstance.evaluate(function(scopedPropId: string, fn: Function) {
-            return window.ayakashi.propTable[scopedPropId].matches.map(function(match, index) {
+            return this.propTable[scopedPropId].matches.map(function(match, index) {
                 return {isMatch: true, result: fn(match, index)};
             });
         }, prop.id, extractable);
     } else if (isRegExp(extractable)) {
         return ayakashiInstance.evaluate(function(scopedPropId: string, regex: RegExp) {
-            return window.ayakashi.propTable[scopedPropId].matches.map(function(match) {
+            return this.propTable[scopedPropId].matches.map(function(match) {
                 let regexResult = "";
                 if (match.textContent) {
                     const regexMatch = match.textContent.match(regex);

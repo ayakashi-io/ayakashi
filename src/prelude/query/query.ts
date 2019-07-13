@@ -1,15 +1,21 @@
 import {Where, Query} from "../../domQL/domQL";
 import {IAyakashiInstance} from "../prelude";
+import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {getOpLog} from "../../opLog/opLog";
 import {v4 as uuid} from "uuid";
 
 import debug from "debug";
+import {DOMWindow} from "jsdom";
 const d = debug("ayakashi:prelude:query");
 
 export interface IDomProp {
     $$prop: symbol;
     id: string;
     parent: IDomProp[];
+/**
+ * @ignore
+*/
+    __trackMissingChildren: boolean;
 /**
  * Defines the query of a new prop.
  * Learn more here: http://ayakashi.io/docs/guide/querying-with-domql.html
@@ -226,21 +232,54 @@ while (await next.hasMatches()) {
 ```
 */
     hasMatches: () => Promise<boolean>;
+/**
+ * Adds a child match placeholder if a child does not exist in a collection of parents.
+ * Can be used to preserve proper ordering when extracting children that might sometimes not exist.
+ * ```js
+// for the following html
+// <div class="container"><a href="http://example.com">link1</a></div>
+// <div class="container">I don't have a link</div>
+// <div class="container"><a href="http://example2.com">link2</a></div>
+ayakashi
+    .select("parentProp")
+    .where({
+        class: {
+            eq: "container"
+        }
+    })
+    .trackMissingChildren()
+    .selectChild("childProp")
+        .where({
+            tagName: {
+                eq: "A"
+            }
+        });
+const result = await ayakashiInstance.extract("childProp");
+// When we extract the childProps, we will get the following (notice the empty childProp):
+// result => [{childProp: "link1"}, {childProp: ""}, {childProp: "link2"}]
+// if we didn't use trackMissingChildren(), we would have gotten:
+// result => [{childProp: "link1"}, {childProp: "link2"}]
+```
+*/
+    trackMissingChildren: () => IDomProp;
 }
 export function createQuery(
-    ayakashiInstance: IAyakashiInstance,
-    opts?: {
+    ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
+    opts: {
         propId?: string,
-        triggerFn?: () => Promise<number>
+        triggerFn?: () => Promise<number>,
+        window?: DOMWindow
     }
 ): IDomProp {
     const opLog = getOpLog();
     const query: Partial<Query> = {};
     let triggered = false;
+    const window = opts.window;
     return {
         $$prop: Symbol("AyakashiProp"),
         id: (opts && opts.propId) || `prop_${uuid()}`,
         parent: [],
+        __trackMissingChildren: false,
         where: function(q) {
             query.where = q;
             return this;
@@ -282,9 +321,9 @@ export function createQuery(
             if (!triggerOptions || triggerOptions.force !== true) {
                 if (triggered) {
                     const propMatches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
-                        if (window.ayakashi.propTable[scopedPropId] &&
-                            window.ayakashi.propTable[scopedPropId].matches) {
-                                return window.ayakashi.propTable[scopedPropId].matches.length;
+                        if (this.propTable[scopedPropId] &&
+                            this.propTable[scopedPropId].matches) {
+                                return this.propTable[scopedPropId].matches.length;
                         } else {
                             return 0;
                         }
@@ -315,30 +354,42 @@ export function createQuery(
                 const propMatches = await ayakashiInstance.evaluate<number>(function(
                     scopedQuery: Query,
                     scopedId: string,
-                    scopedParentIds: string[]
+                    scopedParentIds: {parentId: string, trackMissingChildren: boolean}[]
                 ) {
                     let matches: HTMLElement[] = [];
                     if (scopedParentIds.length > 0) {
-                        scopedParentIds.forEach(function(parentId) {
-                            const parentMatches = window.ayakashi.propTable[parentId].matches;
+                        scopedParentIds.forEach(({parentId, trackMissingChildren}) => {
+                            const parentMatches = this.propTable[parentId].matches;
                             if (parentMatches && parentMatches.length > 0) {
-                                parentMatches.forEach(function(parentEl) {
-                                    matches = matches.concat(
-                                        Array.from(
-                                            window.ayakashi.preloaders.domQL.domQuery(scopedQuery, {scope: parentEl})
-                                        )
+                                parentMatches.forEach((parentEl) => {
+                                    let childrenMatches = Array.from(
+                                        this.preloaders.domQL.domQuery(scopedQuery, {
+                                            scope: parentEl,
+                                            env: window
+                                        })
                                     );
+                                    if (childrenMatches.length === 0 && trackMissingChildren) {
+                                        childrenMatches = [
+                                            window ?
+                                            window.document.createElement("void") :
+                                            document.createElement("void")
+                                        ];
+                                    }
+                                    matches = matches.concat(childrenMatches);
                                 });
                             }
                         });
                     } else {
-                        matches = Array.from(window.ayakashi.preloaders.domQL.domQuery(scopedQuery));
+                        matches = Array.from(this.preloaders.domQL.domQuery(scopedQuery, {env: window}));
                     }
-                    window.ayakashi.propTable[scopedId] = {
+                    this.propTable[scopedId] = {
                         matches: matches
                     };
                     return matches.length;
-                }, query, this.id, this.parent.map(p => p.id));
+                },
+                query,
+                this.id,
+                this.parent.map(p => ({parentId: p.id, trackMissingChildren: p.__trackMissingChildren})));
                 if (propMatches === 0 && (!triggerOptions || (triggerOptions && triggerOptions.showNoMatchesWarning))) {
                     opLog.warn(`prop: ${this.id} has no matches`);
                 }
@@ -348,7 +399,10 @@ export function createQuery(
         hasMatches: async function() {
             await this.trigger({force: true, showNoMatchesWarning: false});
             const matches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
-                return window.ayakashi.propTable[scopedPropId].matches.length;
+                return (
+                    this.propTable[scopedPropId] &&
+                    this.propTable[scopedPropId].matches &&
+                    this.propTable[scopedPropId].matches.length) || 0;
             }, this.id);
             return matches > 0;
         },
@@ -357,13 +411,13 @@ export function createQuery(
             return this;
         },
         selectChildren: function(childPropId) {
-            const childQuery = createQuery(ayakashiInstance, {propId: childPropId}).from(this);
+            const childQuery = createQuery(ayakashiInstance, {propId: childPropId, window: window}).from(this);
             ayakashiInstance.propRefs[childQuery.id] = childQuery;
             d(`registering prop: ${childQuery.id}`);
             return childQuery;
         },
         selectChild: function(childPropId) {
-            const childQuery = createQuery(ayakashiInstance, {propId: childPropId}).from(this);
+            const childQuery = createQuery(ayakashiInstance, {propId: childPropId, window: window}).from(this);
             childQuery.limit(1);
             ayakashiInstance.propRefs[childQuery.id] = childQuery;
             d(`registering prop: ${childQuery.id}`);
@@ -373,12 +427,16 @@ export function createQuery(
             return this.selectChild(childPropId);
         },
         selectLastChild: function(childPropId) {
-            const childQuery = createQuery(ayakashiInstance, {propId: childPropId}).from(this);
+            const childQuery = createQuery(ayakashiInstance, {propId: childPropId, window: window}).from(this);
             childQuery.limit(1);
             childQuery.order("desc");
             ayakashiInstance.propRefs[childQuery.id] = childQuery;
             d(`registering prop: ${childQuery.id}`);
             return childQuery;
+        },
+        trackMissingChildren: function() {
+            this.__trackMissingChildren = true;
+            return this;
         }
     };
 }

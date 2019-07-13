@@ -30,7 +30,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         if (matchCount === 0) throw new Error("<check> needs a prop with at least 1 match");
         await this.scrollIntoView(myProp);
         const isChecked = await ayakashiInstance.evaluate<boolean>(function(scopedPropId) {
-            const node = window.ayakashi.propTable[scopedPropId].matches[0];
+            const node = this.propTable[scopedPropId].matches[0];
             return (<HTMLInputElement>node).checked === true;
         }, myProp.id);
         if (!isChecked) {
@@ -45,7 +45,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         if (matchCount === 0) throw new Error("<uncheck> needs a prop with at least 1 match");
         await this.scrollIntoView(myProp);
         const isChecked = await ayakashiInstance.evaluate<boolean>(function(scopedPropId) {
-            const node = window.ayakashi.propTable[scopedPropId].matches[0];
+            const node = this.propTable[scopedPropId].matches[0];
             return (<HTMLInputElement>node).checked === true;
         }, myProp.id);
         if (isChecked) {

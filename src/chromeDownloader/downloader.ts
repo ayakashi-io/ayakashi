@@ -1,4 +1,4 @@
-import request from "request";
+import request from "@ayakashi/request/core";
 import {getOpLog} from "../opLog/opLog";
 import {createWriteStream, unlink, chmodSync} from "fs";
 import extractZip from "extract-zip";

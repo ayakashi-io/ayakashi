@@ -41,7 +41,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         const matchCount = await myProp.trigger();
         if (matchCount === 0) throw new Error("<clearInput> needs a prop with at least 1 match");
         const valLength = charCount ? charCount : (await this.evaluate<string>(function(scopedPropId) {
-            const node = window.ayakashi.propTable[scopedPropId].matches[0];
+            const node = this.propTable[scopedPropId].matches[0];
             return (<HTMLInputElement | HTMLTextAreaElement>node).value || "";
         }, myProp.id)).length;
         await this.scrollIntoView(myProp);
