@@ -816,9 +816,9 @@
       "dev": true
     },
     "@types/sequelize": {
-      "version": "4.27.49",
-      "resolved": "https://registry.npmjs.org/@types/sequelize/-/sequelize-4.27.49.tgz",
-      "integrity": "sha512-l+giWSYELBg7uJUtYWYrgn5+FIrvVPzX9QiRayfkh85gGGtVHMy/C0jbl3qdZoQc1c1GVB3l4MDnJy8eZ9spKQ==",
+      "version": "4.28.3",
+      "resolved": "https://registry.npmjs.org/@types/sequelize/-/sequelize-4.28.3.tgz",
+      "integrity": "sha512-Z+gbWsLmGnqnAz91I8Wtfbe+4D1aUyQ4aawYfohpvar4Azr8aSNwzS1rFQYO2dk6zcClt5k9n0qCek/YAq4WNw==",
       "dev": true,
       "requires": {
         "@types/bluebird": "*",
@@ -7639,47 +7639,31 @@
       "integrity": "sha1-1WgS4cAXpuTnw+Ojeh2m143TyT4="
     },
     "sequelize": {
-      "version": "5.1.1",
-      "resolved": "https://registry.npmjs.org/sequelize/-/sequelize-5.1.1.tgz",
-      "integrity": "sha512-AaFZQ578yCNrQ1ewQQJ4w8Xe4eEnJ/jz5XX8f14kG5eHajWGkRrq6q9CWo8OFWfz2Nh9Z6kRQtvg5kQGOx9lBQ==",
+      "version": "5.10.0",
+      "resolved": "https://registry.npmjs.org/sequelize/-/sequelize-5.10.0.tgz",
+      "integrity": "sha512-hceVQKM9WmdB1aM+F+Ach8aZrU7RMyPeXFol7de0HRo+GkAqSl054WB4a00CRVnZ/73/EdpXRJMKNLIjraSmOg==",
       "requires": {
         "bluebird": "^3.5.0",
         "cls-bluebird": "^2.1.0",
         "debug": "^4.1.1",
-        "depd": "^2.0.0",
         "dottie": "^2.0.0",
         "inflection": "1.12.0",
         "lodash": "^4.17.11",
         "moment": "^2.24.0",
         "moment-timezone": "^0.5.21",
         "retry-as-promised": "^3.1.0",
-        "semver": "^5.6.0",
-        "sequelize-pool": "^1.0.2",
+        "semver": "^6.1.1",
+        "sequelize-pool": "^2.3.0",
         "toposort-class": "^1.0.1",
         "uuid": "^3.2.1",
         "validator": "^10.11.0",
         "wkx": "^0.4.6"
-      },
-      "dependencies": {
-        "depd": {
-          "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/depd/-/depd-2.0.0.tgz",
-          "integrity": "sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw=="
-        },
-        "semver": {
-          "version": "5.7.0",
-          "resolved": "https://registry.npmjs.org/semver/-/semver-5.7.0.tgz",
-          "integrity": "sha512-Ya52jSX2u7QKghxeoFGpLwCtGlt7j0oY9DYb5apt9nPlJ42ID+ulTXESnt/qAQcoSERyZ5sl3LDIOw0nAn/5DA=="
-        }
       }
     },
     "sequelize-pool": {
-      "version": "1.0.2",
-      "resolved": "https://registry.npmjs.org/sequelize-pool/-/sequelize-pool-1.0.2.tgz",
-      "integrity": "sha512-VMKl/gCCdIvB1gFZ7p+oqLFEyZEz3oMMYjkKvfEC7GoO9bBcxmfOOU9RdkoltfXGgBZFigSChihRly2gKtsh2w==",
-      "requires": {
-        "bluebird": "^3.5.3"
-      }
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/sequelize-pool/-/sequelize-pool-2.3.0.tgz",
+      "integrity": "sha512-Ibz08vnXvkZ8LJTiUOxRcj1Ckdn7qafNZ2t59jYHMX1VIebTAOYefWdRYFt6z6+hy52WGthAHAoLc9hvk3onqA=="
     },
     "serve-static": {
       "version": "1.13.2",
@@ -9231,13 +9215,6 @@
       "integrity": "sha512-pHf546L96TK8RradLt1cWaIffstgv/zXZ14CGz5KnBs1AxBX0wm+IDphjJw0qrEqRv8P9W9CdTt8Z1unMRZ19A==",
       "requires": {
         "@types/node": "*"
-      },
-      "dependencies": {
-        "@types/node": {
-          "version": "12.0.12",
-          "resolved": "https://registry.npmjs.org/@types/node/-/node-12.0.12.tgz",
-          "integrity": "sha512-Uy0PN4R5vgBUXFoJrKryf5aTk3kJ8Rv3PdlHjl6UaX+Cqp1QE0yPQ68MPXGrZOfG7gZVNDIJZYyot0B9ubXUrQ=="
-        }
       }
     },
     "wordwrap": {

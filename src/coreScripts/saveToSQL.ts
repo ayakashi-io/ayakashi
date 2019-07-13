@@ -1,4 +1,5 @@
 import Sequelize from "sequelize";
+import {createHash} from "crypto";
 import {join as pathJoin} from "path";
 import normalizeExtraction from "./normalizeExtractions";
 import {getOpLog} from "../opLog/opLog";
@@ -66,15 +67,24 @@ export default async function(
         useStorage = pathJoin(dataFolder, params.database || "database.sqlite");
     }
     let sequelize;
-    if (useStorage) {
+    const hash = createHash("md5");
+    hash.update(JSON.stringify(params));
+    const hashedParams = hash.digest("hex");
+    //@ts-ignore
+    if (global[`dbconnection-${system.operationId}-${hashedParams}`]) {
         //@ts-ignore
-        sequelize = new Sequelize({
-            dialect: "sqlite",
-            storage: useStorage,
-            logging: false
-        });
+        sequelize = global[`dbconnection-${system.operationId}-${hashedParams}`];
     } else {
-        if (params.connectionURI) {
+        if (useStorage) {
+            //@ts-ignore
+            sequelize = new Sequelize({
+                dialect: "sqlite",
+                storage: useStorage,
+                logging: false
+            });
+            //@ts-ignore
+            global[`dbconnection-${system.operationId}-${hashedParams}`] = sequelize;
+        } else if (params.connectionURI) {
             //@ts-ignore
             sequelize = new Sequelize(params.connectionURI, {
                 pool: {
@@ -83,6 +93,8 @@ export default async function(
                 },
                 logging: false
             });
+            //@ts-ignore
+            global[`dbconnection-${system.operationId}-${hashedParams}`] = sequelize;
         } else {
             //@ts-ignore
             sequelize = new Sequelize(params.database, params.username, params.password, {
@@ -95,6 +107,8 @@ export default async function(
                 },
                 logging: false
             });
+            //@ts-ignore
+            global[`dbconnection-${system.operationId}-${hashedParams}`] = sequelize;
         }
     }
     const tableSchema: {
@@ -102,7 +116,7 @@ export default async function(
     } = {};
     Object.entries(extraction[0]).forEach(function([col, row]) {
         if (typeof row === "string") {
-            tableSchema[col] = Sequelize.STRING;
+            tableSchema[col] = Sequelize.TEXT;
         } else if (typeof row === "boolean") {
             tableSchema[col] = Sequelize.BOOLEAN;
         } else if (typeof row === "number" && Number.isInteger(row)) {
@@ -128,9 +142,7 @@ export default async function(
         freezeTableName: true
     });
     await table.sync();
-    await Promise.all(extraction.map(e => {
-        return table.create(e);
-    }));
+    await table.bulkCreate(extraction);
 
     return input;
 }
