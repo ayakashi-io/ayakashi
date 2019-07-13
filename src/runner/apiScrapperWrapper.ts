@@ -53,21 +53,20 @@ export default async function apiScrapperWrapper(log: PassedLog) {
         const myRequest = request.defaults({
             headers: {
                 "User-Agent": userAgent.toString(),
-                Accept: "*/*",
+                //tslint:disable max-line-length
+                Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+                //tslint:enable max-line-length
                 "accept-language": "en-US,en;q=0.9",
-                "content-type": "application/json"
+                "cache-control": "no-cache",
+                pragma: "no-cache"
             },
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
-            gzipOrBrotli: true
+            gzipOrBrotli: true,
+            resolveWithFullResponse: true
         });
 
-        ayakashiInstance.get = myRequest.get;
-        ayakashiInstance.post = myRequest.post;
-        ayakashiInstance.put = myRequest.put;
-        ayakashiInstance.patch = myRequest.patch;
-        ayakashiInstance.delete = myRequest.delete;
-        ayakashiInstance.head = myRequest.head;
+        ayakashiInstance.wrap(myRequest, ["get", "post", "put", "patch", "delete", "head"]);
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();
