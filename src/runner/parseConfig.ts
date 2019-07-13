@@ -149,7 +149,7 @@ export type Config = {
             /**
              * The type of the step.
              */
-            type: "scrapper" | "renderlessScrapper" | "script",
+            type: "scrapper" | "renderlessScrapper" | "apiScrapper" | "script",
             /**
              * The name of the module.
              */
@@ -175,7 +175,7 @@ export type Config = {
         /**
          * The type of the step.
          */
-        type: "scrapper" | "renderlessScrapper" | "script",
+        type: "scrapper" | "renderlessScrapper" | "apiScrapper"  | "script",
         /**
          * The name of the module.
          */
@@ -199,7 +199,7 @@ export type Config = {
             /**
              * The type of the step.
              */
-            type: "scrapper" | "renderlessScrapper" | "script",
+            type: "scrapper" | "renderlessScrapper" | "apiScrapper"  | "script",
             /**
              * The name of the module.
              */
@@ -546,7 +546,16 @@ function addStep(
                 processor: pathResolve(appRoot, "lib/runner/renderlessScrapperWrapper.js"),
                 config: objectRef.config || {}
             });
-        } else {
+        } else if (objectRef.type === "apiScrapper") {
+            if (!objectRef.module) return;
+            procGenerators.push({
+                name: `proc_from_pre_${step}_to_${step}`,
+                from: `pre_${step}`,
+                to: step,
+                processor: pathResolve(appRoot, "lib/runner/apiScrapperWrapper.js"),
+                config: objectRef.config || {}
+            });
+        }  else {
             objectRef.type = "script";
             if (!objectRef.module) return;
             procGenerators.push({
@@ -625,7 +634,26 @@ function addPreStep(
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
-                    } else {
+                    } else if (obj.type === "apiScrapper") {
+                        return Promise.resolve({
+                            input: log.body,
+                            config: (obj && obj.config) || {},
+                            params: (obj && obj.params) || {},
+                            module: (obj && obj.module) || "",
+                            saveTopic: "${step}",
+                            projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
+                            persistentSession: ${options.persistentSession},
+                            operationId: "${options.operationId}",
+                            startDate: "${options.startDate}",
+                            procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousStep}",
+                            appRoot: "${appRoot}",
+                            userAgent: "${(config.config && config.config.userAgent) || ""}",
+                            proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                            ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
+                        });
+                    }  else {
                         return Promise.resolve({
                             input: log.body,
                             params: (obj && obj.params) || {},
@@ -711,7 +739,26 @@ function addParallelPreStep(
                                 proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                                 ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                             });
-                        } else {
+                        } else if (obj.type === "apiScrapper") {
+                            return Promise.resolve({
+                                input: log.body,
+                                config: (obj && obj.config) || {},
+                                params: (obj && obj.params) || {},
+                                module: (obj && obj.module) || "",
+                                saveTopic: "${step}",
+                                projectFolder: "${options.projectFolder}",
+                                storeProjectFolder: "${options.storeProjectFolder}",
+                                persistentSession: ${options.persistentSession},
+                                operationId: "${options.operationId}",
+                                startDate: "${options.startDate}",
+                                procName: "proc_from_pre_${step}_to_${step}",
+                                selfTopic: "${ppst}",
+                                appRoot: "${appRoot}",
+                                userAgent: "${(config.config && config.config.userAgent) || ""}",
+                                proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                                ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
+                            });
+                        }  else {
                             return Promise.resolve({
                                 input: log.body,
                                 params: (obj && obj.params) || {},
@@ -777,7 +824,25 @@ function addParallelPreStep(
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
-                    } else {
+                    } else if (obj.type === "apiScrapper") {
+                        return Promise.resolve({
+                            input: log.body,
+                            config: (obj && obj.config) || {},
+                            params: (obj && obj.params) || {},
+                            module: (obj && obj.module) || "",
+                            saveTopic: "${step}",
+                            projectFolder: "${options.projectFolder}",
+                            storeProjectFolder: "${options.storeProjectFolder}",
+                            operationId: "${options.operationId}",
+                            startDate: "${options.startDate}",
+                            procName: "proc_from_pre_${step}_to_${step}",
+                            selfTopic: "${previousPreviousStep}",
+                            appRoot: "${appRoot}",
+                            userAgent: "${(config.config && config.config.userAgent) || ""}",
+                            proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                            ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
+                        });
+                    }  else {
                         return Promise.resolve({
                             input: log.body,
                             params: (obj && obj.params) || {},

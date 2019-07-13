@@ -1,9 +1,10 @@
 import {IAyakashiInstance} from "../prelude";
 import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
+import {IApiAyakashiInstance} from "../apiPrelude";
 import {IPipeProcClient} from "pipeproc";
 
 export function attachYields(
-    ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
+    ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance | IApiAyakashiInstance,
     pipeprocClient: IPipeProcClient,
     saveTopic: string,
     selfTopic: string,
