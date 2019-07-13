@@ -74,7 +74,7 @@ ayakashi
     select: (propId?: string) => IDomProp;
 /**
  * Defines a new domQL prop with a limit of 1 match.
- * Learn more here: http://ayakashi.io/docs/guide/querying-with-domql.html
+ * Learn more here: http://ayakashi.io/docs/guide/querying-with-domql.html#limit-skip-and-order
  * ```js
 ayakashi
     .selectOne("myProp")
@@ -120,7 +120,7 @@ ayakashi
  * Learn more here: http://ayakashi.io/docs/going_deeper/defining-props-without-domql.html
  * ```js
 ayakashi.defineProp(function() {
-    return document.getElementById("main");
+    return this.document.getElementById("main");
 }, "mainSection");
 ```
 */
@@ -220,29 +220,31 @@ await ayakashi.retry(async function() {
     retry: <T>(task: (currentRetry: number) => Promise<T>, retries?: number) => Promise<T>;
 }
 
+export type AyakashiPage = {
+    propTable: {
+        [key: string]: {
+            matches: HTMLElement[]
+        }
+    },
+    extractors: {
+        [key: string]: ExtractorFn
+    },
+    preloaders: {
+        domQL: {
+            domQuery: (q: Query, opts?: QueryOptions) => HTMLElement[]
+        },
+        getNodeSelector: (el: HTMLElement) => string;
+    },
+    paused: boolean,
+    resume: () => void;
+    document: Document;
+    window: Window;
+};
+
 //tslint:disable interface-name
 declare global {
     interface Window {
-        ayakashi: {
-            propTable: {
-                [key: string]: {
-                    matches: HTMLElement[]
-                }
-            },
-            extractors: {
-                [key: string]: ExtractorFn
-            },
-            preloaders: {
-                domQL: {
-                    domQuery: (q: Query, opts?: QueryOptions) => HTMLElement[]
-                },
-                getNodeSelector: (el: HTMLElement) => string;
-            },
-            paused: boolean,
-            resume: () => void;
-            document: Document;
-            window: Window;
-        };
+        ayakashi: AyakashiPage;
     }
 }
 //tslint:enable
