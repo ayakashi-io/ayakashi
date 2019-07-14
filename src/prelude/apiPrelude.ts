@@ -16,7 +16,7 @@ export interface IApiAyakashiInstance {
     delete: (uri: string, options?: CoreOptions) => Promise<any>;
     head: (uri: string, options?: CoreOptions) => Promise<any>;
     //tslint:enable no-any
-    wrap: (
+    __wrap: (
         requestInstance: RequestAPI<Request, CoreOptions, RequiredUriUrl>,
         methods: ["get", "post", "put", "patch", "delete", "head"]
     ) => void;
@@ -26,7 +26,7 @@ export function apiPrelude() {
     const ayakashiInstance: Partial<IApiAyakashiInstance> = {};
     attachRetry(<IApiAyakashiInstance>ayakashiInstance);
 
-    ayakashiInstance.wrap = function(requestInstance, methods) {
+    ayakashiInstance.__wrap = function(requestInstance, methods) {
         methods.forEach(function(method) {
             ayakashiInstance[method] = async function(uri: string, options?: CoreOptions) {
                 try {

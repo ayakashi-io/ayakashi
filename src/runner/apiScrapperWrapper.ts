@@ -66,7 +66,7 @@ export default async function apiScrapperWrapper(log: PassedLog) {
             resolveWithFullResponse: true
         });
 
-        ayakashiInstance.wrap(myRequest, ["get", "post", "put", "patch", "delete", "head"]);
+        ayakashiInstance.__wrap(myRequest, ["get", "post", "put", "patch", "delete", "head"]);
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();
