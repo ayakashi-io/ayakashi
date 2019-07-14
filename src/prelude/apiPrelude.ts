@@ -29,22 +29,26 @@ export function apiPrelude() {
     ayakashiInstance.__wrap = function(requestInstance, methods) {
         methods.forEach(function(method) {
             ayakashiInstance[method] = async function(uri: string, options?: CoreOptions) {
+                let response: Response;
                 try {
-                    const response: Response = await requestInstance[method](uri, options);
-                    if (response.statusCode >= 400) {
-                        throw new Error(response.body);
-                    } else {
-                        let body: object;
-                        if (response.body) {
-                            if (response.headers["content-type"] === "application/json") {
-                                body = JSON.parse(response.body);
-                                return body;
-                            } else {
-                                return response.body;
-                            }
+                    response = await requestInstance[method](uri, options);
+                } catch (e) {
+                    throw e;
+                }
+                if (response.statusCode >= 400) {
+                    throw new Error(`${response.statusCode} - ${response.body}`);
+                }
+                try {
+                    let body: object;
+                    if (response.body) {
+                        if (response.headers["content-type"] === "application/json") {
+                            body = JSON.parse(response.body);
+                            return body;
                         } else {
-                            return null;
+                            return response.body;
                         }
+                    } else {
+                        return null;
                     }
                 } catch (e) {
                     throw e;

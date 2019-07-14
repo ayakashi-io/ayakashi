@@ -63,7 +63,8 @@ export default async function apiScrapperWrapper(log: PassedLog) {
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
             gzipOrBrotli: true,
-            resolveWithFullResponse: true
+            resolveWithFullResponse: true,
+            simple: false
         });
 
         ayakashiInstance.__wrap(myRequest, ["get", "post", "put", "patch", "delete", "head"]);
