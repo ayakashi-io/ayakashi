@@ -35,8 +35,8 @@ export interface IRenderlessAyakashiInstance {
 await ayakashi.load("https://ayakashi.io");
 ```
 */
-    load: (url: string, timeout?: number) => Promise<void>;
-    attachDOM: (dom: JSDOM) => void;
+    load: (this: IRenderlessAyakashiInstance, url: string, timeout?: number) => Promise<void>;
+    __attachDOM: (this: IRenderlessAyakashiInstance, dom: JSDOM) => void;
     __connection: {
         release: () => Promise<void>;
     };
@@ -85,7 +85,7 @@ export async function renderlessPrelude() {
 
     const propTable: PropTable = {};
 
-    (<IRenderlessAyakashiInstance>ayakashiInstance).attachDOM = async function(dom) {
+    (<IRenderlessAyakashiInstance>ayakashiInstance).__attachDOM = async function(dom) {
         if (this.page) {
             await this.__connection.release();
         }
