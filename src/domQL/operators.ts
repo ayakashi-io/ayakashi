@@ -70,13 +70,25 @@ export const operators: {[key: string]: Function} = {
             if (Array.isArray(domResult)) {
                 return !!domResult.find(member => {
                     if (member && typeof member.match === "function") {
-                        return !!member.match(expected);
+                        if (typeof expected === "string") {
+                            return !!member.match(expected);
+                        } else if (expected instanceof RegExp) {
+                            return !!member.match(new RegExp(expected, "i"));
+                        } else {
+                            return false;
+                        }
                     } else {
                         return false;
                     }
                 });
             } else if (typeof domResult.match === "function") {
-                return !!domResult.match(expected);
+                if (typeof expected === "string") {
+                    return !!domResult.match(expected);
+                } else if (expected instanceof RegExp) {
+                    return !!domResult.match(new RegExp(expected, "i"));
+                } else {
+                    return false;
+                }
             } else {
                 return false;
             }
@@ -145,13 +157,25 @@ function _nlike(domResult: string | string[] | null, expected: string | RegExp):
     if (Array.isArray(domResult)) {
         return !!domResult.find(member => {
             if (member && typeof member.match === "function") {
-                return !member.match(expected);
+                if (typeof expected === "string") {
+                    return !member.match(expected);
+                } else if (expected instanceof RegExp) {
+                    return !member.match(new RegExp(expected, "i"));
+                } else {
+                    return false;
+                }
             } else {
                 return false;
             }
         });
     } else if (domResult && typeof domResult.match === "function") {
-        return !domResult.match(expected);
+        if (typeof expected === "string") {
+            return !domResult.match(expected);
+        } else if (expected instanceof RegExp) {
+            return !domResult.match(new RegExp(expected, "i"));
+        } else {
+            return false;
+        }
     } else {
         return false;
     }
