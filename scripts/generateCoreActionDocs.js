@@ -1,6 +1,7 @@
 const jsonDoc = require("../doc.json");
 const fs = require("fs");
 
+console.log("building core actions...");
 const coreActions = jsonDoc.children
     .filter(ch => ch.name === "\"../prelude/prelude\"")[0]
     .children[0]
@@ -88,4 +89,5 @@ function buildText(text) {
     return finalText;
 }
 
+console.log("JSON written to ./core_actions.json");
 fs.writeFileSync("./core_actions.json", JSON.stringify(coreActions, null, 4));

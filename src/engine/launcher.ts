@@ -51,7 +51,7 @@ export interface IBrowserInstance {
     pid: number;
     port: number;
     process: ChildProcess;
-    forceKill: () => Promise<{}>;
+    forceKill: () => Promise<unknown>;
 }
 
 export async function launch(
