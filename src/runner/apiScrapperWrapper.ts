@@ -1,4 +1,4 @@
-import request from "@ayakashi/request";
+import request from "@ayakashi/request/core";
 import {resolve as pathResolve} from "path";
 //@ts-ignore
 import UserAgent from "user-agents";
@@ -62,9 +62,7 @@ export default async function apiScrapperWrapper(log: PassedLog) {
             },
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
-            gzipOrBrotli: true,
-            resolveWithFullResponse: true,
-            simple: false
+            gzipOrBrotli: true
         });
 
         ayakashiInstance.__wrap(myRequest, ["get", "post", "put", "patch", "delete", "head"]);

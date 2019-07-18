@@ -35,6 +35,13 @@ describe("request tests", function() {
         expect(result.someData).toBe(1);
     });
 
+    test("can issue a GET request to a JSON API with json params", async function() {
+        const ayakashiInstance = getAyakashiInstance();
+        const result = await ayakashiInstance.get(`http://localhost:${staticServerPort}/json`, {json: {test: true}});
+        expect(result).toBeObject();
+        expect(result.someData).toBe(1);
+    });
+
     test("throws error if statusCode >= 400", async function() {
         const ayakashiInstance = getAyakashiInstance();
         try {

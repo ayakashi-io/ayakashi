@@ -1,5 +1,5 @@
 import {apiPrelude} from "../../src/prelude/apiPrelude";
-import request from "@ayakashi/request";
+import request from "@ayakashi/request/core";
 
 export function getAyakashiInstance() {
     const ayakashiInstance = apiPrelude();
@@ -14,9 +14,7 @@ export function getAyakashiInstance() {
             "cache-control": "no-cache",
             pragma: "no-cache"
         },
-        gzipOrBrotli: true,
-        resolveWithFullResponse: true,
-        simple: false
+        gzipOrBrotli: true
     });
 
     ayakashiInstance.__wrap(myRequest, ["get", "post", "put", "patch", "delete", "head"]);

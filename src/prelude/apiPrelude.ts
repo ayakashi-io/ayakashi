@@ -1,4 +1,4 @@
-import {CoreOptions, RequestAPI, RequiredUriUrl, Request, Response} from "@ayakashi/request";
+import {CoreOptions, RequestAPI, RequiredUriUrl, Request} from "@ayakashi/request/core";
 import {IAyakashiInstance} from "./prelude";
 import {attachRetry} from "./actions/retry";
 
@@ -28,31 +28,27 @@ export function apiPrelude() {
 
     ayakashiInstance.__wrap = function(requestInstance, methods) {
         methods.forEach(function(method) {
-            ayakashiInstance[method] = async function(uri: string, options?: CoreOptions) {
-                let response: Response;
-                try {
-                    response = await requestInstance[method](uri, options);
-                } catch (e) {
-                    throw e;
-                }
-                if (response.statusCode >= 400) {
-                    throw new Error(`${response.statusCode} - ${response.body}`);
-                }
-                try {
-                    let body: object;
-                    if (response.body) {
-                        if (response.headers["content-type"] === "application/json") {
-                            body = JSON.parse(response.body);
-                            return body;
-                        } else {
-                            return response.body;
+            ayakashiInstance[method] = function(uri: string, options?: CoreOptions) {
+                return new Promise(function(resolve, reject) {
+                    requestInstance[method](uri, options, function(err, response, body) {
+                        if (err) {
+                            return reject(err);
                         }
-                    } else {
-                        return null;
-                    }
-                } catch (e) {
-                    throw e;
-                }
+                        if (response.statusCode >= 400) {
+                            return reject(new Error(`${response.statusCode} - ${body}`));
+                        }
+                        if (body) {
+                            if (response.headers["content-type"] === "application/json" && typeof body === "string") {
+                                const parsedBody = JSON.parse(body);
+                                resolve(parsedBody);
+                            } else {
+                                resolve(body);
+                            }
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
             };
         });
     };
