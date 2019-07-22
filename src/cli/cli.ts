@@ -8,6 +8,7 @@ import {Config} from "../runner/parseConfig";
 import {getDirectory} from "./getDirectory";
 import {prepareStandard} from "./prepareStandard";
 import {prepareSimple} from "./prepareSimple";
+import {prepareFromJson} from "./prepareFromJson";
 import {getName} from "./scaffold/getName";
 import {generateProp} from "./scaffold/generateProp";
 import {generateAction} from "./scaffold/generateAction";
@@ -34,6 +35,10 @@ yargs
                 alias: "c",
                 default: "ayakashi.config.js"
             })
+            .option("jsonConfig", {
+                describe: "Use a json string as config",
+                alias: "jc"
+            })
             .option("simple", {
                 type: "boolean",
                 describe: "Run a single scrapper"
@@ -56,15 +61,21 @@ yargs
         let directory: string;
         let config: Config;
         let simpleScrapper = "";
-        if (argv.simple) {
-            const simple = prepareSimple(<string>argv.dir, <string>argv.out);
-            config = simple.config;
-            directory = simple.directory;
-            simpleScrapper = simple.scrapper;
+        if (argv.jsonConfig) {
+            const fromJson = prepareFromJson(<string>argv.dir, <string>argv.jsonConfig);
+            config = fromJson.config;
+            directory = fromJson.directory;
         } else {
-            const standard = prepareStandard(<string>argv.dir, <string>argv.configFile);
-            config = standard.config;
-            directory = standard.directory;
+            if (argv.simple) {
+                const simple = prepareSimple(<string>argv.dir, <string>argv.out);
+                config = simple.config;
+                directory = simple.directory;
+                simpleScrapper = simple.scrapper;
+            } else {
+                const standard = prepareStandard(<string>argv.dir, <string>argv.configFile);
+                config = standard.config;
+                directory = standard.directory;
+            }
         }
         run(directory, config, resume, simpleScrapper).then(async function() {
             opLog.info("Nothing more to do!");
