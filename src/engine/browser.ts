@@ -78,7 +78,7 @@ export function getInstance(): IHeadlessChrome {
                     await this.close();
                     process.removeListener(SIGINT, sigintListener);
                 };
-                process.on("SIGINT", sigintListener);
+                process.on(SIGINT, sigintListener);
             } catch (err) {
                 d(err);
                 throw new Error("could_not_start_bridge");

@@ -119,9 +119,13 @@ export async function run(projectFolder: string, config: Config, resume: boolean
             location: getPipeprocFolder(storeProjectFolder),
             workers: workers
         });
-        process.on("SIGINT", function() {
-            pipeprocClient.shutdown();
-        });
+        const SIGINT = "SIGINT";
+        async function sigintListener() {
+            d("trap SIGINT, closing pipeproc");
+            await pipeprocClient.shutdown();
+            process.removeListener(SIGINT, sigintListener);
+        }
+        process.on(SIGINT, sigintListener);
 
         if (resume && !previousRunCleared && hasPrevious) {
             opLog.info("resuming previous run");
