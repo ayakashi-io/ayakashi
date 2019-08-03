@@ -47,6 +47,10 @@ yargs
                 type: "boolean",
                 describe: "Resume execution of a previous unfinished run"
             })
+            .option("restartDisabledSteps", {
+                type: "boolean",
+                describe: "Will restart all steps that terminated due to an error. Only works when --resume is used"
+            })
             .option("out", {
                 describe: "Select the saving format when --simple mode is used",
                 default: "stdout",
@@ -58,9 +62,10 @@ yargs
         opLog.info("Ayakashi version:", packageJson.version);
         await showLineUpdate();
         const resume = <boolean>argv.resume || false;
+        const restartDisabledSteps = <boolean>argv.restartDisabledSteps || false;
         let directory: string;
         let config: Config;
-        let simpleScraper = "";
+        let simpleScraper = null;
         if (argv.jsonConfig) {
             const fromJson = prepareFromJson(<string>argv.dir, <string>argv.jsonConfig);
             config = fromJson.config;
@@ -77,7 +82,11 @@ yargs
                 directory = standard.directory;
             }
         }
-        run(directory, config, resume, simpleScraper).then(async function() {
+        run(directory, config, {
+            resume: resume,
+            restartDisabledSteps: restartDisabledSteps,
+            simpleScraper: simpleScraper
+        }).then(async function() {
             opLog.info("Nothing more to do!");
             await showBoxUpdate();
         }).catch(function(err) {

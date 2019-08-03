@@ -4,9 +4,7 @@
         "tslint-microsoft-contrib"
     ],
     "rules": {
-        "max-line-length": {
-            "options": [120]
-        },
+        "max-line-length": false,
         "new-parens": true,
         "no-arg": true,
         "no-bitwise": true,

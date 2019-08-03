@@ -28,13 +28,17 @@ import {getOrCreateStoreProjectFolder, hasPreviousRun, clearPreviousRun, getPipe
 import debug from "debug";
 const d = debug("ayakashi:runner");
 
-export async function run(projectFolder: string, config: Config, resume: boolean, simpleScraper?: string) {
+export async function run(projectFolder: string, config: Config, options: {
+    resume: boolean,
+    restartDisabledSteps: boolean,
+    simpleScraper: string | null
+}) {
     const opLog = getOpLog();
     let steps: (string | string[])[];
     let procGenerators: ProcGenerator[];
     let initializers: string[];
     const storeProjectFolder =
-        await getOrCreateStoreProjectFolder(simpleScraper ? `${projectFolder}/${simpleScraper}` : projectFolder);
+        await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder);
     try {
         steps = firstPass(config);
         checkStepLevels(steps);
@@ -45,7 +49,7 @@ export async function run(projectFolder: string, config: Config, resume: boolean
             opLog.error("Please use scraper/renderlessScraper/apiScraper (with a single 'p') instead.");
             throw new Error("Deprecated configuration option");
         }
-        if (!simpleScraper && existsSync(pathResolve(projectFolder, "scrappers")) &&
+        if (!options.simpleScraper && existsSync(pathResolve(projectFolder, "scrappers")) &&
             !existsSync(pathResolve(projectFolder, "scrapers"))) {
                 opLog.error("This project still uses a 'scrappers' folder.");
                 opLog.error("This was a typo and has been deprecated.");
@@ -103,7 +107,7 @@ export async function run(projectFolder: string, config: Config, resume: boolean
 
         let previousRunCleared = false;
         const hasPrevious = await hasPreviousRun(storeProjectFolder);
-        if (!resume && hasPrevious) {
+        if (!options.resume && hasPrevious) {
             opLog.info("cleaning previous run");
             await clearPreviousRun(storeProjectFolder);
             previousRunCleared = true;
@@ -127,12 +131,17 @@ export async function run(projectFolder: string, config: Config, resume: boolean
         }
         process.on(SIGINT, sigintListener);
 
-        if (resume && !previousRunCleared && hasPrevious) {
+        if (options.resume && !previousRunCleared && hasPrevious) {
             opLog.info("resuming previous run");
             await Promise.all(procs.map(async function(proc) {
                 try {
                     await pipeprocClient.reclaimProc(proc.name);
                 } catch (_e) {}
+                if (options.restartDisabledSteps) {
+                    try {
+                        await pipeprocClient.resumeProc(proc.name);
+                    } catch (_e) {}
+                }
             }));
         } else {
             //register the systemProcs and init the project
