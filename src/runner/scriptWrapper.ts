@@ -1,4 +1,5 @@
 import {resolve as pathResolve} from "path";
+import {PipeProc} from "pipeproc";
 // import debug from "debug";
 // const d = debug("ayakashi:scriptWrapper");
 import {getOpLog} from "../opLog/opLog";
@@ -17,6 +18,13 @@ type PassedLog = {
         appRoot: string
     }
 };
+
+//tslint:disable
+//@ts-ignore
+const GeneratorFunction = Object.getPrototypeOf(function*(){}).constructor;
+//@ts-ignore
+const asyncGeneratorFunction = Object.getPrototypeOf(async function*(){}).constructor;
+//tslint:enable
 
 export default async function scriptWrapper(log: PassedLog) {
     const opLog = getOpLog();
@@ -48,7 +56,33 @@ export default async function scriptWrapper(log: PassedLog) {
             operationId: log.body.operationId,
             startDate: log.body.startDate
         });
-        if (result) {
+        if (result instanceof GeneratorFunction || result instanceof asyncGeneratorFunction) {
+            //connect to pipeproc
+            const pipeprocClient = PipeProc();
+            await pipeprocClient.connect({namespace: "ayakashi"});
+            //get generator results and commit them
+            let committedAtLeastOnce = false;
+            for await (const val of result()) {
+                if (Array.isArray(val)) {
+                    await pipeprocClient.commit(val.filter(v => v).map(v => {
+                        return {
+                            topic: log.body.saveTopic,
+                            body: v
+                        };
+                    }));
+                    committedAtLeastOnce = true;
+                } else if (val) {
+                    await pipeprocClient.commit({
+                        topic: log.body.saveTopic,
+                        body: val
+                    });
+                    committedAtLeastOnce = true;
+                }
+            }
+            if (!committedAtLeastOnce) {
+                return {continue: true};
+            }
+        } else if (result) {
             return result;
         } else {
             return {continue: true};
