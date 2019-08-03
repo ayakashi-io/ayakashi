@@ -13,7 +13,7 @@ const d = debug("ayakashi:engine:connection");
 type Unsubscriber = () => void;
 
 /**
- * Emulation options for the scrapper to use.
+ * Emulation options for the scraper to use.
  */
 export type EmulatorOptions = {
     /**

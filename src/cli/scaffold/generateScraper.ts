@@ -11,7 +11,7 @@ const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(_writeFile);
 const exists = promisify(_exists);
 
-export async function generateRenderlessScrapper(directory: string, name: string) {
+export async function generateScraper(directory: string, name: string) {
     const opLog = getOpLog();
     let fileName: string;
     if (name.indexOf(".js") > -1) {
@@ -19,14 +19,14 @@ export async function generateRenderlessScrapper(directory: string, name: string
     } else {
         fileName = `${name}.js`;
     }
-    const scrappersFolder = pathJoin(directory, "scrappers");
-    const filePath = pathJoin(scrappersFolder, fileName);
+    const scrapersFolder = pathJoin(directory, "scrapers");
+    const filePath = pathJoin(scrapersFolder, fileName);
     if (await exists(filePath)) {
-        opLog.error(`scrapper <${name}> already exists in ${filePath}`);
+        opLog.error(`scraper <${name}> already exists in ${filePath}`);
         return;
     }
     opLog.info(`Created <${name}> in ${filePath}`);
-    await mkdirp(scrappersFolder);
+    await mkdirp(scrapersFolder);
     const content = getContent();
     await writeFile(filePath, content);
 }
@@ -34,10 +34,10 @@ export async function generateRenderlessScrapper(directory: string, name: string
 function getContent() {
     return (
 `/**
-* @param {import("@ayakashi/types").IRenderlessAyakashiInstance} ayakashi
+* @param {import("@ayakashi/types").IAyakashiInstance} ayakashi
 */
 module.exports = async function(ayakashi, input, params) {
-    await ayakashi.load(input.page);
+    await ayakashi.goTo(input.page);
     ayakashi
         .select("about")
         .where({itemprop: {eq: "about"}});

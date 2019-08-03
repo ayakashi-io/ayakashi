@@ -7,7 +7,7 @@ describe("firstPass", function() {
     test("it parses configs with a single step correctly, waterfall", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -18,7 +18,7 @@ describe("firstPass", function() {
     test("it parses configs with a single step correctly, parallel", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -29,10 +29,10 @@ describe("firstPass", function() {
     test("it parses configs with multiple steps correctly, waterfall", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -44,10 +44,10 @@ describe("firstPass", function() {
     test("it parses configs with multiple steps correctly, parallel", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -59,16 +59,16 @@ describe("firstPass", function() {
     test("it parses configs with nested steps correctly, waterfall-parallel", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }]
@@ -84,16 +84,16 @@ describe("firstPass", function() {
     test("it parses configs with nested steps correctly, parallel-waterfall", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }]
@@ -148,30 +148,30 @@ describe("firstPass", function() {
     test("it parses configs with multi-nested levels, parallel", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 //@ts-ignore
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test",
                     //@ts-ignore
                     parallel: [{
-                        type: "scrapper",
+                        type: "scraper",
                         module: "test",
                         parallel: [{
-                            type: "scrapper",
+                            type: "scraper",
                             module: "test",
                             waterfall: [{
-                                type: "scrapper",
+                                type: "scraper",
                                 module: "test"
                             }, {
-                                type: "scrapper",
+                                type: "scraper",
                                 module: "test"
                             }]
                         }]
@@ -192,30 +192,30 @@ describe("firstPass", function() {
     test("it parses configs with multi-nested levels, waterfall", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 //@ts-ignore
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test",
                     //@ts-ignore
                     waterfall: [{
-                        type: "scrapper",
+                        type: "scraper",
                         module: "test",
                         waterfall: [{
-                            type: "scrapper",
+                            type: "scraper",
                             module: "test",
                             parallel: [{
-                                type: "scrapper",
+                                type: "scraper",
                                 module: "test"
                             }, {
-                                type: "scrapper",
+                                type: "scraper",
                                 module: "test"
                             }]
                         }]

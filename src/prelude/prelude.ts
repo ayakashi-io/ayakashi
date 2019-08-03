@@ -170,7 +170,7 @@ ayakashi.registerExtractor("id", function() {
 */
     registerExtractor: (extractorName: string, extractorFn: ExtractorFn, dependsOn?: string[]) => void;
 /**
- * Pauses the execution of the scrapper.
+ * Pauses the execution of the scraper.
  * Learn more here: http://ayakashi.io/docs/guide/debugging.html
  * ```js
 await ayakashi.pause();
@@ -178,7 +178,7 @@ await ayakashi.pause();
 */
     pause: () => Promise<void>;
 /**
- * Yields extracted data from a scrapper to the next step of the pipeline.
+ * Yields extracted data from a scraper to the next step of the pipeline.
  * Learn more about yield in this example: http://ayakashi.io/guide/building-a-complete-scraping-project.html
  * ```js
 ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
@@ -202,12 +202,12 @@ for (const link of extractedLinks) {
 */
     yieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;
 /**
- * Recursively re-run the scrapper by yielding the extracted data to itself.
+ * Recursively re-run the scraper by yielding the extracted data to itself.
  * The data will be available in the input object.
 */
     recursiveYield: (extracted: object | Promise<object>) => Promise<void>;
 /**
- * Recursively re-run the scrapper by yielding multiple extractions individually in a single (atomic) operation.
+ * Recursively re-run the scraper by yielding multiple extractions individually in a single (atomic) operation.
  * The data will be available in the input object.
 */
     recursiveYieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;

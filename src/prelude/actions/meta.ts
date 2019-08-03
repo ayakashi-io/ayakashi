@@ -62,16 +62,16 @@ export function attachMetaActions(
     (<IAyakashiInstance>ayakashiInstance).pause = async function() {
         try {
             await ayakashiInstance.evaluate(function() {
-                console.warn("[Ayakashi]: scrapper execution is paused, run ayakashi.resume() in devtools to resume");
+                console.warn("[Ayakashi]: scraper execution is paused, run ayakashi.resume() in devtools to resume");
                 this.paused = true;
             });
-            opLog.warn("scrapper execution is paused, run ayakashi.resume() in devtools to resume");
+            opLog.warn("scraper execution is paused, run ayakashi.resume() in devtools to resume");
             await (<IAyakashiInstance>ayakashiInstance).waitUntil<boolean>(function() {
                 return ayakashiInstance.evaluate<boolean>(function() {
                     return this.paused === false;
                 });
             }, 100, 0);
-            opLog.warn("scrapper execution is resumed");
+            opLog.warn("scraper execution is resumed");
         } catch (e) {
             throw e;
         }

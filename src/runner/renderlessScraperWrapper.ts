@@ -13,7 +13,7 @@ import {renderlessPrelude} from "../prelude/renderlessPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {getOpLog} from "../opLog/opLog";
 import debug from "debug";
-const d = debug("ayakashi:renderlessScrapperWrapper");
+const d = debug("ayakashi:renderlessScraperWrapper");
 
 type PassedLog = {
     id: string,
@@ -51,10 +51,10 @@ type PassedLog = {
     }
 };
 
-export default async function renderlessScrapperWrapper(log: PassedLog) {
+export default async function renderlessScraperWrapper(log: PassedLog) {
     try {
         const opLog = getOpLog();
-        opLog.info("running renderlessScrapper", log.body.module);
+        opLog.info("running renderlessScraper", log.body.module);
 
         const ayakashiInstance = await renderlessPrelude();
 
@@ -103,32 +103,32 @@ export default async function renderlessScrapperWrapper(log: PassedLog) {
         loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
         loadLocalExtractors(ayakashiInstance, log.body.projectFolder);
 
-        let scrapperModule;
+        let scraperModule;
         try {
             if (log.body.config.simple) {
-                scrapperModule = require(pathResolve(log.body.projectFolder, log.body.module));
+                scraperModule = require(pathResolve(log.body.projectFolder, log.body.module));
             } else {
-                scrapperModule = require(pathResolve(log.body.projectFolder, "scrappers", log.body.module));
+                scraperModule = require(pathResolve(log.body.projectFolder, "scrapers", log.body.module));
             }
-            if (typeof scrapperModule !== "function") {
-                scrapperModule = scrapperModule.default;
+            if (typeof scraperModule !== "function") {
+                scraperModule = scraperModule.default;
             }
-            if (typeof scrapperModule !== "function") {
-                throw new Error(`Scrapper <${log.body.module}> is not a function`);
+            if (typeof scraperModule !== "function") {
+                throw new Error(`Scraper <${log.body.module}> is not a function`);
             }
         } catch (e) {
             opLog.error(e.message);
             await ayakashiInstance.__connection.release();
             throw e;
         }
-        //run the scrapper
+        //run the scraper
         let result;
         try {
             //@ts-ignore
             if (log.body.input && log.body.input.continue === true) delete log.body.input.continue;
-            result = await scrapperModule(ayakashiInstance, log.body.input || {}, log.body.params || {});
+            result = await scraperModule(ayakashiInstance, log.body.input || {}, log.body.params || {});
         } catch (e) {
-            opLog.error(`There was an error while running scrapper <${log.body.module}> -`, e.message, e.stack);
+            opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             await ayakashiInstance.__connection.release();
             throw e;
         }

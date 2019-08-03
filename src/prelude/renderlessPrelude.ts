@@ -28,7 +28,7 @@ export interface IRenderlessAyakashiInstance {
     recursiveYieldEach: IAyakashiInstance["recursiveYieldEach"];
     page: JSDOM;
 /**
- * Fetches and loads a page in the renderlessScrapper's context.
+ * Fetches and loads a page in the renderlessScraper's context.
  * A timeout can be specified (in ms) for slow pages (default 10s).
  * Use a timeout of 0 to disable the timeout.
  * ```js

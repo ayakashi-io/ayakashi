@@ -7,7 +7,7 @@ import {
 import {exec} from "child_process";
 import {getOpLog} from "../../opLog/opLog";
 
-import {generateScrapper} from "./generateScrapper";
+import {generateScraper} from "./generateScraper";
 import {generateScript} from "./generateScript";
 
 const mkdirp = promisify(_mkdirp);
@@ -32,7 +32,7 @@ export async function generateProject(projectDir: string, useCurrentFolder: bool
     await writeFile("ayakashi.config.js", getConfig());
     opLog.info("generating package.json");
     await writeFile("package.json", getpackageJson());
-    await generateScrapper(projectDir, "githubAbout");
+    await generateScraper(projectDir, "githubAbout");
     await generateScript(projectDir, "getPage");
     await writeFile(".gitignore", getGitIgnore());
     let npm = "npm";
@@ -62,7 +62,7 @@ module.exports = {
         type: "script",
         module: "getPage"
     }, {
-        type: "scrapper",
+        type: "scraper",
         module: "githubAbout"
     }, {
         type: "script",

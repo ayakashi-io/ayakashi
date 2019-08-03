@@ -16,7 +16,7 @@ import {
     validateStepFormat,
     createProcGenerators,
     countSteps,
-    isUsingNormalScrapper
+    isUsingNormalScraper
 } from "./parseConfig";
 
 import {downloadChromium} from "../chromeDownloader/downloader";
@@ -26,13 +26,13 @@ import {getOrCreateStoreProjectFolder, hasPreviousRun, clearPreviousRun, getPipe
 import debug from "debug";
 const d = debug("ayakashi:runner");
 
-export async function run(projectFolder: string, config: Config, resume: boolean, simpleScrapper?: string) {
+export async function run(projectFolder: string, config: Config, resume: boolean, simpleScraper?: string) {
     const opLog = getOpLog();
     let steps: (string | string[])[];
     let procGenerators: ProcGenerator[];
     let initializers: string[];
     const storeProjectFolder =
-        await getOrCreateStoreProjectFolder(simpleScrapper ? `${projectFolder}/${simpleScrapper}` : projectFolder);
+        await getOrCreateStoreProjectFolder(simpleScraper ? `${projectFolder}/${simpleScraper}` : projectFolder);
     try {
         steps = firstPass(config);
         checkStepLevels(steps);
@@ -66,11 +66,11 @@ export async function run(projectFolder: string, config: Config, resume: boolean
     let headlessChrome = null;
     try {
         //launch chrome
-        if (isUsingNormalScrapper(steps, config)) {
-            d("using normal scrapper(s), chrome will be spawned");
+        if (isUsingNormalScraper(steps, config)) {
+            d("using normal scraper(s), chrome will be spawned");
             headlessChrome = await launch(config, storeProjectFolder, chromePath);
         } else {
-            d("using renderless scrapper(s) only, chrome will not be spawned");
+            d("using renderless scraper(s) only, chrome will not be spawned");
         }
 
         //finalize systemProcs

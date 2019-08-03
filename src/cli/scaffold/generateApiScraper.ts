@@ -11,7 +11,7 @@ const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(_writeFile);
 const exists = promisify(_exists);
 
-export async function generateApiScrapper(directory: string, name: string) {
+export async function generateApiScraper(directory: string, name: string) {
     const opLog = getOpLog();
     let fileName: string;
     if (name.indexOf(".js") > -1) {
@@ -19,14 +19,14 @@ export async function generateApiScrapper(directory: string, name: string) {
     } else {
         fileName = `${name}.js`;
     }
-    const scrappersFolder = pathJoin(directory, "scrappers");
-    const filePath = pathJoin(scrappersFolder, fileName);
+    const scrapersFolder = pathJoin(directory, "scrapers");
+    const filePath = pathJoin(scrapersFolder, fileName);
     if (await exists(filePath)) {
-        opLog.error(`scrapper <${name}> already exists in ${filePath}`);
+        opLog.error(`scraper <${name}> already exists in ${filePath}`);
         return;
     }
     opLog.info(`Created <${name}> in ${filePath}`);
-    await mkdirp(scrappersFolder);
+    await mkdirp(scrapersFolder);
     const content = getContent();
     await writeFile(filePath, content);
 }
