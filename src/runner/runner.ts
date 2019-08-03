@@ -45,7 +45,6 @@ export async function run(projectFolder: string, config: Config, resume: boolean
             opLog.error("Please use scraper/renderlessScraper/apiScraper (with a single 'p') instead.");
             throw new Error("Deprecated configuration option");
         }
-        console.log(projectFolder);
         if (!simpleScraper && existsSync(pathResolve(projectFolder, "scrappers")) &&
             !existsSync(pathResolve(projectFolder, "scrapers"))) {
                 opLog.error("This project still uses a 'scrappers' folder.");
