@@ -7,21 +7,21 @@ describe("validation", function() {
     test("it doesn't allow configs nested more than 2 levels deep", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 //@ts-ignore
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test",
                     //@ts-ignore
                     parallel: [{
-                        type: "scrapper",
+                        type: "scraper",
                         module: "test"
                     }]
                 }]
@@ -55,7 +55,7 @@ describe("validation", function() {
             parallel: [{
                 //@ts-ignore
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }]
@@ -69,10 +69,10 @@ describe("validation", function() {
             parallel: [{
                 //@ts-ignore
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test",
                     parallel: [{
-                        type: "scrapper",
+                        type: "scraper",
                         module: "test"
                     }]
                 }]
@@ -87,7 +87,7 @@ describe("validation", function() {
             waterfall: [{
                 //@ts-ignore
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }]
@@ -101,10 +101,10 @@ describe("validation", function() {
             waterfall: [{
                 //@ts-ignore
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test",
                     waterfall: [{
-                        type: "scrapper",
+                        type: "scraper",
                         module: "test"
                     }]
                 }]
@@ -120,10 +120,10 @@ describe("validation", function() {
             somethingElse: [{
                 //@ts-ignore
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test",
                     waterfall: [{
-                        type: "scrapper",
+                        type: "scraper",
                         module: "test"
                     }]
                 }]

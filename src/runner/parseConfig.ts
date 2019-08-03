@@ -21,7 +21,7 @@ type StepConfig = {
      */
     localAutoLoad?: boolean,
     /**
-     * Emulation options for the scrapper to use.
+     * Emulation options for the scraper to use.
      */
     emulatorOptions?: EmulatorOptions,
     /**
@@ -74,12 +74,12 @@ export type Config = {
          */
         headless?: boolean,
         /**
-         * Configures the userAgent for all scrappers.
+         * Configures the userAgent for all scrapers.
          * By default a random userAgent is used.
          */
         userAgent?: "random" | "desktop" | "mobile",
         /**
-         * Sets a proxy url for all scrappers.
+         * Sets a proxy url for all scrapers.
          */
         proxyUrl?: string,
         /**
@@ -125,7 +125,7 @@ export type Config = {
         /**
          * The type of the step.
          */
-        type: "scrapper" | "renderlessScrapper" | "script",
+        type: "scraper" | "renderlessScraper" | "script",
         /**
          * The name of the module.
          */
@@ -139,7 +139,7 @@ export type Config = {
          */
         config?: StepConfig,
         /**
-         * Specify external modules that should be loaded by the scrapper.
+         * Specify external modules that should be loaded by the scraper.
          */
         load?: StepLoadingOptions,
         /**
@@ -149,7 +149,7 @@ export type Config = {
             /**
              * The type of the step.
              */
-            type: "scrapper" | "renderlessScrapper" | "apiScrapper" | "script",
+            type: "scraper" | "renderlessScraper" | "apiScraper" | "script",
             /**
              * The name of the module.
              */
@@ -163,7 +163,7 @@ export type Config = {
              */
             config?: StepConfig,
             /**
-             * Specify external modules that should be loaded by the scrapper.
+             * Specify external modules that should be loaded by the scraper.
              */
             load?: StepLoadingOptions
         }[]
@@ -175,7 +175,7 @@ export type Config = {
         /**
          * The type of the step.
          */
-        type: "scrapper" | "renderlessScrapper" | "apiScrapper"  | "script",
+        type: "scraper" | "renderlessScraper" | "apiScraper"  | "script",
         /**
          * The name of the module.
          */
@@ -189,7 +189,7 @@ export type Config = {
          */
         config?: StepConfig,
         /**
-         * Specify external modules that should be loaded by the scrapper.
+         * Specify external modules that should be loaded by the scraper.
          */
         load?: StepLoadingOptions,
         /**
@@ -199,7 +199,7 @@ export type Config = {
             /**
              * The type of the step.
              */
-            type: "scrapper" | "renderlessScrapper" | "apiScrapper"  | "script",
+            type: "scraper" | "renderlessScraper" | "apiScraper"  | "script",
             /**
              * The name of the module.
              */
@@ -213,7 +213,7 @@ export type Config = {
              */
             config?: StepConfig,
             /**
-             * Specify external modules that should be loaded by the scrapper.
+             * Specify external modules that should be loaded by the scraper.
              */
             load?: StepLoadingOptions
         }[]
@@ -345,22 +345,42 @@ export function countSteps(steps: (string | string[])[]) {
     return count;
 }
 
-export function isUsingNormalScrapper(steps: (string | string[])[], config: Config) {
+export function isUsingNormalScraper(steps: (string | string[])[], config: Config) {
     let using = false;
     for (const step of steps) {
         if (Array.isArray(step)) {
             for (const st of step) {
-                if (getObjectReference(config, st).type === "scrapper") {
+                if (getObjectReference(config, st).type === "scraper") {
                     using = true;
                 }
             }
         } else {
-            if (getObjectReference(config, step).type === "scrapper") {
+            if (getObjectReference(config, step).type === "scraper") {
                 using = true;
             }
         }
     }
     return using;
+}
+
+export function hasTypo(steps: (string | string[])[], config: Config) {
+    let typo = false;
+    for (const step of steps) {
+        if (Array.isArray(step)) {
+            for (const st of step) {
+                const type = getObjectReference(config, st).type;
+                if (type === "scrapper" || type === "apiScrapper" || type === "renderlessScrapper") {
+                    typo = true;
+                }
+            }
+        } else {
+            const type = getObjectReference(config, step).type;
+            if (type === "scrapper" || type === "apiScrapper" || type === "renderlessScrapper") {
+                typo = true;
+            }
+        }
+    }
+    return typo;
 }
 
 export function getObjectReference(
@@ -528,31 +548,31 @@ function addStep(
     if (step.match("init")) return;
     if (!procGenerators.find(pr => pr.from === `pre_${step}` && pr.to === step)) {
         const objectRef = getObjectReference(config, step);
-        if (objectRef.type === "scrapper") {
+        if (objectRef.type === "scraper") {
             if (!objectRef.module) return;
             procGenerators.push({
                 name: `proc_from_pre_${step}_to_${step}`,
                 from: `pre_${step}`,
                 to: step,
-                processor: pathResolve(appRoot, "lib/runner/scrapperWrapper.js"),
+                processor: pathResolve(appRoot, "lib/runner/scraperWrapper.js"),
                 config: objectRef.config || {}
             });
-        } else if (objectRef.type === "renderlessScrapper") {
+        } else if (objectRef.type === "renderlessScraper") {
             if (!objectRef.module) return;
             procGenerators.push({
                 name: `proc_from_pre_${step}_to_${step}`,
                 from: `pre_${step}`,
                 to: step,
-                processor: pathResolve(appRoot, "lib/runner/renderlessScrapperWrapper.js"),
+                processor: pathResolve(appRoot, "lib/runner/renderlessScraperWrapper.js"),
                 config: objectRef.config || {}
             });
-        } else if (objectRef.type === "apiScrapper") {
+        } else if (objectRef.type === "apiScraper") {
             if (!objectRef.module) return;
             procGenerators.push({
                 name: `proc_from_pre_${step}_to_${step}`,
                 from: `pre_${step}`,
                 to: step,
-                processor: pathResolve(appRoot, "lib/runner/apiScrapperWrapper.js"),
+                processor: pathResolve(appRoot, "lib/runner/apiScraperWrapper.js"),
                 config: objectRef.config || {}
             });
         }  else {
@@ -596,7 +616,7 @@ function addPreStep(
                 //tslint:disable max-line-length
                 processor: new Function("log", `
                     const obj = ${JSON.stringify(getObjectReference(config, step))};
-                    if (obj.type === "scrapper") {
+                    if (obj.type === "scraper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},
@@ -614,7 +634,7 @@ function addPreStep(
                             selfTopic: "${previousStep}",
                             appRoot: "${appRoot}"
                         });
-                    } else if (obj.type === "renderlessScrapper") {
+                    } else if (obj.type === "renderlessScraper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},
@@ -634,7 +654,7 @@ function addPreStep(
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
-                    } else if (obj.type === "apiScrapper") {
+                    } else if (obj.type === "apiScraper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},
@@ -701,7 +721,7 @@ function addParallelPreStep(
                     //tslint:disable max-line-length
                     processor: new Function("log", `
                         const obj = ${JSON.stringify(getObjectReference(config, step))};
-                        if (obj.type === "scrapper") {
+                        if (obj.type === "scraper") {
                             return Promise.resolve({
                                 input: log.body,
                                 config: (obj && obj.config) || {},
@@ -719,7 +739,7 @@ function addParallelPreStep(
                                 selfTopic: "${ppst}",
                                 appRoot: "${appRoot}"
                             });
-                        } else if (obj.type === "renderlessScrapper") {
+                        } else if (obj.type === "renderlessScraper") {
                             return Promise.resolve({
                                 input: log.body,
                                 config: (obj && obj.config) || {},
@@ -739,7 +759,7 @@ function addParallelPreStep(
                                 proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                                 ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                             });
-                        } else if (obj.type === "apiScrapper") {
+                        } else if (obj.type === "apiScraper") {
                             return Promise.resolve({
                                 input: log.body,
                                 config: (obj && obj.config) || {},
@@ -788,7 +808,7 @@ function addParallelPreStep(
                 //tslint:disable max-line-length
                 processor: new Function("log", `
                     const obj = ${JSON.stringify(getObjectReference(config, step))};
-                    if (obj.type === "scrapper") {
+                    if (obj.type === "scraper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},
@@ -805,7 +825,7 @@ function addParallelPreStep(
                             selfTopic: "${previousPreviousStep}",
                             appRoot: "${appRoot}"
                         });
-                    } else if (obj.type === "renderlessScrapper") {
+                    } else if (obj.type === "renderlessScraper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},
@@ -824,7 +844,7 @@ function addParallelPreStep(
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
-                    } else if (obj.type === "apiScrapper") {
+                    } else if (obj.type === "apiScraper") {
                         return Promise.resolve({
                             input: log.body,
                             config: (obj && obj.config) || {},

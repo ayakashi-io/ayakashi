@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import UserAgent from "user-agents";
 import {getOpLog} from "../opLog/opLog";
 import {cpus} from "os";
+import {existsSync} from "fs";
 
 import {
     Config,
@@ -16,7 +17,8 @@ import {
     validateStepFormat,
     createProcGenerators,
     countSteps,
-    isUsingNormalScrapper
+    isUsingNormalScraper,
+    hasTypo
 } from "./parseConfig";
 
 import {downloadChromium} from "../chromeDownloader/downloader";
@@ -26,17 +28,30 @@ import {getOrCreateStoreProjectFolder, hasPreviousRun, clearPreviousRun, getPipe
 import debug from "debug";
 const d = debug("ayakashi:runner");
 
-export async function run(projectFolder: string, config: Config, resume: boolean, simpleScrapper?: string) {
+export async function run(projectFolder: string, config: Config, resume: boolean, simpleScraper?: string) {
     const opLog = getOpLog();
     let steps: (string | string[])[];
     let procGenerators: ProcGenerator[];
     let initializers: string[];
     const storeProjectFolder =
-        await getOrCreateStoreProjectFolder(simpleScrapper ? `${projectFolder}/${simpleScrapper}` : projectFolder);
+        await getOrCreateStoreProjectFolder(simpleScraper ? `${projectFolder}/${simpleScraper}` : projectFolder);
     try {
         steps = firstPass(config);
         checkStepLevels(steps);
         validateStepFormat(steps);
+        if (hasTypo(steps, config)) {
+            opLog.error("The configuration still uses one of scrapper/renderlessScrapper/apiScrapper.");
+            opLog.error("This was a typo and has been deprecated.");
+            opLog.error("Please use scraper/renderlessScraper/apiScraper (with a single 'p') instead.");
+            throw new Error("Deprecated configuration option");
+        }
+        if (!simpleScraper && existsSync(pathResolve(projectFolder, "scrappers")) &&
+            !existsSync(pathResolve(projectFolder, "scrapers"))) {
+                opLog.error("This project still uses a 'scrappers' folder.");
+                opLog.error("This was a typo and has been deprecated.");
+                opLog.error("Please move all your scraper files to a 'scrapers' folder (with a single 'p').");
+                throw new Error("Deprecated folder structure");
+        }
         const parsedConfig = createProcGenerators(config, steps, {
             bridgePort: (config.config && config.config.bridgePort) || 9731,
             protocolPort: (config.config && config.config.protocolPort) || 9730,
@@ -49,7 +64,6 @@ export async function run(projectFolder: string, config: Config, resume: boolean
         procGenerators = parsedConfig.procGenerators;
         initializers = parsedConfig.initializers;
     } catch (e) {
-        opLog.error("Config Error -", e.message);
         throw e;
     }
 
@@ -66,11 +80,11 @@ export async function run(projectFolder: string, config: Config, resume: boolean
     let headlessChrome = null;
     try {
         //launch chrome
-        if (isUsingNormalScrapper(steps, config)) {
-            d("using normal scrapper(s), chrome will be spawned");
+        if (isUsingNormalScraper(steps, config)) {
+            d("using normal scraper(s), chrome will be spawned");
             headlessChrome = await launch(config, storeProjectFolder, chromePath);
         } else {
-            d("using renderless scrapper(s) only, chrome will not be spawned");
+            d("using renderless scraper(s) only, chrome will not be spawned");
         }
 
         //finalize systemProcs

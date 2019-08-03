@@ -3,19 +3,19 @@ import {getDirectory} from "./getDirectory";
 import {sep} from "path";
 import {Config} from "../runner/parseConfig";
 
-export function prepareSimple(file: string, out: string): {config: Config, directory: string, scrapper: string} {
+export function prepareSimple(file: string, out: string): {config: Config, directory: string, scraper: string} {
     const opLog = getOpLog();
     if (file === ".") {
-        opLog.error("Simple mode requires a scrapper file as input");
+        opLog.error("Simple mode requires a scraper file as input");
         return process.exit(1);
     }
     const splittedDir = file.split(sep);
-    const scrapper = splittedDir.pop();
+    const scraper = splittedDir.pop();
     const directory = getDirectory(splittedDir.join("/"));
     process.chdir(directory);
-    opLog.info("running scrapper in simple mode");
+    opLog.info("running scraper in simple mode");
     opLog.info("directory:", directory);
-    opLog.info("scrapper:", <string>scrapper);
+    opLog.info("scraper:", <string>scraper);
     let saveFile: string;
     let saveScript: string;
     if (out === "sqlite") {
@@ -38,8 +38,8 @@ export function prepareSimple(file: string, out: string): {config: Config, direc
     return {
         config: {
             waterfall: [{
-                type: "scrapper",
-                module: <string>scrapper,
+                type: "scraper",
+                module: <string>scraper,
                 config: {
                     localAutoLoad: false,
                     simple: true
@@ -54,6 +54,6 @@ export function prepareSimple(file: string, out: string): {config: Config, direc
             }]
         },
         directory: directory,
-        scrapper: <string>scrapper
+        scraper: <string>scraper
     };
 }

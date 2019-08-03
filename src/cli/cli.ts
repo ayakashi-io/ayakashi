@@ -14,9 +14,9 @@ import {generateProp} from "./scaffold/generateProp";
 import {generateAction} from "./scaffold/generateAction";
 import {generateExtractor} from "./scaffold/generateExtractor";
 import {generatePreloader} from "./scaffold/generatePreloader";
-import {generateScrapper} from "./scaffold/generateScrapper";
-import {generateRenderlessScrapper} from "./scaffold/generateRenderlessScrapper";
-import {generateApiScrapper} from "./scaffold/generateApiScrapper";
+import {generateScraper} from "./scaffold/generateScraper";
+import {generateRenderlessScraper} from "./scaffold/generateRenderlessScraper";
+import {generateApiScraper} from "./scaffold/generateApiScraper";
 import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
 import {showBoxUpdate, showLineUpdate} from "./update/showUpdate";
@@ -27,7 +27,7 @@ yargs
     .command("run [dir]", "Runs a project", (_argv) => {
         yargs
             .positional("dir", {
-                describe: "The root directory of a project or a scrapper file when --simple mode is used",
+                describe: "The root directory of a project or a scraper file when --simple mode is used",
                 default: "."
             })
             .option("configFile", {
@@ -41,7 +41,7 @@ yargs
             })
             .option("simple", {
                 type: "boolean",
-                describe: "Run a single scrapper"
+                describe: "Run a single scraper"
             })
             .option("resume", {
                 type: "boolean",
@@ -60,7 +60,7 @@ yargs
         const resume = <boolean>argv.resume || false;
         let directory: string;
         let config: Config;
-        let simpleScrapper = "";
+        let simpleScraper = "";
         if (argv.jsonConfig) {
             const fromJson = prepareFromJson(<string>argv.dir, <string>argv.jsonConfig);
             config = fromJson.config;
@@ -70,14 +70,14 @@ yargs
                 const simple = prepareSimple(<string>argv.dir, <string>argv.out);
                 config = simple.config;
                 directory = simple.directory;
-                simpleScrapper = simple.scrapper;
+                simpleScraper = simple.scraper;
             } else {
                 const standard = prepareStandard(<string>argv.dir, <string>argv.configFile);
                 config = standard.config;
                 directory = standard.directory;
             }
         }
-        run(directory, config, resume, simpleScrapper).then(async function() {
+        run(directory, config, resume, simpleScraper).then(async function() {
             opLog.info("Nothing more to do!");
             await showBoxUpdate();
         }).catch(function(err) {
@@ -96,17 +96,17 @@ yargs
                 type: "boolean",
                 describe: "Generate a new project"
             })
-            .option("scrapper", {
+            .option("scraper", {
                 type: "boolean",
-                describe: "Generate a new scrapper"
+                describe: "Generate a new scraper"
             })
-            .option("renderlessScrapper", {
+            .option("renderlessScraper", {
                 type: "boolean",
-                describe: "Generate a new renderlessScrapper"
+                describe: "Generate a new renderlessScraper"
             })
-            .option("apiScrapper", {
+            .option("apiScraper", {
                 type: "boolean",
-                describe: "Generate a new apiScrapper"
+                describe: "Generate a new apiScraper"
             })
             .option("script", {
                 type: "boolean",
@@ -130,7 +130,7 @@ yargs
             })
             .option("name", {
                 type: "string",
-                describe: "The name of the new scrapper|renderlessScrapper|script|prop|action|extractor|preloader"
+                describe: "The name of the new scraper|renderlessScraper|script|prop|action|extractor|preloader"
             })
             .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#new");
         //@ts-ignore
@@ -138,8 +138,8 @@ yargs
         //tslint:disable cyclomatic-complexity
         const opLog = getOpLog();
         if ((!argv.prop && !argv.project && !argv.action && !argv.extractor &&
-            !argv.preloader && !argv.scrapper && !argv.renderlessScrapper &&
-            !argv.apiScrapper && !argv.script) || argv.project) {
+            !argv.preloader && !argv.scraper && !argv.renderlessScraper &&
+            !argv.apiScraper && !argv.script) || argv.project) {
             if (argv.dir === ".") {
                 await generateProject(getDirectory(argv.dir), true);
             } else {
@@ -173,27 +173,27 @@ yargs
                 process.exit(1);
             }
             await generatePreloader(getDirectory(argv.dir), name);
-        } else if (argv.scrapper) {
-            const name = await getName(argv.name, "scrapper");
+        } else if (argv.scraper) {
+            const name = await getName(argv.name, "scraper");
             if (!name) {
-                opLog.error("Invalid scrapper name");
+                opLog.error("Invalid scraper name");
                 process.exit(1);
             }
-            await generateScrapper(getDirectory(argv.dir), name);
-        } else if (argv.renderlessScrapper) {
-            const name = await getName(argv.name, "renderlessScrapper");
+            await generateScraper(getDirectory(argv.dir), name);
+        } else if (argv.renderlessScraper) {
+            const name = await getName(argv.name, "renderlessScraper");
             if (!name) {
-                opLog.error("Invalid renderlessScrapper name");
+                opLog.error("Invalid renderlessScraper name");
                 process.exit(1);
             }
-            await generateRenderlessScrapper(getDirectory(argv.dir), name);
-        } else if (argv.apiScrapper) {
-            const name = await getName(argv.name, "apiScrapper");
+            await generateRenderlessScraper(getDirectory(argv.dir), name);
+        } else if (argv.apiScraper) {
+            const name = await getName(argv.name, "apiScraper");
             if (!name) {
-                opLog.error("Invalid apiScrapper name");
+                opLog.error("Invalid apiScraper name");
                 process.exit(1);
             }
-            await generateApiScrapper(getDirectory(argv.dir), name);
+            await generateApiScraper(getDirectory(argv.dir), name);
         }  else if (argv.script) {
             const name = await getName(argv.name, "script");
             if (!name) {

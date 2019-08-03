@@ -8,7 +8,7 @@ describe("createProcGenerators", function() {
     test("really simple waterfall", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -42,10 +42,10 @@ describe("createProcGenerators", function() {
     test("simple waterfall", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -85,7 +85,7 @@ describe("createProcGenerators", function() {
     test("really simple parallel", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -119,10 +119,10 @@ describe("createProcGenerators", function() {
     test("simple parallel", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -165,17 +165,17 @@ describe("createProcGenerators", function() {
     test("waterfall with nested parallel", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -227,23 +227,23 @@ describe("createProcGenerators", function() {
     test("waterfall with nested parallel 2", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }]
@@ -309,17 +309,17 @@ describe("createProcGenerators", function() {
     test("parallel with nested waterfall", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -374,23 +374,23 @@ describe("createProcGenerators", function() {
     test("parallel with nested waterfall 2", function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }]
@@ -458,7 +458,7 @@ describe("createProcGenerators", function() {
     test("retries are passed on correctly", function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 config: {
                     retries: 10
@@ -499,10 +499,10 @@ describe("createProcGenerators", function() {
     test("selfTopic is correct, parallel", async function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -531,23 +531,23 @@ describe("createProcGenerators", function() {
     test("selfTopic is correct, parallel with nested waterfall", async function() {
         const config: Config = {
             parallel: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 waterfall: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }]
@@ -584,10 +584,10 @@ describe("createProcGenerators", function() {
     test("selfTopic is correct, waterfall", async function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test"
             }]
         };
@@ -616,23 +616,23 @@ describe("createProcGenerators", function() {
     test("selfTopic is correct, waterfall with nested parallel", async function() {
         const config: Config = {
             waterfall: [{
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }, {
-                type: "scrapper",
+                type: "scraper",
                 module: "test",
                 parallel: [{
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }, {
-                    type: "scrapper",
+                    type: "scraper",
                     module: "test"
                 }]
             }]

@@ -5,9 +5,9 @@ import {getStoreDir} from "./store";
 import {exists} from "fs";
 import rimraf from "rimraf";
 
-export async function getOrCreateStoreProjectFolder(projectFolderOrScrapperName: string): Promise<string> {
+export async function getOrCreateStoreProjectFolder(projectFolderOrScraperName: string): Promise<string> {
     const storeDir = await getStoreDir();
-    const folderName = createHash("md5").update(projectFolderOrScrapperName).digest("hex");
+    const folderName = createHash("md5").update(projectFolderOrScraperName).digest("hex");
     const fullFolder = pathResolve(storeDir, "projects", folderName);
     return new Promise(function(resolve, reject) {
         mkdirp(fullFolder, function(err) {
@@ -20,22 +20,22 @@ export async function getOrCreateStoreProjectFolder(projectFolderOrScrapperName:
     });
 }
 
-export function hasPreviousRun(projectFolderOrScrapperName: string): Promise<boolean> {
+export function hasPreviousRun(projectFolderOrScraperName: string): Promise<boolean> {
     return new Promise(function(resolve) {
-        exists(getPipeprocFolder(projectFolderOrScrapperName), function(ex) {
+        exists(getPipeprocFolder(projectFolderOrScraperName), function(ex) {
             resolve(ex);
         });
     });
 }
 
-export function clearPreviousRun(projectFolderOrScrapperName: string): Promise<boolean> {
+export function clearPreviousRun(projectFolderOrScraperName: string): Promise<boolean> {
     return new Promise(function(resolve) {
-        rimraf(getPipeprocFolder(projectFolderOrScrapperName), function(_err) {
+        rimraf(getPipeprocFolder(projectFolderOrScraperName), function(_err) {
             resolve();
         });
     });
 }
 
-export function getPipeprocFolder(projectFolderOrScrapperName: string): string {
-    return pathJoin(projectFolderOrScrapperName, "pipeproc");
+export function getPipeprocFolder(projectFolderOrScraperName: string): string {
+    return pathJoin(projectFolderOrScraperName, "pipeproc");
 }
