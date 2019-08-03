@@ -2,15 +2,22 @@ import {getOpLog} from "../opLog/opLog";
 import {getDirectory} from "./getDirectory";
 import {resolve as pathResolve} from "path";
 
-export function prepareStandard(dir: string, configFile: string) {
+export function prepareStandard(dir: string, alternativeConfigFile: string) {
     const opLog = getOpLog();
     const directory = getDirectory(dir);
-    process.chdir(directory);
+    let resolvedConfigFile: string;
+    //if an alternative configFile is given, we resolve it based on the cwd
+    //else we look in the project folder
+    if (alternativeConfigFile) {
+        resolvedConfigFile = pathResolve(process.cwd(), alternativeConfigFile);
+    } else {
+        resolvedConfigFile = pathResolve(directory, "ayakashi.config.js");
+    }
     opLog.info("running project:", directory);
-    opLog.info("configFile:", configFile);
+    opLog.info("configFile:", resolvedConfigFile);
     try {
         return {
-            config: require(pathResolve(directory, configFile)),
+            config: require(resolvedConfigFile),
             directory: directory
         };
     } catch (_e) {

@@ -33,7 +33,7 @@ yargs
             .option("configFile", {
                 describe: "Use an alternative configFile",
                 alias: "c",
-                default: "ayakashi.config.js"
+                default: ""
             })
             .option("jsonConfig", {
                 describe: "Use a json string as config",
