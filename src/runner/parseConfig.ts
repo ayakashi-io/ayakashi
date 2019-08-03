@@ -363,6 +363,26 @@ export function isUsingNormalScraper(steps: (string | string[])[], config: Confi
     return using;
 }
 
+export function hasTypo(steps: (string | string[])[], config: Config) {
+    let typo = false;
+    for (const step of steps) {
+        if (Array.isArray(step)) {
+            for (const st of step) {
+                const type = getObjectReference(config, st).type;
+                if (type === "scrapper" || type === "apiScrapper" || type === "renderlessScrapper") {
+                    typo = true;
+                }
+            }
+        } else {
+            const type = getObjectReference(config, step).type;
+            if (type === "scrapper" || type === "apiScrapper" || type === "renderlessScrapper") {
+                typo = true;
+            }
+        }
+    }
+    return typo;
+}
+
 export function getObjectReference(
     config: Config,
     stepName: string

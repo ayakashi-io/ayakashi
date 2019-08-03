@@ -57,7 +57,7 @@
         "curly": false,
         "ordered-imports": false,
         "align": false,
-        "cyclomatic-complexity": [true, 22],
+        "cyclomatic-complexity": false,
         "mocha-no-side-effect-code": false,
         "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
         "max-func-body-length": false,
