@@ -51,6 +51,10 @@ yargs
                 type: "boolean",
                 describe: "Will restart all steps that terminated due to an error. Only works when --resume is used"
             })
+            .option("clean", {
+                type: "boolean",
+                describe: "Clear the previous run if it exists and start from the beginning"
+            })
             .option("out", {
                 describe: "Select the saving format when --simple mode is used",
                 default: "stdout",
@@ -63,6 +67,7 @@ yargs
         await showLineUpdate();
         const resume = <boolean>argv.resume || false;
         const restartDisabledSteps = <boolean>argv.restartDisabledSteps || false;
+        const clean = <boolean>argv.clean || false;
         let directory: string;
         let config: Config;
         let simpleScraper = null;
@@ -85,6 +90,7 @@ yargs
         run(directory, config, {
             resume: resume,
             restartDisabledSteps: restartDisabledSteps,
+            clean: clean,
             simpleScraper: simpleScraper
         }).then(async function() {
             opLog.info("Nothing more to do!");

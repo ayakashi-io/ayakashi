@@ -24,19 +24,29 @@ import {
 import {downloadChromium} from "../chromeDownloader/downloader";
 import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
 import {getManifest} from "../store/manifest";
-import {getOrCreateStoreProjectFolder, hasPreviousRun, clearPreviousRun, getPipeprocFolder} from "../store/project";
+import {
+    getOrCreateStoreProjectFolder,
+    hasPreviousRun,
+    clearPreviousRun,
+    getPipeprocFolder,
+    saveLastConfig,
+    configChanged
+} from "../store/project";
 import debug from "debug";
 const d = debug("ayakashi:runner");
 
 export async function run(projectFolder: string, config: Config, options: {
     resume: boolean,
     restartDisabledSteps: boolean,
+    clean: boolean,
     simpleScraper: string | null
 }) {
     const opLog = getOpLog();
     let steps: (string | string[])[];
     let procGenerators: ProcGenerator[];
     let initializers: string[];
+    const pipeprocClient = PipeProc();
+    let headlessChrome = null;
     const storeProjectFolder =
         await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder);
     try {
@@ -81,7 +91,6 @@ export async function run(projectFolder: string, config: Config, options: {
         }
         chromePath = await getChromePath();
     }
-    let headlessChrome = null;
     try {
         //launch chrome
         if (isUsingNormalScraper(steps, config)) {
@@ -105,19 +114,24 @@ export async function run(projectFolder: string, config: Config, options: {
             };
         });
 
-        let previousRunCleared = false;
+        if (options.resume && options.clean) {
+            opLog.error("Cannot use both --resume and --clean");
+            throw new Error("Invalid run parameters");
+        }
         const hasPrevious = await hasPreviousRun(storeProjectFolder);
-        if (!options.resume && hasPrevious) {
+        if (!options.resume && options.clean && hasPrevious) {
             opLog.info("cleaning previous run");
             await clearPreviousRun(storeProjectFolder);
-            previousRunCleared = true;
+        } else if (!options.resume && !options.clean && hasPrevious) {
+            opLog.error("Cannot start a new run while a previous unfinished run exists.");
+            opLog.error("Use --resume to resume the previous run or --clean to clear it and start a new one.");
+            throw new Error("Invalid run parameters");
         }
 
         //launch pipeproc
         const stepCount = steps.length <= 4 ? 1 : countSteps(steps) - 3;
         const workers = stepCount > cpus().length ? cpus().length : stepCount;
         opLog.info(`using workers: ${workers}`);
-        const pipeprocClient = PipeProc();
         await pipeprocClient.spawn({
             namespace: "ayakashi",
             location: getPipeprocFolder(storeProjectFolder),
@@ -131,8 +145,13 @@ export async function run(projectFolder: string, config: Config, options: {
         }
         process.on(SIGINT, sigintListener);
 
-        if (options.resume && !previousRunCleared && hasPrevious) {
+        if (options.resume && hasPrevious) {
             opLog.info("resuming previous run");
+            if (await configChanged(config, storeProjectFolder)) {
+                opLog.error("Cannot resume a project if its config has changed");
+                opLog.error("Either revert your config to its previous state or use --clean to start a new run");
+                throw new Error("Config modified");
+            }
             await Promise.all(procs.map(async function(proc) {
                 try {
                     await pipeprocClient.reclaimProc(proc.name);
@@ -144,6 +163,7 @@ export async function run(projectFolder: string, config: Config, options: {
                 }
             }));
         } else {
+            await saveLastConfig(config, storeProjectFolder);
             //register the systemProcs and init the project
             //@ts-ignore
             await Promise.all(procs.map(proc => pipeprocClient.systemProc(proc)));
@@ -157,12 +177,24 @@ export async function run(projectFolder: string, config: Config, options: {
 
         //close
         await pipeprocClient.waitForProcs();
-        await clearPreviousRun(storeProjectFolder);
         if (headlessChrome) {
             await headlessChrome.close();
         }
         await pipeprocClient.shutdown();
+        await clearPreviousRun(storeProjectFolder);
     } catch (e) {
+        try {
+            await pipeprocClient.shutdown();
+        } catch (_e) {
+            d(_e);
+        }
+        try {
+            if (headlessChrome) {
+                await headlessChrome.close();
+            }
+        } catch (_e) {
+            d(_e);
+        }
         opLog.error("Failed to run project");
         throw e;
     }
