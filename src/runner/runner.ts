@@ -135,7 +135,8 @@ export async function run(projectFolder: string, config: Config, options: {
         await pipeprocClient.spawn({
             namespace: "ayakashi",
             location: getPipeprocFolder(storeProjectFolder),
-            workers: workers
+            workers: workers,
+            workerRestartAfter: 100
         });
         const SIGINT = "SIGINT";
         async function sigintListener() {
