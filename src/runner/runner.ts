@@ -178,11 +178,20 @@ export async function run(projectFolder: string, config: Config, options: {
 
         //close
         await pipeprocClient.waitForProcs();
+        let procWithError = false;
+        for (const pr of procs) {
+            const proc = await pipeprocClient.inspectProc(pr.name);
+            if (proc.status === "disabled") {
+                procWithError = true;
+            }
+        }
         if (headlessChrome) {
             await headlessChrome.close();
         }
         await pipeprocClient.shutdown();
-        await clearPreviousRun(storeProjectFolder);
+        if (!procWithError) {
+            await clearPreviousRun(storeProjectFolder);
+        }
     } catch (e) {
         try {
             await pipeprocClient.shutdown();
