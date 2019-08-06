@@ -1,31 +1,22 @@
 import {IAyakashiInstance, AyakashiPage} from "./prelude";
 import {IConnection} from "../engine/createConnection";
-import {attachMetaActions} from "./actions/meta";
-import {attachQuery} from "./actions/select";
-import {attachExtract} from "./actions/extract";
+import {attachMetaActions, IMetaActions} from "./actions/meta";
+import {attachQuery, ISelectActions} from "./actions/select";
+import {attachExtract, IExtractActions} from "./actions/extract";
 import {domQuery} from "../domQL/domQL";
 import {attachCoreExtractors} from "../coreExtractors/extractors";
-import {attachRetry} from "./actions/retry";
+import {attachRetry, IRetryActions} from "./actions/retry";
+import {IRequestActions} from "./actions/request";
+import {IYieldActions} from "./actions/yield";
 import {JSDOM} from "jsdom";
 
-export interface IRenderlessAyakashiInstance {
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+type MetaActionsNoPause = Omit<IMetaActions, "pause">;
+type MetaActionsNoRegisterAction = Omit<MetaActionsNoPause, "registerAction">;
+export interface IRenderlessAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, MetaActionsNoRegisterAction {
     propRefs: IAyakashiInstance["propRefs"];
     extractors: IAyakashiInstance["extractors"];
-    prop: IAyakashiInstance["prop"];
-    evaluate: IAyakashiInstance["evaluate"];
-    evaluateAsync: IAyakashiInstance["evaluateAsync"];
-    defineProp: IAyakashiInstance["defineProp"];
-    registerExtractor: IAyakashiInstance["registerExtractor"];
-    select: IAyakashiInstance["select"];
-    selectFirst: IAyakashiInstance["selectFirst"];
-    selectOne: IAyakashiInstance["selectOne"];
-    selectLast: IAyakashiInstance["selectLast"];
-    extract: IAyakashiInstance["extract"];
-    retry: IAyakashiInstance["retry"];
-    yield: IAyakashiInstance["yield"];
-    yieldEach: IAyakashiInstance["yieldEach"];
-    recursiveYield: IAyakashiInstance["recursiveYield"];
-    recursiveYieldEach: IAyakashiInstance["recursiveYieldEach"];
     page: JSDOM;
 /**
  * Fetches and loads a page in the renderlessScraper's context.
@@ -36,6 +27,13 @@ await ayakashi.load("https://ayakashi.io");
 ```
 */
     load: (this: IRenderlessAyakashiInstance, url: string, timeout?: number) => Promise<void>;
+/**
+ * Loads an html fragment in the renderlessScraper's context.
+ * ```js
+await ayakashi.loadHtml("<body>hi</body>");
+```
+*/
+    loadHtml: (this: IRenderlessAyakashiInstance, html: string) => Promise<void>;
     __attachDOM: (this: IRenderlessAyakashiInstance, dom: JSDOM) => void;
     __connection: {
         release: () => Promise<void>;

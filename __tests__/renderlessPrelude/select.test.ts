@@ -362,4 +362,55 @@ describe("select tests", function() {
         }]);
         await ayakashiInstance.__connection.release();
     });
+
+    test("loading a different page should load a different DOM", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        //first load
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({tagName: {eq: "A"}});
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual([{
+            links: "link1"
+        }, {
+            links: "link2"
+        }]);
+        const dom1 = ayakashiInstance.page;
+        //second load
+        const anotherPort = await getRandomPort();
+        const anotherStaticServer = createStaticServer(anotherPort, `
+            <html>
+                <head>
+                    <title>a different page</title>
+                </head>
+                <body>
+                    <div class="container">
+                        <a href="http://example.com" id="link3" class="links">Link1</a>
+                    </div>
+                    <div class="container2">
+                        <a href="http://example.com" id="link4" class="links">Link2</a>
+                    </div>
+                </body>
+            </html>
+        `);
+        await ayakashiInstance.load(`http://localhost:${anotherPort}`);
+        const dom2 = ayakashiInstance.page;
+        expect(dom1 === dom2).toBeFalse();
+        const title = await ayakashiInstance.evaluate(function() {
+            return this.document.title;
+        });
+        expect(title).toBe("a different page");
+        ayakashiInstance.select("links").where({tagName: {eq: "A"}});
+        const result2 = await ayakashiInstance.extract("links", "id");
+        expect(result2).toEqual([{
+            links: "link3"
+        }, {
+            links: "link4"
+        }]);
+        await ayakashiInstance.__connection.release();
+        await new Promise(function(resolve) {
+            anotherStaticServer.close(function() {
+                resolve();
+            });
+        });
+    });
 });

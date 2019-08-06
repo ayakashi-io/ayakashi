@@ -1,10 +1,11 @@
-import request from "@ayakashi/request/core";
+import requestCore from "@ayakashi/request/core";
 import {resolve as pathResolve} from "path";
 //@ts-ignore
 import UserAgent from "user-agents";
 import {PipeProc} from "pipeproc";
 import {apiPrelude} from "../prelude/apiPrelude";
 import {attachYields} from "../prelude/actions/yield";
+import {attachRequest} from "../prelude/actions/request";
 import {getOpLog} from "../opLog/opLog";
 import debug from "debug";
 const d = debug("ayakashi:apiScraperWrapper");
@@ -40,6 +41,7 @@ export default async function apiScraperWrapper(log: PassedLog) {
 
         const ayakashiInstance = apiPrelude();
 
+        //user-agent setup
         let userAgent = "";
         if (!log.body.userAgent || log.body.userAgent === "random") {
             userAgent = new UserAgent();
@@ -50,7 +52,9 @@ export default async function apiScraperWrapper(log: PassedLog) {
         if (log.body.userAgent && log.body.userAgent === "mobile") {
             userAgent = new UserAgent({deviceCategory: "mobile"});
         }
-        const myRequest = request.defaults({
+
+        //attach the request API
+        const myRequest = requestCore.defaults({
             headers: {
                 "User-Agent": userAgent.toString(),
                 //tslint:disable max-line-length
@@ -64,8 +68,7 @@ export default async function apiScraperWrapper(log: PassedLog) {
             strictSSL: !log.body.ignoreCertificateErrors,
             gzipOrBrotli: true
         });
-
-        ayakashiInstance.__wrap(myRequest, ["get", "post", "put", "patch", "delete", "head"]);
+        attachRequest(ayakashiInstance, myRequest);
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();
