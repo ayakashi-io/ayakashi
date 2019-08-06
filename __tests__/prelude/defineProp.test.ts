@@ -80,4 +80,16 @@ describe("defineProp tests", function() {
         }]);
         await ayakashiInstance.__connection.release();
     });
+
+    test("body prop should be already defined", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        expect(ayakashiInstance.prop("body")).not.toBeNull();
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("head prop should be already defined", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        expect(ayakashiInstance.prop("head")).not.toBeNull();
+        await ayakashiInstance.__connection.release();
+    });
 });

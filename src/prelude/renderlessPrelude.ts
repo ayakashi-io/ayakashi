@@ -116,6 +116,14 @@ export async function renderlessPrelude() {
         return fn.call(ayakashiInstance.page.window.ayakashi, ...args);
     };
 
+    //define head and body props for convenience
+    (<IAyakashiInstance>ayakashiInstance).defineProp(function() {
+        return document.body;
+    }, "body");
+    (<IAyakashiInstance>ayakashiInstance).defineProp(function() {
+        return document.head;
+    }, "head");
+
     //@ts-ignore
     delete ayakashiInstance.pause;
     //@ts-ignore
