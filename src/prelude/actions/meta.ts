@@ -12,7 +12,7 @@ export interface IMetaActions {
 /**
  * Given a prop name or prop object returns a prop object or null if the prop is not defined.
  * Can be used to get prop references from their name or to check if the prop is valid.
- * Learn more here: http://ayakashi.io/docs/going_deeper/anonymous-props-and-references.html
+ * Learn more here: https://ayakashi.io/docs/going_deeper/anonymous-props-and-references.html
  * ```js
 ayakashi.prop("myProp");
 ```
@@ -21,7 +21,7 @@ ayakashi.prop("myProp");
     //tslint:disable no-any
 /**
  * Evaluates a javascript function in the current page.
- * Learn more here: http://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
+ * Learn more here: https://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
  * ```js
 const title = await ayakashi.evaluate(function() {
     return document.title;
@@ -31,7 +31,7 @@ const title = await ayakashi.evaluate(function() {
     evaluate: <T>(fn: (this: Window["ayakashi"], ...args: any[]) => T, ...args: any[]) => Promise<T>;
 /**
  * Evaluates an asynchronous javascript function in the current page.
- * Learn more here: http://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
+ * Learn more here: https://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
  * ```js
 await ayakashi.evaluateAsync(function() {
     return new Promise(function(resolve) {
@@ -46,7 +46,7 @@ await ayakashi.evaluateAsync(function() {
     //tslint:enable no-any
 /**
  * Defines a new prop without using the domQL syntax.
- * Learn more here: http://ayakashi.io/docs/going_deeper/defining-props-without-domql.html
+ * Learn more here: https://ayakashi.io/docs/going_deeper/defining-props-without-domql.html
  * ```js
 ayakashi.defineProp(function() {
     return this.document.getElementById("main");
@@ -56,7 +56,7 @@ ayakashi.defineProp(function() {
     defineProp: (fn: (this: Window["ayakashi"]) => HTMLElement | HTMLElement[] | NodeList, propId?: string) => IDomProp;
 /**
  * Pauses the execution of the scraper.
- * Learn more here: http://ayakashi.io/docs/guide/debugging.html
+ * Learn more here: https://ayakashi.io/docs/guide/debugging.html
  * ```js
 await ayakashi.pause();
 ```
@@ -65,7 +65,7 @@ await ayakashi.pause();
     //tslint:disable no-any
 /**
  * Registers a new action and makes it available in the ayakashi instance.
- * Learn more here: http://ayakashi.io/docs/advanced/creating-your-own-actions.html
+ * Learn more here: https://ayakashi.io/docs/advanced/creating-your-own-actions.html
  * ```js
 ayakashi.registerAction("myAction", async function(prop) {
     console.log("running myAction");
@@ -76,7 +76,7 @@ ayakashi.registerAction("myAction", async function(prop) {
     //tslint:enable no-any
 /**
  * Registers a new extractor and makes it available in the extract() method.
- * Learn more here: http://ayakashi.io/docs/advanced/creating-your-own-extractors.html
+ * Learn more here: https://ayakashi.io/docs/advanced/creating-your-own-extractors.html
  * ```js
 ayakashi.registerExtractor("id", function() {
     return {

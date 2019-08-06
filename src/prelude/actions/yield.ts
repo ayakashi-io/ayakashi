@@ -6,7 +6,7 @@ import {IPipeProcClient} from "pipeproc";
 export interface IYieldActions {
 /**
  * Yields extracted data from a scraper to the next step of the pipeline.
- * Learn more about yield in this example: http://ayakashi.io/guide/building-a-complete-scraping-project.html
+ * Learn more about yield in this example: https://ayakashi.io/guide/building-a-complete-scraping-project.html
  * ```js
 ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
 const result = await ayakashi.extract("myDivProp");
@@ -17,7 +17,7 @@ await ayakashi.yield(result);
 /**
  * Yields multiple extractions individually in a single (atomic) operation.
  * The next step of the pipeline will run for each extraction.
- * Learn more about yield in this example: http://ayakashi.io/guide/building-a-complete-scraping-project.html
+ * Learn more about yield in this example: https://ayakashi.io/guide/building-a-complete-scraping-project.html
  * ```js
 await ayakashi.yieldEach(extractedLinks);
 //is kinda like this

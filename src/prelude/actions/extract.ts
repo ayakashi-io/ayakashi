@@ -7,7 +7,7 @@ export interface IExtractActions {
     //tslint:disable no-any
 /**
  * Extracts data from a prop.
- * Learn more here: http://ayakashi.io/docs/guide/data-extraction.html
+ * Learn more here: https://ayakashi.io/docs/guide/data-extraction.html
  * ```js
 ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
 const result = await ayakashi.extract("myDivProp");
