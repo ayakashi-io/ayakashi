@@ -1,12 +1,16 @@
 import request from "@ayakashi/request";
+import requestCore from "@ayakashi/request/core";
 import {createConnection, EmulatorOptions, IConnection} from "../engine/createConnection";
 import {Target} from "../engine/createTarget";
 import {prelude, IAyakashiInstance} from "../prelude/prelude";
 import {attachYields} from "../prelude/actions/yield";
+import {attachRequest} from "../prelude/actions/request";
 import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {compile} from "../preloaderCompiler/compiler";
 import {getOpLog} from "../opLog/opLog";
+//@ts-ignore
+import UserAgent from "user-agents";
 import {
     loadLocalActions,
     loadLocalExtractors,
@@ -53,7 +57,10 @@ type PassedLog = {
         operationId: string,
         startDate: string,
         procName: string,
-        appRoot: string
+        appRoot: string,
+        userAgent?: string,
+        proxyUrl?: string,
+        ignoreCertificateErrors: boolean
     }
 };
 
@@ -104,6 +111,35 @@ export default async function scraperWrapper(log: PassedLog) {
             });
         }
         const ayakashiInstance = await prelude(connection);
+
+        //user-agent setup
+        let userAgent = "";
+        if (!log.body.userAgent || log.body.userAgent === "random") {
+            userAgent = new UserAgent();
+        }
+        if (log.body.userAgent && log.body.userAgent === "desktop") {
+            userAgent = new UserAgent({deviceCategory: "desktop"});
+        }
+        if (log.body.userAgent && log.body.userAgent === "mobile") {
+            userAgent = new UserAgent({deviceCategory: "mobile"});
+        }
+
+        //attach the request API
+        const myRequest = requestCore.defaults({
+            headers: {
+                "User-Agent": userAgent.toString(),
+                //tslint:disable max-line-length
+                Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+                //tslint:enable max-line-length
+                "accept-language": "en-US,en;q=0.9",
+                "cache-control": "no-cache",
+                pragma: "no-cache"
+            },
+            proxy: log.body.proxyUrl || undefined,
+            strictSSL: !log.body.ignoreCertificateErrors,
+            gzipOrBrotli: true
+        });
+        attachRequest(ayakashiInstance, myRequest);
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();

@@ -7,6 +7,7 @@ import {domQuery} from "../domQL/domQL";
 import {attachCoreExtractors} from "../coreExtractors/extractors";
 import {attachRetry} from "./actions/retry";
 import {JSDOM} from "jsdom";
+import {CoreOptions} from "@ayakashi/request/core";
 
 export interface IRenderlessAyakashiInstance {
     propRefs: IAyakashiInstance["propRefs"];
@@ -36,10 +37,25 @@ await ayakashi.load("https://ayakashi.io");
 ```
 */
     load: (this: IRenderlessAyakashiInstance, url: string, timeout?: number) => Promise<void>;
+/**
+ * Loads an html fragment in the renderlessScraper's context.
+ * ```js
+await ayakashi.loadHtml("<body>hi</body>");
+```
+*/
+    loadHtml: (this: IRenderlessAyakashiInstance, html: string) => Promise<void>;
     __attachDOM: (this: IRenderlessAyakashiInstance, dom: JSDOM) => void;
     __connection: {
         release: () => Promise<void>;
     };
+    //tslint:disable no-any
+    get: (uri: string, options?: CoreOptions) => Promise<any>;
+    post: (uri: string, options?: CoreOptions) => Promise<any>;
+    put: (uri: string, options?: CoreOptions) => Promise<any>;
+    patch: (uri: string, options?: CoreOptions) => Promise<any>;
+    delete: (uri: string, options?: CoreOptions) => Promise<any>;
+    head: (uri: string, options?: CoreOptions) => Promise<any>;
+    //tslint:enable no-any
 }
 type PropTable = {
     [key: string]: {

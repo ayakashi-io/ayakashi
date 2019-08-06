@@ -1,3 +1,4 @@
+import {CoreOptions} from "@ayakashi/request/core";
 import {IConnection} from "../engine/createConnection";
 import {attachMetaActions} from "./actions/meta";
 import {attachQuery} from "./actions/select";
@@ -223,6 +224,14 @@ await ayakashi.retry(async function() {
 ```
 */
     retry: <T>(task: (currentRetry: number) => Promise<T>, retries?: number) => Promise<T>;
+    //tslint:disable no-any
+    get: (uri: string, options?: CoreOptions) => Promise<any>;
+    post: (uri: string, options?: CoreOptions) => Promise<any>;
+    put: (uri: string, options?: CoreOptions) => Promise<any>;
+    patch: (uri: string, options?: CoreOptions) => Promise<any>;
+    delete: (uri: string, options?: CoreOptions) => Promise<any>;
+    head: (uri: string, options?: CoreOptions) => Promise<any>;
+    //tslint:enable no-any
 }
 
 export type AyakashiPage = {

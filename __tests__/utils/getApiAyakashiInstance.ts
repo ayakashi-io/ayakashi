@@ -1,4 +1,5 @@
 import {apiPrelude} from "../../src/prelude/apiPrelude";
+import {attachRequest} from "../../src/prelude/actions/request";
 import request from "@ayakashi/request/core";
 
 export function getAyakashiInstance() {
@@ -17,7 +18,7 @@ export function getAyakashiInstance() {
         gzipOrBrotli: true
     });
 
-    ayakashiInstance.__wrap(myRequest, ["get", "post", "put", "patch", "delete", "head"]);
+    attachRequest(ayakashiInstance, myRequest);
 
     return ayakashiInstance;
 }

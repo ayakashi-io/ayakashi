@@ -632,7 +632,10 @@ function addPreStep(
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousStep}",
-                            appRoot: "${appRoot}"
+                            appRoot: "${appRoot}",
+                            userAgent: "${(config.config && config.config.userAgent) || ""}",
+                            proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                            ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
                     } else if (obj.type === "renderlessScraper") {
                         return Promise.resolve({
@@ -737,7 +740,10 @@ function addParallelPreStep(
                                 startDate: "${options.startDate}",
                                 procName: "proc_from_pre_${step}_to_${step}",
                                 selfTopic: "${ppst}",
-                                appRoot: "${appRoot}"
+                                appRoot: "${appRoot}",
+                                userAgent: "${(config.config && config.config.userAgent) || ""}",
+                                proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                                ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                             });
                         } else if (obj.type === "renderlessScraper") {
                             return Promise.resolve({
@@ -823,7 +829,10 @@ function addParallelPreStep(
                             startDate: "${options.startDate}",
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousPreviousStep}",
-                            appRoot: "${appRoot}"
+                            appRoot: "${appRoot}",
+                            userAgent: "${(config.config && config.config.userAgent) || ""}",
+                            proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
+                            ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
                     } else if (obj.type === "renderlessScraper") {
                         return Promise.resolve({

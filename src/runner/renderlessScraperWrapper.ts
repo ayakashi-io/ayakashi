@@ -1,4 +1,6 @@
 import request from "@ayakashi/request";
+import requestCore from "@ayakashi/request/core";
+import {attachRequest} from "../prelude/actions/request";
 import {resolve as pathResolve} from "path";
 import {JSDOM} from "jsdom";
 import {
@@ -58,17 +60,20 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
 
         const ayakashiInstance = await renderlessPrelude();
 
+        //user-agent setup
+        let userAgent = "";
+        if (!log.body.userAgent || log.body.userAgent === "random") {
+            userAgent = new UserAgent();
+        }
+        if (log.body.userAgent && log.body.userAgent === "desktop") {
+            userAgent = new UserAgent({deviceCategory: "desktop"});
+        }
+        if (log.body.userAgent && log.body.userAgent === "mobile") {
+            userAgent = new UserAgent({deviceCategory: "mobile"});
+        }
+
+        //define the load methods
         ayakashiInstance.load = async function(url, timeout) {
-            let userAgent = "";
-            if (!log.body.userAgent || log.body.userAgent === "random") {
-                userAgent = new UserAgent();
-            }
-            if (log.body.userAgent && log.body.userAgent === "desktop") {
-                userAgent = new UserAgent({deviceCategory: "desktop"});
-            }
-            if (log.body.userAgent && log.body.userAgent === "mobile") {
-                userAgent = new UserAgent({deviceCategory: "mobile"});
-            }
             d("loading url: ", url);
             const html = await request.get(url, {
                 headers: {
@@ -92,6 +97,36 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             }
             d("DOM built");
         };
+        ayakashiInstance.loadHtml = async function(html) {
+            d("url loaded");
+            d("building DOM");
+            if (html) {
+                this.__attachDOM(new JSDOM(html));
+                loadLocalProps(ayakashiInstance, log.body.projectFolder);
+            } else {
+                await ayakashiInstance.__connection.release();
+                throw new Error("Invalid page");
+            }
+            d("DOM built");
+        };
+
+        //attach the request API
+        const myRequest = requestCore.defaults({
+            headers: {
+                "User-Agent": userAgent.toString(),
+                //tslint:disable max-line-length
+                Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+                //tslint:enable max-line-length
+                "accept-language": "en-US,en;q=0.9",
+                "cache-control": "no-cache",
+                pragma: "no-cache"
+            },
+            proxy: log.body.proxyUrl || undefined,
+            strictSSL: !log.body.ignoreCertificateErrors,
+            gzipOrBrotli: true
+        });
+        attachRequest(ayakashiInstance, myRequest);
+
         //connect to pipeproc
         const pipeprocClient = PipeProc();
         await pipeprocClient.connect({namespace: "ayakashi"});
