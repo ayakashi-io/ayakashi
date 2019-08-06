@@ -15,6 +15,13 @@ export async function getAyakashiInstance() {
             throw new Error("Invalid page");
         }
     };
+    ayakashiInstance.loadHtml = async function(html) {
+        if (html) {
+            await this.__attachDOM(new JSDOM(html));
+        } else {
+            throw new Error("Invalid page");
+        }
+    };
 
     return ayakashiInstance;
 }
