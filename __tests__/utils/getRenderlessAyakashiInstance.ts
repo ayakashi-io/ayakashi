@@ -10,7 +10,7 @@ export async function getAyakashiInstance() {
             timeout: timeout || 10000
         });
         if (html) {
-            this.__attachDOM(new JSDOM(html));
+            await this.__attachDOM(new JSDOM(html));
         } else {
             throw new Error("Invalid page");
         }

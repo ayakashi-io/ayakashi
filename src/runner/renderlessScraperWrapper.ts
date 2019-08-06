@@ -89,7 +89,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             d("url loaded");
             d("building DOM");
             if (html) {
-                this.__attachDOM(new JSDOM(html));
+                await this.__attachDOM(new JSDOM(html));
                 loadLocalProps(ayakashiInstance, log.body.projectFolder);
             } else {
                 await ayakashiInstance.__connection.release();
@@ -101,7 +101,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             d("url loaded");
             d("building DOM");
             if (html) {
-                this.__attachDOM(new JSDOM(html));
+                await this.__attachDOM(new JSDOM(html));
                 loadLocalProps(ayakashiInstance, log.body.projectFolder);
             } else {
                 await ayakashiInstance.__connection.release();
