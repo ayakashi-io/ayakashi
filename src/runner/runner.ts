@@ -190,7 +190,11 @@ export async function run(projectFolder: string, config: Config, options: {
         }
         await pipeprocClient.shutdown();
         if (!procWithError) {
+            opLog.info("cleaning run state");
             await clearPreviousRun(storeProjectFolder);
+        } else {
+            opLog.warn("Run finished but some steps were disabled due to errors, run state will not be cleared");
+            opLog.warn("You can try re-running them by passing --resume and --restartDisabledSteps");
         }
     } catch (e) {
         try {
