@@ -3,6 +3,23 @@ import {IAyakashiInstance} from "../prelude";
 import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {isRegExp} from "util";
 
+export interface IExtractActions {
+    //tslint:disable no-any
+/**
+ * Extracts data from a prop.
+ * Learn more here: http://ayakashi.io/docs/guide/data-extraction.html
+ * ```js
+ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
+const result = await ayakashi.extract("myDivProp");
+```
+*/
+    extract: (
+        propId: string | IDomProp,
+        extractable?: Extractable
+    ) => any;
+    //tslint:enable no-any
+}
+
 //tslint:disable no-any
 export type ExtractorFn = (this: Window["ayakashi"]) => {
     extract: (el: any) => any,

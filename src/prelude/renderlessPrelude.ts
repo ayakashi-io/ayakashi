@@ -1,32 +1,22 @@
 import {IAyakashiInstance, AyakashiPage} from "./prelude";
 import {IConnection} from "../engine/createConnection";
-import {attachMetaActions} from "./actions/meta";
-import {attachQuery} from "./actions/select";
-import {attachExtract} from "./actions/extract";
+import {attachMetaActions, IMetaActions} from "./actions/meta";
+import {attachQuery, ISelectActions} from "./actions/select";
+import {attachExtract, IExtractActions} from "./actions/extract";
 import {domQuery} from "../domQL/domQL";
 import {attachCoreExtractors} from "../coreExtractors/extractors";
-import {attachRetry} from "./actions/retry";
+import {attachRetry, IRetryActions} from "./actions/retry";
+import {IRequestActions} from "./actions/request";
+import {IYieldActions} from "./actions/yield";
 import {JSDOM} from "jsdom";
-import {CoreOptions} from "@ayakashi/request/core";
 
-export interface IRenderlessAyakashiInstance {
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+type MetaActionsNoPause = Omit<IMetaActions, "pause">;
+type MetaActionsNoRegisterAction = Omit<MetaActionsNoPause, "registerAction">;
+export interface IRenderlessAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, MetaActionsNoRegisterAction {
     propRefs: IAyakashiInstance["propRefs"];
     extractors: IAyakashiInstance["extractors"];
-    prop: IAyakashiInstance["prop"];
-    evaluate: IAyakashiInstance["evaluate"];
-    evaluateAsync: IAyakashiInstance["evaluateAsync"];
-    defineProp: IAyakashiInstance["defineProp"];
-    registerExtractor: IAyakashiInstance["registerExtractor"];
-    select: IAyakashiInstance["select"];
-    selectFirst: IAyakashiInstance["selectFirst"];
-    selectOne: IAyakashiInstance["selectOne"];
-    selectLast: IAyakashiInstance["selectLast"];
-    extract: IAyakashiInstance["extract"];
-    retry: IAyakashiInstance["retry"];
-    yield: IAyakashiInstance["yield"];
-    yieldEach: IAyakashiInstance["yieldEach"];
-    recursiveYield: IAyakashiInstance["recursiveYield"];
-    recursiveYieldEach: IAyakashiInstance["recursiveYieldEach"];
     page: JSDOM;
 /**
  * Fetches and loads a page in the renderlessScraper's context.
@@ -48,14 +38,6 @@ await ayakashi.loadHtml("<body>hi</body>");
     __connection: {
         release: () => Promise<void>;
     };
-    //tslint:disable no-any
-    get: (uri: string, options?: CoreOptions) => Promise<any>;
-    post: (uri: string, options?: CoreOptions) => Promise<any>;
-    put: (uri: string, options?: CoreOptions) => Promise<any>;
-    patch: (uri: string, options?: CoreOptions) => Promise<any>;
-    delete: (uri: string, options?: CoreOptions) => Promise<any>;
-    head: (uri: string, options?: CoreOptions) => Promise<any>;
-    //tslint:enable no-any
 }
 type PropTable = {
     [key: string]: {

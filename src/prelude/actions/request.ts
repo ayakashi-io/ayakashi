@@ -3,6 +3,17 @@ import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {IApiAyakashiInstance} from "../apiPrelude";
 import {CoreOptions, RequestAPI, RequiredUriUrl, Request} from "@ayakashi/request/core";
 
+export interface IRequestActions {
+    //tslint:disable no-any
+    get: (uri: string, options?: CoreOptions) => Promise<any>;
+    post: (uri: string, options?: CoreOptions) => Promise<any>;
+    put: (uri: string, options?: CoreOptions) => Promise<any>;
+    patch: (uri: string, options?: CoreOptions) => Promise<any>;
+    delete: (uri: string, options?: CoreOptions) => Promise<any>;
+    head: (uri: string, options?: CoreOptions) => Promise<any>;
+    //tslint:enable no-any
+}
+
 export function attachRequest(
     ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance | IApiAyakashiInstance,
     requestInstance: RequestAPI<Request, CoreOptions, RequiredUriUrl>
