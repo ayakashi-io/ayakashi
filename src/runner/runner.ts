@@ -178,11 +178,24 @@ export async function run(projectFolder: string, config: Config, options: {
 
         //close
         await pipeprocClient.waitForProcs();
+        let procWithError = false;
+        for (const pr of procs) {
+            const proc = await pipeprocClient.inspectProc(pr.name);
+            if (proc.status === "disabled") {
+                procWithError = true;
+            }
+        }
         if (headlessChrome) {
             await headlessChrome.close();
         }
         await pipeprocClient.shutdown();
-        await clearPreviousRun(storeProjectFolder);
+        if (!procWithError) {
+            opLog.info("cleaning run state");
+            await clearPreviousRun(storeProjectFolder);
+        } else {
+            opLog.warn("Run finished but some steps were disabled due to errors, run state will not be cleared");
+            opLog.warn("You can try re-running them by passing --resume and --restartDisabledSteps");
+        }
     } catch (e) {
         try {
             await pipeprocClient.shutdown();
