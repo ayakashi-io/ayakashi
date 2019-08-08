@@ -250,4 +250,59 @@ describe("nested queries", function() {
         expect(results).toBeArrayOfSize(1);
         expect(results[0]).toBe(dom.window.document.getElementById("justADiv"));
     });
+
+    it("nested OR inside an AND when OR is first", function() {
+        const results = domQuery({
+            where: {
+                and: [{
+                    or: [{
+                        id: {
+                            eq: "element1"
+                        }
+                    }, {
+                        id: {
+                            eq: "element2"
+                        }
+                    }]
+                }, {
+                    tagName: {
+                        eq: "li"
+                    }
+                }]
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(2);
+        expect(results[0]).toBe(dom.window.document.getElementById("element1"));
+        expect(results[1]).toBe(dom.window.document.getElementById("element2"));
+    });
+
+    it("nested AND inside an OR when AND is first", function() {
+        const results = domQuery({
+            where: {
+                or: [{
+                    and: [{
+                        tagName: {
+                            eq: "li"
+                        }
+                    }, {
+                        dataValue: {
+                            eq: "test"
+                        }
+                    }]
+                }, {
+                    tagName: {
+                        eq: "div"
+                    }
+                }]
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(3);
+        expect(results[0]).toBe(dom.window.document.getElementById("a_div"));
+        expect(results[1]).toBe(dom.window.document.getElementById("element1"));
+        expect(results[2]).toBe(dom.window.document.getElementById("justADiv"));
+    });
 });

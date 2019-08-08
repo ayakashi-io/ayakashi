@@ -123,7 +123,8 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             },
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
-            gzipOrBrotli: true
+            gzipOrBrotli: true,
+            timeout: 10000
         });
         attachRequest(ayakashiInstance, myRequest);
 

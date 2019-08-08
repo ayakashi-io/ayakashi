@@ -137,7 +137,8 @@ export default async function scraperWrapper(log: PassedLog) {
             },
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
-            gzipOrBrotli: true
+            gzipOrBrotli: true,
+            timeout: 10000
         });
         attachRequest(ayakashiInstance, myRequest);
 

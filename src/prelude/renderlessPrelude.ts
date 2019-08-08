@@ -118,10 +118,10 @@ export async function renderlessPrelude() {
 
     //define head and body props for convenience
     (<IAyakashiInstance>ayakashiInstance).defineProp(function() {
-        return document.body;
+        return this.document.body;
     }, "body");
     (<IAyakashiInstance>ayakashiInstance).defineProp(function() {
-        return document.head;
+        return this.document.head;
     }, "head");
 
     //@ts-ignore

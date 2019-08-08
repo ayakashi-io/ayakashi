@@ -36,14 +36,14 @@ export function compile(
                 {standalone: `${namespace}__${wrapperName}`}
             )
         );
-        if (!noCache) {
+        if (noCache || process.platform === "win32") {
+            d("not using preloader cache");
+        } else {
             mkdirp(cacheFolder);
             browserifyInc(b, {cacheFile: pathJoin(cacheFolder, `${cacheFileName}.json`)});
             b.once("time", function(ms) {
                 d(`compiled ${input} in ${ms}ms with sha1 ${cacheFileName}`);
             });
-        } else {
-            d("not using preloader cache");
         }
         b.add(input);
         b.bundle(function(err, buff) {

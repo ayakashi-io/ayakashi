@@ -5,7 +5,7 @@ type Reduction =  (() => boolean) | {[key: string]: object};
 export const operators: {[key: string]: Function} = {
     and: function(...reductions: Reduction[]) {
         return function() {
-            for (let i = 1; i <= reductions.length - 1; i += 1) {
+            for (let i = 0; i < reductions.length; i += 1) {
                 if (typeof reductions[i] === "object") {
                     const op = Object.keys(reductions[i])[0];
                     //@ts-ignore
@@ -22,7 +22,7 @@ export const operators: {[key: string]: Function} = {
     },
     or: function(...reductions: Reduction[]) {
         return function() {
-            for (let i = 1; i <= reductions.length - 1; i += 1) {
+            for (let i = 0; i < reductions.length; i += 1) {
                 if (typeof reductions[i] === "object") {
                     const op = Object.keys(reductions[i])[0];
                     //@ts-ignore
