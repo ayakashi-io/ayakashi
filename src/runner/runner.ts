@@ -126,12 +126,19 @@ export async function run(projectFolder: string, config: Config, options: {
             opLog.error("Cannot start a new run while a previous unfinished run exists.");
             opLog.error("Use --resume to resume the previous run or --clean to clear it and start a new one.");
             throw new Error("Invalid run parameters");
+        } else if (options.resume && hasPrevious) {
+            if (await configChanged(config, storeProjectFolder)) {
+                opLog.error("Cannot resume a project if its config has changed");
+                opLog.error("Either revert your config to its previous state or use --clean to start a new run");
+                throw new Error("Config modified");
+            }
         }
 
         //launch pipeproc
         const stepCount = steps.length <= 4 ? 1 : countSteps(steps) - 3;
         const workers = stepCount > cpus().length ? cpus().length : stepCount;
         opLog.info(`using workers: ${workers}`);
+        const waiter = opLog.waiter("initializing");
         await pipeprocClient.spawn({
             namespace: "ayakashi",
             location: getPipeprocFolder(storeProjectFolder),
@@ -148,11 +155,6 @@ export async function run(projectFolder: string, config: Config, options: {
 
         if (options.resume && hasPrevious) {
             opLog.info("resuming previous run");
-            if (await configChanged(config, storeProjectFolder)) {
-                opLog.error("Cannot resume a project if its config has changed");
-                opLog.error("Either revert your config to its previous state or use --clean to start a new run");
-                throw new Error("Config modified");
-            }
             await Promise.all(procs.map(async function(proc) {
                 try {
                     await pipeprocClient.reclaimProc(proc.name);
@@ -175,6 +177,7 @@ export async function run(projectFolder: string, config: Config, options: {
                 };
             }));
         }
+        waiter.succeed("running");
 
         //close
         await pipeprocClient.waitForProcs();
