@@ -3,6 +3,7 @@ import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {IApiAyakashiInstance} from "../apiPrelude";
 import {IPipeProcClient} from "pipeproc";
 
+//tslint:disable no-any
 export interface IYieldActions {
 /**
  * Yields extracted data from a scraper to the next step of the pipeline.
@@ -13,7 +14,7 @@ const result = await ayakashi.extract("myDivProp");
 await ayakashi.yield(result);
 ```
 */
-    yield: (extracted: object | Promise<object>) => Promise<void>;
+    yield: (extracted: any | Promise<any>) => Promise<void>;
 /**
  * Yields multiple extractions individually in a single (atomic) operation.
  * The next step of the pipeline will run for each extraction.
@@ -27,20 +28,21 @@ for (const link of extractedLinks) {
 //but ensures the yields are performed as a single unit
 ```
 */
-    yieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;
+    yieldEach: (extracted: any[] | Promise<any[]>) => Promise<void>;
 /**
  * Recursively re-run the scraper by yielding the extracted data to itself.
  * The data will be available in the input object.
  * Learn more about recursiveYield here: https://ayakashi.io/docs/going_deeper/yielding-data.html
 */
-    recursiveYield: (extracted: object | Promise<object>) => Promise<void>;
+    recursiveYield: (extracted: any | Promise<any>) => Promise<void>;
 /**
  * Recursively re-run the scraper by yielding multiple extractions individually in a single (atomic) operation.
  * The data will be available in the input object.
  * Learn more about recursiveYieldEach here: https://ayakashi.io/docs/going_deeper/yielding-data.html
 */
-    recursiveYieldEach: (extracted: object[] | Promise<object[]>) => Promise<void>;
+    recursiveYieldEach: (extracted: any[] | Promise<any[]>) => Promise<void>;
 }
+//tslint:enable no-any
 
 export function attachYields(
     ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance | IApiAyakashiInstance,
@@ -52,17 +54,17 @@ export function attachYields(
     ayakashiInstance.yield = async function(extracted) {
         if (extracted instanceof Promise) {
             const actualExtracted = await extracted;
-            if (!actualExtracted || typeof actualExtracted !== "object") return;
+            if (!actualExtracted) return;
             await pipeprocClient.commit({
                 topic: saveTopic,
-                body: actualExtracted
+                body: {value: actualExtracted}
             });
             yieldWatcher.yieldedAtLeastOnce = true;
         } else {
-            if (!extracted || typeof extracted !== "object") return;
+            if (!extracted) return;
             await pipeprocClient.commit({
                 topic: saveTopic,
-                body: extracted
+                body: {value: extracted}
             });
             yieldWatcher.yieldedAtLeastOnce = true;
         }
@@ -77,7 +79,7 @@ export function attachYields(
             await pipeprocClient.commit(actualExtracted.map(ex => {
                 return {
                     topic: saveTopic,
-                    body: ex
+                    body: {value: ex}
                 };
             }));
             yieldWatcher.yieldedAtLeastOnce = true;
@@ -88,7 +90,7 @@ export function attachYields(
             await pipeprocClient.commit(extracted.map(ex => {
                 return {
                     topic: saveTopic,
-                    body: ex
+                    body: {value: ex}
                 };
             }));
             yieldWatcher.yieldedAtLeastOnce = true;
@@ -98,16 +100,16 @@ export function attachYields(
     ayakashiInstance.recursiveYield = async function(extracted) {
         if (extracted instanceof Promise) {
             const actualExtracted = await extracted;
-            if (!actualExtracted || typeof actualExtracted !== "object") return;
+            if (!actualExtracted) return;
             await pipeprocClient.commit({
                 topic: selfTopic,
-                body: actualExtracted
+                body: {value: actualExtracted}
             });
         } else {
-            if (!extracted || typeof extracted !== "object") return;
+            if (!extracted) return;
             await pipeprocClient.commit({
                 topic: selfTopic,
-                body: extracted
+                body: {value: extracted}
             });
         }
     };
@@ -121,7 +123,7 @@ export function attachYields(
             await pipeprocClient.commit(actualExtracted.map(ex => {
                 return {
                     topic: selfTopic,
-                    body: ex
+                    body: {value: ex}
                 };
             }));
         } else {
@@ -131,7 +133,7 @@ export function attachYields(
             await pipeprocClient.commit(extracted.map(ex => {
                 return {
                     topic: selfTopic,
-                    body: ex
+                    body: {value: ex}
                 };
             }));
         }

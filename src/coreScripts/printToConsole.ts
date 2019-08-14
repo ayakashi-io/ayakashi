@@ -1,15 +1,12 @@
 import Table from "cli-table";
-import normalizeExtraction from "./normalizeExtractions";
 import {getOpLog} from "../opLog/opLog";
 
 export default async function(
     input: {
-        [key: string]: {
-            [key: string]: unknown
-        }[] | {
-            [key: string]: unknown
-        }[]
-    },
+        [key: string]: unknown
+    } | {
+        [key: string]: unknown
+    }[],
     _params: {},
     _system: {
         projectFolder: string,
@@ -24,16 +21,16 @@ export default async function(
     if (Array.isArray(input)) {
         extraction = input.filter(inp => !!inp);
     } else {
-        extraction = normalizeExtraction(input);
+        extraction = [input].filter(inp => !!inp);
     }
     if (!extraction || extraction.length === 0) {
         opLog.warn("printToConsole: nothing to print");
-        opLog.warn("Learn more at https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
+        opLog.warn("Learn more here: https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
         return;
     }
-    if (typeof extraction[0] !== "object") {
-        opLog.warn("printToConsole: invalid extraction format");
-        opLog.warn("Learn more at https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
+    if (extraction.some(ext => typeof ext !== "object")) {
+        opLog.warn("printToConsole: invalid extraction format. Extracted data must be wrapped in an object");
+        opLog.warn("Learn more here: https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
         return;
     }
     const table = new Table();
