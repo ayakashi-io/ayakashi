@@ -233,4 +233,28 @@ describe("extraction tests", function() {
         expect(result).toEqual(["hello-custom"]);
         await ayakashiInstance.__connection.release();
     });
+
+    test("should throw if a nested extractable is used", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
+        expect((async function() {
+            await ayakashiInstance.extract("myLink", {
+                //@ts-ignore
+                myText: "text"
+            });
+        })()).rejects.toThrowError("Invalid extractable");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("should throw if an invalid extractable is used", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
+        expect((async function() {
+            //@ts-ignore
+            await ayakashiInstance.extract("myLink", 123);
+        })()).rejects.toThrowError("Invalid extractable");
+        await ayakashiInstance.__connection.release();
+    });
 });

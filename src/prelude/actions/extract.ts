@@ -1,6 +1,7 @@
 import {IDomProp} from "../query/query";
 import {IAyakashiInstance} from "../prelude";
 import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
+import {getOpLog} from "../../opLog/opLog";
 import {isRegExp} from "util";
 
 export interface IExtractActions {
@@ -52,6 +53,8 @@ async function recursiveExtract<T, U>(
     extractable: Extractable<T, U>,
     prop: IDomProp
 ): Promise<{result: T | U, isDefault: boolean}[]> {
+    const opLog = getOpLog();
+
     if (typeof extractable === "string") {
         if (extractable in ayakashiInstance.extractors) {
             await ayakashiInstance.extractors[extractable]();
@@ -117,6 +120,10 @@ async function recursiveExtract<T, U>(
             });
         }, prop.id, extractable);
     } else {
+        if (typeof extractable === "object" && extractable !== null) {
+            opLog.warn("Nested or multiple extractions per prop are deprecated");
+            opLog.warn("Learn more here: https://ayakashi.io/docs/guide/data-extraction.html");
+        }
         throw new Error("Invalid extractable");
     }
 }
