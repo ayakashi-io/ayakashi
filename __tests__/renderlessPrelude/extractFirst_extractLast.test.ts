@@ -21,7 +21,7 @@ describe("extraction tests for extractFirst/extractLast", function() {
                     <title>test page</title>
                 </head>
                 <body>
-                    <div id="myDiv" class="divs">hello</div>
+                    <div id="myDiv" class="divs" title="a div" data-my-key="some value">hello</div>
                     <div class="divs">hello2</div>
                     <div class="divs">hello3</div>
                     <a href="http://example.com" id="myLink">Link</a>
@@ -216,6 +216,33 @@ describe("extraction tests for extractFirst/extractLast", function() {
         ayakashiInstance.selectOne("myUknownDiv").where({id: {eq: "myUknownDiv"}});
         const result = await ayakashiInstance.extractLast("myUknownDiv");
         expect(result).toBeNull();
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("should be able to extract element attributes", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
+        const result = await ayakashiInstance.extractFirst("myDiv", "title");
+        expect(result).toEqual("a div");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("should be able to extract data attributes, js format", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
+        const result = await ayakashiInstance.extractLast("myDiv", "myKey");
+        expect(result).toEqual("some value");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("should be able to extract data attributes, html format", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
+        const result = await ayakashiInstance.extractFirst("myDiv", "data-my-key");
+        expect(result).toEqual("some value");
         await ayakashiInstance.__connection.release();
     });
 });

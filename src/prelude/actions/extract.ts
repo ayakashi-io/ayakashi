@@ -140,12 +140,42 @@ async function recursiveExtract<T, U>(
                 if (pointer === -1) {
                     matches = [matches[matches.length - 1]];
                 }
+                function formatDataAttribute(dataAttr: string) {
+                    const myDataAttr = dataAttr.replace("data-", "");
+                    const formatted = [];
+                    let upcased = false;
+                    for (let i = 0; i < myDataAttr.length; i += 1) {
+                        if (upcased) {
+                            upcased = false;
+                            continue;
+                        }
+                        if (myDataAttr[i] === "-") {
+                            formatted.push(myDataAttr[i + 1].toUpperCase());
+                            upcased = true;
+                        } else {
+                            formatted.push(myDataAttr[i]);
+                        }
+                    }
+                    return formatted.join("");
+                }
                 return matches.map(function(match) {
-                    //@ts-ignore
-                    if (match[attr]) {
+                    try {
+                        let myAttr = attr;
+                        if (myAttr.includes("data-")) {
+                            myAttr = formatDataAttribute(attr);
+                        }
                         //@ts-ignore
-                        return {result: <T>match[attr], isDefault: false};
-                    } else {
+                        if (match[myAttr]) {
+                            //@ts-ignore
+                            return {result: <T>match[myAttr], isDefault: false};
+                        } else if (match.getAttribute(myAttr)) {
+                            return {result: <T>(<unknown>match.getAttribute(myAttr)), isDefault: false};
+                        } else if (match.dataset && match.dataset[myAttr]) {
+                            return {result: <T>(<unknown>match.dataset[myAttr]), isDefault: false};
+                        } else {
+                            return {result: <T>(<unknown>""), isDefault: true};
+                        }
+                    } catch (_e) {
                         return {result: <T>(<unknown>""), isDefault: true};
                     }
                 });
