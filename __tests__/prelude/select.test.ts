@@ -80,11 +80,7 @@ describe("select tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.select("links").where({tagName: {eq: "A"}});
         const result = await ayakashiInstance.extract("links", "id");
-        expect(result).toEqual([{
-            links: "link1"
-        }, {
-            links: "link2"
-        }]);
+        expect(result).toEqual(["link1", "link2"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -93,9 +89,7 @@ describe("select tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("links").where({tagName: {eq: "A"}});
         const result = await ayakashiInstance.extract("links", "id");
-        expect(result).toEqual([{
-            links: "link1"
-        }]);
+        expect(result).toEqual(["link1"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -104,9 +98,7 @@ describe("select tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectFirst("links").where({tagName: {eq: "A"}});
         const result = await ayakashiInstance.extract("links", "id");
-        expect(result).toEqual([{
-            links: "link1"
-        }]);
+        expect(result).toEqual(["link1"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -115,9 +107,7 @@ describe("select tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectLast("links").where({tagName: {eq: "A"}});
         const result = await ayakashiInstance.extract("links", "id");
-        expect(result).toEqual([{
-            links: "link2"
-        }]);
+        expect(result).toEqual(["link2"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -127,13 +117,7 @@ describe("select tests", function() {
         ayakashiInstance.select("container").where({class: {eq: "container3"}});
         ayakashiInstance.select("spans").where({tagName: {eq: "SPAN"}}).from("container");
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello"
-        }, {
-            spans: "hello2"
-        }, {
-            spans: "hello3"
-        }]);
+        expect(result).toEqual(["hello", "hello2", "hello3"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -143,9 +127,7 @@ describe("select tests", function() {
         ayakashiInstance.select("container").where({class: {eq: "container3"}});
         ayakashiInstance.selectFirst("spans").where({tagName: {eq: "SPAN"}}).from("container");
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello"
-        }]);
+        expect(result).toEqual(["hello"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -161,9 +143,7 @@ describe("select tests", function() {
         .limit(1)
         .order("desc");
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello"
-        }]);
+        expect(result).toEqual(["hello"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -173,9 +153,7 @@ describe("select tests", function() {
         ayakashiInstance.select("container").where({class: {eq: "container3"}});
         ayakashiInstance.selectOne("spans").where({tagName: {eq: "SPAN"}}).from("container").skip(1);
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello2"
-        }]);
+        expect(result).toEqual(["hello2"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -191,9 +169,7 @@ describe("select tests", function() {
         .limit(1)
         .order("desc");
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello2"
-        }]);
+        expect(result).toEqual(["hello2"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -203,9 +179,7 @@ describe("select tests", function() {
         ayakashiInstance.select("container").where({class: {eq: "container3"}});
         ayakashiInstance.selectLast("spans").where({tagName: {eq: "SPAN"}}).from("container");
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello3"
-        }]);
+        expect(result).toEqual(["hello3"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -215,9 +189,7 @@ describe("select tests", function() {
         ayakashiInstance.select("container").where({class: {eq: "container3"}});
         ayakashiInstance.select("spans").where({tagName: {eq: "SPAN"}}).from("container").order("desc").limit(1);
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello3"
-        }]);
+        expect(result).toEqual(["hello3"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -230,13 +202,7 @@ describe("select tests", function() {
         .selectChildren("spans")
             .where({tagName: {eq: "SPAN"}});
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello"
-        }, {
-            spans: "hello2"
-        }, {
-            spans: "hello3"
-        }]);
+        expect(result).toEqual(["hello", "hello2", "hello3"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -249,9 +215,7 @@ describe("select tests", function() {
         .selectFirstChild("spans")
             .where({tagName: {eq: "SPAN"}});
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello"
-        }]);
+        expect(result).toEqual(["hello"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -267,9 +231,7 @@ describe("select tests", function() {
             .skip(2)
             .order("desc");
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello"
-        }]);
+        expect(result).toEqual(["hello"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -283,9 +245,7 @@ describe("select tests", function() {
             .where({tagName: {eq: "SPAN"}})
             .skip(1);
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello2"
-        }]);
+        expect(result).toEqual(["hello2"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -301,9 +261,7 @@ describe("select tests", function() {
             .skip(1)
             .order("desc");
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello2"
-        }]);
+        expect(result).toEqual(["hello2"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -316,9 +274,7 @@ describe("select tests", function() {
         .selectLastChild("spans")
             .where({tagName: {eq: "SPAN"}});
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello3"
-        }]);
+        expect(result).toEqual(["hello3"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -333,9 +289,7 @@ describe("select tests", function() {
             .limit(1)
             .order("desc");
         const result = await ayakashiInstance.extract("spans", "text");
-        expect(result).toEqual([{
-            spans: "hello3"
-        }]);
+        expect(result).toEqual(["hello3"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -350,9 +304,7 @@ describe("select tests", function() {
             .selectFirstChild("labels")
                 .where({tagName: {eq: "LABEL"}});
         const result = await ayakashiInstance.extract("labels", "text");
-        expect(result).toEqual([{
-            labels: "a label"
-        }]);
+        expect(result).toEqual(["a label"]);
         await ayakashiInstance.__connection.release();
     });
 

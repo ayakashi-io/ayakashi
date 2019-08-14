@@ -4,7 +4,6 @@ import {IRenderlessAyakashiInstance} from "../renderlessPrelude";
 import {isRegExp} from "util";
 
 export interface IExtractActions {
-    //tslint:disable no-any
 /**
  * Extracts data from a prop.
  * Learn more here: https://ayakashi.io/docs/guide/data-extraction.html
@@ -13,11 +12,10 @@ ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
 const result = await ayakashi.extract("myDivProp");
 ```
 */
-    extract: (
+    extract: <T = string, U = T>(
         propId: string | IDomProp,
-        extractable?: Extractable
-    ) => any;
-    //tslint:enable no-any
+        extractable?: Extractable<T, U>
+    ) => Promise<(T | U)[]>;
 }
 
 //tslint:disable no-any
@@ -26,45 +24,34 @@ export type ExtractorFn = (this: Window["ayakashi"]) => {
     isValid: (result: any) => boolean,
     useDefault: () => any
 };
-
-export type Extractable =
-    string | {
-        [key: string]: Extractable
-    } |
-    ((el: any, index: number) => any) |
-    RegExp |
-    [string | RegExp, any];
 //tslint:enable no-any
+
+export type Extractable<T, U> =
+    string |
+    ((el: HTMLElement, index: number) => T | U) |
+    RegExp |
+    [string | RegExp, U];
 
 export function attachExtract(ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance) {
     ayakashiInstance.extract =
-    async function(
+    async function<T, U>(
         propId: string | IDomProp,
-        extractable: Extractable = "text"
+        extractable: Extractable<T, U> = "text"
     ) {
         const prop = this.prop(propId);
         if (!prop) throw new Error(`<extract> needs a valid prop`);
         const matchCount = await prop.trigger();
         if (matchCount === 0) return [];
-        const results = await recursiveExtract(ayakashiInstance, extractable, prop);
-        //format the result in case it was a simple string match
-        if (results && results.length > 0 && typeof results[0] === "object" && "isMatch" in results[0]) {
-            return results.map((result: {result: unknown}) => ({[prop.id]: result.result}));
-        } else if (results && results.length > 0 && typeof results[0] !== "object") {
-            return results.map((result: {result: unknown}) => ({[prop.id]: result}));
-        } else {
-            return results;
-        }
+        const results = await recursiveExtract<T, U>(ayakashiInstance, extractable, prop);
+        return results.map(result => result.result);
     };
 }
 
-async function recursiveExtract(
+async function recursiveExtract<T, U>(
     ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
-    extractable: Extractable,
+    extractable: Extractable<T, U>,
     prop: IDomProp
-//tslint:disable no-any
-): Promise<any> {
-//tslint:enable no-any
+): Promise<{result: T | U, isDefault: boolean}[]> {
     if (typeof extractable === "string") {
         if (extractable in ayakashiInstance.extractors) {
             await ayakashiInstance.extractors[extractable]();
@@ -74,13 +61,13 @@ async function recursiveExtract(
                 return this.propTable[scopedPropId].matches.map(function(match) {
                     const result = extractor.extract(match);
                     if (extractor.isValid(result) && result !== undefined) {
-                        return {isMatch: true, result: result};
+                        return {result: result, isDefault: false};
                     } else {
                         let def = extractor.useDefault();
                         if (def === undefined) {
                             def = "";
                         }
-                        return {isMatch: true, result: def, isDefault: true};
+                        return {result: def, isDefault: true};
                     }
                 });
             }, prop.id, extractable);
@@ -90,32 +77,30 @@ async function recursiveExtract(
                     //@ts-ignore
                     if (match[attr]) {
                         //@ts-ignore
-                        return {isMatch: true, result: match[attr]};
+                        return {result: <T>match[attr], isDefault: false};
                     } else {
-                        return {isMatch: true, result: "", isDefault: true};
+                        return {result: <T>(<unknown>""), isDefault: true};
                     }
                 });
             }, prop.id, extractable);
         }
     } else if (Array.isArray(extractable)) {
-        const matchResults = await recursiveExtract(ayakashiInstance, extractable[0], prop);
-        //tslint:disable no-any
-        return matchResults.map(function(matchResult: {isDefault?: boolean, result: any}) {
+        const matchResults = await recursiveExtract<T, U>(ayakashiInstance, extractable[0], prop);
+        return matchResults.map(function(matchResult) {
             if (matchResult.isDefault) {
                 if (extractable.length > 1) {
-                    return extractable[1];
+                    return {result: extractable[1], isDefault: true};
                 } else {
-                    return matchResult.result;
+                    return {result: matchResult.result, isDefault: false};
                 }
             } else {
-                return matchResult.result;
+                return {result: matchResult.result, isDefault: false};
             }
         });
-        //tslint:enable no-any
     } else if (typeof extractable === "function") {
         return ayakashiInstance.evaluate(function(scopedPropId: string, fn: Function) {
             return this.propTable[scopedPropId].matches.map(function(match, index) {
-                return {isMatch: true, result: fn(match, index)};
+                return {result: fn(match, index), isDefault: false};
             });
         }, prop.id, extractable);
     } else if (isRegExp(extractable)) {
@@ -128,37 +113,10 @@ async function recursiveExtract(
                         regexResult = regexMatch[0];
                     }
                 }
-                return {isMatch: true, result: regexResult, isDefault: regexResult === ""};
+                return {result: <T>(<unknown>regexResult), isDefault: regexResult === ""};
             });
         }, prop.id, extractable);
     } else {
-        //tslint:disable no-any
-        const result: {[key: string]: any}[] = [];
-        await Promise.all(Object.keys(extractable).map(function(key) {
-            return new Promise(function(resolve, reject) {
-                recursiveExtract(ayakashiInstance, extractable[key], prop).then(function(matchResults) {
-                    matchResults.forEach(function(matchResult: any, localIndex: number) {
-                        if (matchResult.isMatch) {
-                            if (result[localIndex]) {
-                                result[localIndex] = {
-                                    ...result[localIndex],
-                                    ...{[key]: matchResult.result}
-                                };
-                            } else {
-                                result.push({[key]: matchResult.result});
-                            }
-                        } else {
-                            result[localIndex] = {...result[localIndex], ...{[key]: matchResult}};
-                        }
-                    });
-                    resolve();
-                })
-                .catch(function(err) {
-                    reject(err);
-                });
-            });
-        }));
-        return result;
-        //tslint:enable no-any
+        throw new Error("Invalid extractable");
     }
 }

@@ -54,15 +54,7 @@ describe("select tests", function() {
             .selectChild("childProp")
             .where({tagName: {eq: "A"}});
         const result = await ayakashiInstance.extract("childProp");
-        expect(result).toEqual([{
-            childProp: "link1"
-        }, {
-            childProp: "link2"
-        }, {
-            childProp: ""
-        }, {
-            childProp: "link3"
-        }]);
+        expect(result).toEqual(["link1", "link2", "", "link3"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -75,13 +67,7 @@ describe("select tests", function() {
             .selectChild("childProp")
             .where({tagName: {eq: "A"}});
         const result = await ayakashiInstance.extract("childProp");
-        expect(result).toEqual([{
-            childProp: "link1"
-        }, {
-            childProp: "link2"
-        }, {
-            childProp: "link3"
-        }]);
+        expect(result).toEqual(["link1", "link2", "link3"]);
         await ayakashiInstance.__connection.release();
     });
 });
