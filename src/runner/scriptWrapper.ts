@@ -47,6 +47,9 @@ export default async function scriptWrapper(log: PassedLog) {
         opLog.error(e.message);
         throw e;
     }
+    //connect to pipeproc
+    const pipeprocClient = PipeProc();
+    await pipeprocClient.connect({namespace: "ayakashi"});
     opLog.info("running script", log.body.module);
     try {
         //@ts-ignore
@@ -57,9 +60,6 @@ export default async function scriptWrapper(log: PassedLog) {
             startDate: log.body.startDate
         });
         if (result instanceof GeneratorFunction || result instanceof asyncGeneratorFunction) {
-            //connect to pipeproc
-            const pipeprocClient = PipeProc();
-            await pipeprocClient.connect({namespace: "ayakashi"});
             //get generator results and commit them
             let committedAtLeastOnce = false;
             for await (const val of result()) {
@@ -82,6 +82,14 @@ export default async function scriptWrapper(log: PassedLog) {
             if (!committedAtLeastOnce) {
                 return {value: {continue: true}};
             }
+            return;
+        } else if (Array.isArray(result)) {
+            await pipeprocClient.commit(result.filter(re => re).map(re => {
+                return {
+                    topic: log.body.saveTopic,
+                    body: {value: re}
+                };
+            }));
             return;
         } else if (result) {
             return {value: result};
