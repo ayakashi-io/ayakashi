@@ -257,9 +257,9 @@ ayakashi
         });
 const result = await ayakashiInstance.extract("childProp");
 // When we extract the childProps, we will get the following (notice the empty childProp):
-// result => [{childProp: "link1"}, {childProp: ""}, {childProp: "link2"}]
+// result => ["link1", "", "link2"]
 // if we didn't use trackMissingChildren(), we would have gotten:
-// result => [{childProp: "link1"}, {childProp: "link2"}]
+// result => ["link1", "link2"]
 ```
 */
     trackMissingChildren: () => IDomProp;
