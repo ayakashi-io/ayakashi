@@ -20,7 +20,7 @@ const d = debug("ayakashi:renderlessScraperWrapper");
 type PassedLog = {
     id: string,
     body: {
-        input: object,
+        input: {value: unknown},
         params: object,
         config: {
             pipeConsole?: boolean,
@@ -161,8 +161,8 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         let result;
         try {
             //@ts-ignore
-            if (log.body.input && log.body.input.continue === true) delete log.body.input.continue;
-            result = await scraperModule(ayakashiInstance, log.body.input || {}, log.body.params || {});
+            if (log.body.input && log.body.input.value && log.body.input.value.continue === true) delete log.body.input.value.continue;
+            result = await scraperModule(ayakashiInstance, log.body.input.value || {}, log.body.params || {});
         } catch (e) {
             opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             await ayakashiInstance.__connection.release();

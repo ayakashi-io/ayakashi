@@ -7,7 +7,7 @@ import {getOpLog} from "../opLog/opLog";
 type PassedLog = {
     id: string,
     body: {
-        input: object,
+        input: {value: unknown},
         params: object,
         module: string,
         saveTopic: string,
@@ -32,7 +32,7 @@ export default async function scriptWrapper(log: PassedLog) {
     try {
         if (["saveToSQL", "saveToJSON", "saveToCSV", "printToConsole"].indexOf(log.body.module) > -1) {
             //@ts-ignore
-            if (log.body.input && log.body.input.continue === true) return {continue: true};
+            if (log.body.input && log.body.input.value && log.body.input.value.continue === true) return {value: {continue: true}};
             scriptModule = require(pathResolve(log.body.appRoot, "lib", "coreScripts", log.body.module));
         } else {
             scriptModule = require(pathResolve(log.body.projectFolder, "scripts", log.body.module));
@@ -47,19 +47,19 @@ export default async function scriptWrapper(log: PassedLog) {
         opLog.error(e.message);
         throw e;
     }
+    //connect to pipeproc
+    const pipeprocClient = PipeProc();
+    await pipeprocClient.connect({namespace: "ayakashi"});
     opLog.info("running script", log.body.module);
     try {
         //@ts-ignore
-        if (log.body.input && log.body.input.continue === true) delete log.body.input.continue;
-        const result = await scriptModule(log.body.input || {}, log.body.params || {}, {
+        if (log.body.input && log.body.input.value && log.body.input.value.continue === true) delete log.body.input.value.continue;
+        const result = await scriptModule(log.body.input.value || {}, log.body.params || {}, {
             projectFolder: log.body.projectFolder,
             operationId: log.body.operationId,
             startDate: log.body.startDate
         });
         if (result instanceof GeneratorFunction || result instanceof asyncGeneratorFunction) {
-            //connect to pipeproc
-            const pipeprocClient = PipeProc();
-            await pipeprocClient.connect({namespace: "ayakashi"});
             //get generator results and commit them
             let committedAtLeastOnce = false;
             for await (const val of result()) {
@@ -67,25 +67,34 @@ export default async function scriptWrapper(log: PassedLog) {
                     await pipeprocClient.commit(val.filter(v => v).map(v => {
                         return {
                             topic: log.body.saveTopic,
-                            body: v
+                            body: {value: v}
                         };
                     }));
                     committedAtLeastOnce = true;
                 } else if (val) {
                     await pipeprocClient.commit({
                         topic: log.body.saveTopic,
-                        body: val
+                        body: {value: val}
                     });
                     committedAtLeastOnce = true;
                 }
             }
             if (!committedAtLeastOnce) {
-                return {continue: true};
+                return {value: {continue: true}};
             }
+            return;
+        } else if (Array.isArray(result)) {
+            await pipeprocClient.commit(result.filter(re => re).map(re => {
+                return {
+                    topic: log.body.saveTopic,
+                    body: {value: re}
+                };
+            }));
+            return;
         } else if (result) {
-            return result;
+            return {value: result};
         } else {
-            return {continue: true};
+            return {value: {continue: true}};
         }
     } catch (e) {
         opLog.error(`There was an error while running script <${log.body.module}> -`, e.message, e.stack);

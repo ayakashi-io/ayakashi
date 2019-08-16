@@ -17,7 +17,7 @@ let protocolPort: number;
 
 jest.setTimeout(600000);
 
-describe("extraction tests", function() {
+describe("extraction tests for extractFirst/extractLast", function() {
     let chromePath: string;
     beforeAll(async function() {
         chromePath = await getChromePath();
@@ -68,220 +68,176 @@ describe("extraction tests", function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
-        const result = await ayakashiInstance.extract("myDiv");
-        expect(result).toEqual(["hello"]);
+        const result = await ayakashiInstance.extractFirst("myDiv");
+        expect(result).toEqual("hello");
         await ayakashiInstance.__connection.release();
     });
 
-    test("text extraction with multiple matches", async function() {
+    test("text extraction with multiple matches, extractFirst", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.select("divs").where({class: {eq: "divs"}});
-        const result = await ayakashiInstance.extract("divs");
-        expect(result).toBeArrayOfSize(3);
-        expect(result).toEqual(["hello", "hello2", "hello3"]);
+        const result = await ayakashiInstance.extractFirst("divs");
+        expect(result).toEqual("hello");
         await ayakashiInstance.__connection.release();
     });
 
-    test("text extraction with regex", async function() {
+    test("text extraction with multiple matches, extractLast", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.select("divs").where({class: {eq: "divs"}});
-        const result = await ayakashiInstance.extract("divs", /hello3/);
-        expect(result).toBeArrayOfSize(3);
-        expect(result).toEqual(["", "", "hello3"]);
+        const result = await ayakashiInstance.extractLast("divs");
+        expect(result).toEqual("hello3");
         await ayakashiInstance.__connection.release();
     });
 
-    test("text extraction with regex, extract substring", async function() {
-        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
-        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance.selectOne("myContentDiv").where({id: {eq: "content"}});
-        const result = await ayakashiInstance.extract("myContentDiv", /hello there/);
-        expect(result).toBeArrayOfSize(1);
-        expect(result).toEqual(["hello there"]);
-        await ayakashiInstance.__connection.release();
-    });
-
-    test("text extraction with regex and default", async function() {
+    test("text extraction with regex, extractFirst", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.select("divs").where({class: {eq: "divs"}});
-        const result = await ayakashiInstance.extract("divs", [/hello3/, "sorry"]);
-        expect(result).toBeArrayOfSize(3);
-        expect(result).toEqual(["sorry", "sorry", "hello3"]);
+        const result = await ayakashiInstance.extractFirst("divs", /hello3/);
+        expect(result).toEqual("");
         await ayakashiInstance.__connection.release();
     });
 
-    test("text extraction by attribute", async function() {
+    test("text extraction with regex, extractLast", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("divs").where({class: {eq: "divs"}});
+        const result = await ayakashiInstance.extractLast("divs", /hello3/);
+        expect(result).toEqual("hello3");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("text extraction with regex and default, extractFirst", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("divs").where({class: {eq: "divs"}});
+        const result = await ayakashiInstance.extractFirst("divs", [/hello3/, "sorry"]);
+        expect(result).toEqual("sorry");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("text extraction with regex and default, extractLast", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("divs").where({class: {eq: "divs"}});
+        const result = await ayakashiInstance.extractLast("divs", [/hello3/, "sorry"]);
+        expect(result).toEqual("hello3");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("text extraction by attribute, extractFirst", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
-        const result = await ayakashiInstance.extract("myLink", "href");
-        expect(result).toEqual(["http://example.com/"]);
+        const result = await ayakashiInstance.extractFirst("myLink", "href");
+        expect(result).toEqual("http://example.com/");
         await ayakashiInstance.__connection.release();
     });
 
-    test("text extraction by attribute and default", async function() {
+    test("text extraction by attribute, extractLast", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
+        const result = await ayakashiInstance.extractLast("myLink", "href");
+        expect(result).toEqual("http://example.com/");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("text extraction by attribute and default, extractFirst", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
         //defaults are not evaluated
-        const result = await ayakashiInstance.extract("myLink", ["uknownAttribute", "href"]);
-        expect(result).toEqual(["href"]);
+        const result = await ayakashiInstance.extractFirst("myLink", ["uknownAttribute", "href"]);
+        expect(result).toEqual("href");
         await ayakashiInstance.__connection.release();
     });
 
-    test("text extraction with function", async function() {
+    test("text extraction by attribute and default, extractLast", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
-        const result = await ayakashiInstance.extract("myLink", function(el: HTMLAnchorElement) {
+        //defaults are not evaluated
+        const result = await ayakashiInstance.extractLast("myLink", ["uknownAttribute", "href"]);
+        expect(result).toEqual("href");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("text extraction with function, extractFirst", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
+        const result = await ayakashiInstance.extractFirst("myLink", function(el: HTMLAnchorElement) {
             return el.href;
         });
-        expect(result).toEqual(["http://example.com/"]);
+        expect(result).toEqual("http://example.com/");
         await ayakashiInstance.__connection.release();
     });
 
-    test("integer extraction", async function() {
+    test("text extraction with function, extractLast", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
+        const result = await ayakashiInstance.extractLast("myLink", function(el: HTMLAnchorElement) {
+            return el.href;
+        });
+        expect(result).toEqual("http://example.com/");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("integer extraction, extractFirst", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myNumber").where({id: {eq: "myNumber"}});
-        const result = await ayakashiInstance.extract<number>("myNumber", "number");
-        expect(result).toEqual([123]);
+        const result = await ayakashiInstance.extractFirst<number>("myNumber", "number");
+        expect(result).toEqual(123);
         await ayakashiInstance.__connection.release();
     });
 
-    test("integer extraction alias", async function() {
+    test("integer extraction, extractLast", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myNumber").where({id: {eq: "myNumber"}});
-        const result = await ayakashiInstance.extract<number>("myNumber", "integer");
-        expect(result).toEqual([123]);
+        const result = await ayakashiInstance.extractLast<number>("myNumber", "number");
+        expect(result).toEqual(123);
         await ayakashiInstance.__connection.release();
     });
 
-    test("float extraction", async function() {
-        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
-        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance.selectOne("pi").where({id: {eq: "pi"}});
-        const result = await ayakashiInstance.extract<number>("pi", "float");
-        expect(result).toEqual([3.14]);
-        await ayakashiInstance.__connection.release();
-    });
-
-    test("float extraction with comma", async function() {
-        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
-        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance.selectOne("piComma").where({id: {eq: "piComma"}});
-        const result = await ayakashiInstance.extract<number>("piComma", "float");
-        expect(result).toEqual([3.14]);
-        await ayakashiInstance.__connection.release();
-    });
-
-    test("should throw if an uknown prop is used", async function() {
+    test("should throw if an uknown prop is used, extractFirst", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         expect((async function() {
-            await ayakashiInstance.extract("uknownPROP");
-        })()).rejects.toThrowError("<extract> needs a valid prop");
+            await ayakashiInstance.extractFirst("uknownPROP");
+        })()).rejects.toThrowError("<extractFirst> needs a valid prop");
         await ayakashiInstance.__connection.release();
     });
 
-    test("should return an empty array if prop has no matches", async function() {
+    test("should throw if an uknown prop is used, extractLast", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        expect((async function() {
+            await ayakashiInstance.extractLast("uknownPROP");
+        })()).rejects.toThrowError("<extractLast> needs a valid prop");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("should return null if prop has no matches, extractFirst", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myUknownDiv").where({id: {eq: "myUknownDiv"}});
-        const result = await ayakashiInstance.extract("myUknownDiv");
-        expect(result).toBeArrayOfSize(0);
+        const result = await ayakashiInstance.extractFirst("myUknownDiv");
+        expect(result).toBeNull();
         await ayakashiInstance.__connection.release();
     });
 
-    test("should return an empty array if parent prop has no matches", async function() {
+    test("should return null if prop has no matches, extractLast", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance
-            .selectOne("aParent")
-            .where({id: {eq: "uknownParent"}})
-            .selectChild("myChild")
-            .where({
-                id: {
-                    eq: "someId"
-                }
-            });
-        const result = await ayakashiInstance.extract("myChild");
-        expect(result).toEqual([]);
-        await ayakashiInstance.__connection.release();
-    });
-
-    test("using a custom extractor", async function() {
-        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
-        ayakashiInstance.registerExtractor("getClassName", function() {
-            return {
-                extract: function(element) {
-                    return element.className;
-                },
-                isValid: function(extractorResult: string) {
-                    return typeof extractorResult === "string";
-                },
-                useDefault: function() {
-                    return "no-class";
-                }
-            };
-        });
-        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
-        const result = await ayakashiInstance.extract("myDiv", "getClassName");
-        expect(result).toEqual(["divs"]);
-        await ayakashiInstance.__connection.release();
-    });
-
-    test("using a custom extractor with a dependency", async function() {
-        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
-        ayakashiInstance.registerExtractor("myText", function() {
-            const self = this;
-            return {
-                extract: function(element) {
-                    //@ts-ignore
-                    const textExtractor = self.extractors.text();
-                    return textExtractor.extract(element) + "-custom";
-                },
-                isValid: function(extractorResult: string) {
-                    return typeof extractorResult === "string";
-                },
-                useDefault: function() {
-                    return "no-text";
-                }
-            };
-        }, ["text"]);
-        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
-        const result = await ayakashiInstance.extract("myDiv", "myText");
-        expect(result).toEqual(["hello-custom"]);
-        await ayakashiInstance.__connection.release();
-    });
-
-    test("should throw if a nested extractable is used", async function() {
-        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
-        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
-        expect((async function() {
-            await ayakashiInstance.extract("myLink", {
-                //@ts-ignore
-                myText: "text"
-            });
-        })()).rejects.toThrowError("Invalid extractable");
-        await ayakashiInstance.__connection.release();
-    });
-
-    test("should throw if an invalid extractable is used", async function() {
-        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
-        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
-        expect((async function() {
-            //@ts-ignore
-            await ayakashiInstance.extract("myLink", 123);
-        })()).rejects.toThrowError("Invalid extractable");
+        ayakashiInstance.selectOne("myUknownDiv").where({id: {eq: "myUknownDiv"}});
+        const result = await ayakashiInstance.extractLast("myUknownDiv");
+        expect(result).toBeNull();
         await ayakashiInstance.__connection.release();
     });
 
@@ -289,8 +245,8 @@ describe("extraction tests", function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
-        const result = await ayakashiInstance.extract("myDiv", "title");
-        expect(result).toEqual(["a div"]);
+        const result = await ayakashiInstance.extractFirst("myDiv", "title");
+        expect(result).toEqual("a div");
         await ayakashiInstance.__connection.release();
     });
 
@@ -298,8 +254,8 @@ describe("extraction tests", function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
-        const result = await ayakashiInstance.extract("myDiv", "myKey");
-        expect(result).toEqual(["some value"]);
+        const result = await ayakashiInstance.extractLast("myDiv", "myKey");
+        expect(result).toEqual("some value");
         await ayakashiInstance.__connection.release();
     });
 
@@ -307,8 +263,8 @@ describe("extraction tests", function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
-        const result = await ayakashiInstance.extract("myDiv", "data-my-key");
-        expect(result).toEqual(["some value"]);
+        const result = await ayakashiInstance.extractFirst("myDiv", "data-my-key");
+        expect(result).toEqual("some value");
         await ayakashiInstance.__connection.release();
     });
 });

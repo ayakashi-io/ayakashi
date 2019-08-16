@@ -49,13 +49,7 @@ describe("defineProp tests", function() {
             return this.document.querySelectorAll(".links");
         }, "myLinkProp");
         const result = await ayakashiInstance.extract("myLinkProp");
-        expect(result).toEqual([{
-            myLinkProp: "link1"
-        }, {
-            myLinkProp: "link2"
-        }, {
-            myLinkProp: "link3"
-        }]);
+        expect(result).toEqual(["link1", "link2", "link3"]);
         await ayakashiInstance.__connection.release();
     });
 

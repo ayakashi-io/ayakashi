@@ -1,7 +1,6 @@
 import Sequelize from "sequelize";
 import {createHash} from "crypto";
 import {join as pathJoin} from "path";
-import normalizeExtraction from "./normalizeExtractions";
 import {getOpLog} from "../opLog/opLog";
 import _mkdirp from "mkdirp";
 import {promisify} from "util";
@@ -9,12 +8,10 @@ const mkdirp = promisify(_mkdirp);
 
 export default async function(
     input: {
-        [key: string]: {
-            [key: string]: unknown
-        }[] | {
-            [key: string]: unknown
-        }[]
-    },
+        [key: string]: unknown
+    } | {
+        [key: string]: unknown
+    }[],
     params: {
         dialect?: "mysql" | "mariadb" | "postgres" | "mssql" | "sqlite",
         host?: string,
@@ -38,16 +35,16 @@ export default async function(
     if (Array.isArray(input)) {
         extraction = input.filter(inp => !!inp);
     } else {
-        extraction = normalizeExtraction(input);
+        extraction = [input].filter(inp => !!inp);
     }
     if (!extraction || extraction.length === 0) {
-        opLog.warn("saveToSQL: nothing to save");
-        opLog.warn("Learn more at https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
+        opLog.warn("saveToSQL: nothing to print");
+        opLog.warn("Learn more here: https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
         return;
     }
-    if (typeof extraction[0] !== "object") {
-        opLog.warn("saveToSQL: invalid extraction format");
-        opLog.warn("Learn more at https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
+    if (extraction.some(ext => typeof ext !== "object")) {
+        opLog.warn("saveToSQL: invalid extraction format. Extracted data must be wrapped in an object");
+        opLog.warn("Learn more here: https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
         return;
     }
     let useDialect: "mysql" | "mariadb" | "postgres" | "mssql" | "sqlite";

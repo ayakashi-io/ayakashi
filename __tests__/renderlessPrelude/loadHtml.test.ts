@@ -49,11 +49,7 @@ describe("loadHtml() tests", function() {
         await ayakashiInstance.loadHtml(someHtml);
         ayakashiInstance.select("links").where({tagName: {eq: "A"}});
         const result = await ayakashiInstance.extract("links", "id");
-        expect(result).toEqual([{
-            links: "link1"
-        }, {
-            links: "link2"
-        }]);
+        expect(result).toEqual(["link1", "link2"]);
         await ayakashiInstance.__connection.release();
     });
 
@@ -62,11 +58,7 @@ describe("loadHtml() tests", function() {
         await ayakashiInstance.loadHtml(someHtmlFragment);
         ayakashiInstance.select("links").where({tagName: {eq: "A"}});
         const result = await ayakashiInstance.extract("links", "id");
-        expect(result).toEqual([{
-            links: "link1"
-        }, {
-            links: "link2"
-        }]);
+        expect(result).toEqual(["link1", "link2"]);
         await ayakashiInstance.__connection.release();
     });
 });
