@@ -78,9 +78,10 @@ describe("join() tests", function() {
             });
         const result = await ayakashiInstance.extract("myLinkProp");
         expect(result).toEqual(["link1", "link2", "link3"]);
-        expect(ayakashiInstance.join({
+        const joined = ayakashiInstance.join({
             text: result
-        })).toEqual([{
+        });
+        expect(joined).toEqual([{
             text: "link1"
         }, {
             text: "link2"
@@ -102,18 +103,19 @@ describe("join() tests", function() {
             });
         const result = await ayakashiInstance.extract("myLinkProp");
         expect(result).toEqual(["link1", "link2", "link3"]);
-        expect(ayakashiInstance.join({
+        const joined = ayakashiInstance.join({
             text: result,
-            constant: "hello"
-        })).toEqual([{
+            constant: 5
+        });
+        expect(joined).toEqual([{
             text: "link1",
-            constant: "hello"
+            constant: 5
         }, {
             text: "link2",
-            constant: "hello"
+            constant: 5
         }, {
             text: "link3",
-            constant: "hello"
+            constant: 5
         }]);
         await ayakashiInstance.__connection.release();
     });

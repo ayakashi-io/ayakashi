@@ -98,8 +98,10 @@ ayakashi.registerExtractor("id", function() {
  * Groups together multiple sets of related data.
  * Learn more here: https://ayakashi.io/docs/guide/data-extraction.html#grouping-extracted-data
 */
-    join: (obj: {[key: string]: unknown}) => {[key: string]: unknown}[];
+    join: <T>(obj: T) => {[P in keyof T]: valueof<T[P]>}[];
 }
+
+type valueof<T> = T extends (infer U)[] ? U : T;
 
 export function attachMetaActions(
     ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
@@ -208,6 +210,7 @@ export function attachMetaActions(
         };
     };
 
+    //@ts-ignore
     ayakashiInstance.join = function(obj) {
         if (!obj || typeof obj !== "object" || Object.keys(obj).length === 0) {
             throw new Error("Invalid object");
@@ -238,7 +241,7 @@ export function attachMetaActions(
         }
         //check if we only have non-array values
         if (max === 0) {
-            let j: {[key: string]: unknown} = {};
+            let j = {};
             if (nonArrays.length > 0) {
                 for (const nonArray of nonArrays) {
                     j = {...j, ...nonArray};
@@ -250,9 +253,10 @@ export function attachMetaActions(
             //create the joined value
             const joined = [];
             for (let i = 0; i < max; i += 1) {
-                let j: {[key: string]: unknown} = {};
+                let j = {};
                 for (const [key, val] of Object.entries(obj)) {
                     if (Array.isArray(val)) {
+                        //@ts-ignore
                         j[key] = val[i];
                     }
                 }
