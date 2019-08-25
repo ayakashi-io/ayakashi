@@ -83,7 +83,8 @@
         "no-floating-promises": false,
         "no-string-based-set-timeout": false,
         "prefer-template": false,
-        "jsdoc-format": false
+        "jsdoc-format": false,
+        "no-non-null-assertion": false
     },
     "jsRules": {
         "max-line-length": {

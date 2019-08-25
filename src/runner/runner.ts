@@ -32,6 +32,7 @@ import {
     saveLastConfig,
     configChanged
 } from "../store/project";
+import {getRandomPort} from "./getRandomPort";
 import debug from "debug";
 const d = debug("ayakashi:runner");
 
@@ -67,9 +68,20 @@ export async function run(projectFolder: string, config: Config, options: {
                 opLog.error("Please move all your scraper files to a 'scrapers' folder (with a single 'p').");
                 throw new Error("Deprecated folder structure");
         }
+        config.config = config.config || {};
+        if (config.config.bridgePort === 0) {
+            config.config.bridgePort = await getRandomPort();
+        } else if (!config.config.bridgePort) {
+            config.config.bridgePort = 9731;
+        }
+        if (config.config.protocolPort === 0) {
+            config.config.protocolPort = await getRandomPort();
+        } else if (!config.config.protocolPort) {
+            config.config.protocolPort = 9730;
+        }
         const parsedConfig = createProcGenerators(config, steps, {
-            bridgePort: (config.config && config.config.bridgePort) || 9731,
-            protocolPort: (config.config && config.config.protocolPort) || 9730,
+            bridgePort: config.config.bridgePort,
+            protocolPort: config.config.protocolPort,
             persistentSession: (config.config && config.config.persistentSession === true) || false,
             projectFolder: projectFolder,
             storeProjectFolder: storeProjectFolder,
@@ -259,22 +271,14 @@ async function launch(config: Config, storeProjectFolder: string, chromePath: st
     if (config.config && config.config.userAgent === "mobile") {
         userAgent = new UserAgent({deviceCategory: "mobile"});
     }
-    let protocolPort = 9730;
-    if (config.config && config.config.protocolPort) {
-        protocolPort = config.config.protocolPort;
-    }
-    let bridgePort = 9731;
-    if (config.config && config.config.bridgePort) {
-        bridgePort = config.config.bridgePort;
-    }
     //spawn the chrome instance
     const headlessChrome = getInstance();
     await headlessChrome.init({
         headless: headless,
         chromePath: chromePath,
         autoOpenDevTools: autoOpenDevTools,
-        bridgePort: bridgePort,
-        protocolPort: protocolPort,
+        bridgePort: <number>(config.config!).bridgePort,
+        protocolPort: <number>(config.config!).protocolPort,
         sessionDir: persistentSession ? pathResolve(storeProjectFolder, ".session") : undefined,
         proxyUrl: proxyUrl,
         windowHeight: windowHeight,

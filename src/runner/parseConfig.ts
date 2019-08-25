@@ -110,11 +110,11 @@ export type Config = {
          */
         ignoreCertificateErrors?: boolean,
         /**
-         * Sets the port of the internal bridge server, Default is 9731.
+         * Sets the port of the internal bridge server, default is 9731. Use 0 for a random port.
          */
         bridgePort?: number,
         /**
-         * Sets the port of the internal devTools protocol server, Default is 9730.
+         * Sets the port of the internal devTools protocol server, default is 9730. Use 0 for a random port.
          */
         protocolPort?: number
     },
