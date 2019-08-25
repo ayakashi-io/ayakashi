@@ -7,10 +7,11 @@ import rimraf from "rimraf";
 import {Config} from "../runner/parseConfig";
 import {isEqual} from "lodash";
 
-export async function getOrCreateStoreProjectFolder(projectFolderOrScraperName: string): Promise<string> {
+export async function getOrCreateStoreProjectFolder(projectFolderOrScraperName: string, sessionKey: string): Promise<string> {
     const storeDir = await getStoreDir();
     const folderName = createHash("md5").update(projectFolderOrScraperName).digest("hex");
-    const fullFolder = pathResolve(storeDir, "projects", folderName);
+    const sessionFolder = createHash("md5").update(sessionKey).digest("hex");
+    const fullFolder = pathResolve(storeDir, "projects", folderName, sessionFolder);
     return new Promise(function(resolve, reject) {
         mkdirp(fullFolder, function(err) {
             if (err) {
@@ -32,7 +33,7 @@ export function hasPreviousRun(projectFolderOrScraperName: string): Promise<bool
 
 export function clearPreviousRun(projectFolderOrScraperName: string): Promise<void> {
     return new Promise(function(resolve) {
-        rimraf(getPipeprocFolder(projectFolderOrScraperName), function(_err) {
+        rimraf(projectFolderOrScraperName, function(_err) {
             resolve();
         });
     });
