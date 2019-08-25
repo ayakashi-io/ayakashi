@@ -141,7 +141,7 @@ export async function run(projectFolder: string, config: Config, options: {
         opLog.info(`using workers: ${workers}`);
         const waiter = opLog.waiter("initializing");
         await pipeprocClient.spawn({
-            namespace: "ayakashi",
+            socket: `ipc://${pathResolve(storeProjectFolder, "run.sock")}`,
             location: getPipeprocFolder(storeProjectFolder),
             workers: workers,
             workerRestartAfter: 100

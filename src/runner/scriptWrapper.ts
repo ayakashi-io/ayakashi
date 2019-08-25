@@ -12,6 +12,7 @@ type PassedLog = {
         module: string,
         saveTopic: string,
         projectFolder: string,
+        storeProjectFolder: string,
         operationId: string,
         startDate: string,
         procName: string,
@@ -49,7 +50,7 @@ export default async function scriptWrapper(log: PassedLog) {
     }
     //connect to pipeproc
     const pipeprocClient = PipeProc();
-    await pipeprocClient.connect({namespace: "ayakashi"});
+    await pipeprocClient.connect({socket: `ipc://${pathResolve(log.body.storeProjectFolder, "run.sock")}`});
     opLog.info("running script", log.body.module);
     try {
         //@ts-ignore

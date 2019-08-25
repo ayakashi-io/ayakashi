@@ -130,7 +130,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();
-        await pipeprocClient.connect({namespace: "ayakashi"});
+        await pipeprocClient.connect({socket: `ipc://${pathResolve(log.body.storeProjectFolder, "run.sock")}`});
 
         //attach the yield methods
         const yieldWatcher = {yieldedAtLeastOnce: false};
