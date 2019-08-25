@@ -39,6 +39,13 @@ yargs
                 describe: "Use a json string as config",
                 alias: "jc"
             })
+            .option("sessionKey", {
+                describe: "Use a specific run session",
+                default: "default",
+                coerce: function(v) {
+                    return String(v);
+                }
+            })
             .option("simple", {
                 type: "boolean",
                 describe: "Run a single scraper"
@@ -91,7 +98,8 @@ yargs
             resume: resume,
             restartDisabledSteps: restartDisabledSteps,
             clean: clean,
-            simpleScraper: simpleScraper
+            simpleScraper: simpleScraper,
+            sessionKey: <string>argv.sessionKey
         }).then(async function() {
             opLog.info("Nothing more to do!");
             await showBoxUpdate();

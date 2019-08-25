@@ -39,7 +39,8 @@ export async function run(projectFolder: string, config: Config, options: {
     resume: boolean,
     restartDisabledSteps: boolean,
     clean: boolean,
-    simpleScraper: string | null
+    simpleScraper: string | null,
+    sessionKey: string
 }) {
     const opLog = getOpLog();
     let steps: (string | string[])[];
@@ -48,7 +49,7 @@ export async function run(projectFolder: string, config: Config, options: {
     const pipeprocClient = PipeProc();
     let headlessChrome = null;
     const storeProjectFolder =
-        await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder);
+        await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder, options.sessionKey);
     try {
         steps = firstPass(config);
         checkStepLevels(steps);
