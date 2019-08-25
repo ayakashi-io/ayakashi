@@ -51,7 +51,7 @@ export function attachRequest(
                         return reject(err);
                     }
                     if (response.statusCode >= 400) {
-                        return reject(new Error(`${response.statusCode} - ${body}`));
+                        return reject(new Error(`${response.statusCode} - ${truncate(String(body))}`));
                     }
                     if (body) {
                         if (response.headers["content-type"] === "application/json" && typeof body === "string") {
@@ -67,4 +67,13 @@ export function attachRequest(
             });
         };
     });
+}
+
+function truncate(str: string) {
+    const buff = Buffer.from(str);
+    if (buff.byteLength > 80) {
+        return buff.slice(0, 80).toString() + "...";
+    } else {
+        return buff.toString();
+    }
 }
