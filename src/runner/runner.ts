@@ -135,6 +135,8 @@ export async function run(projectFolder: string, config: Config, options: {
         if (!options.resume && options.clean && hasPrevious) {
             opLog.info("cleaning previous run");
             await clearPreviousRun(storeProjectFolder);
+            //re-create the project folder after clean
+            await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder, options.sessionKey);
         } else if (!options.resume && !options.clean && hasPrevious) {
             opLog.error("Cannot start a new run while a previous unfinished run exists.");
             opLog.error("Use --resume to resume the previous run or --clean to clear it and start a new one.");
