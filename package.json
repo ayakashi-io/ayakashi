@@ -30,6 +30,7 @@
   ],
   "preferGlobal": true,
   "devDependencies": {
+    "@gerrit0/typedoc": "~0.15.3",
     "@types/async": "~2.4.1",
     "@types/backoff": "~2.5.1",
     "@types/browserify": "~12.0.36",
@@ -50,7 +51,7 @@
     "@types/sequelize": "~4.28.3",
     "@types/uuid": "~3.4.4",
     "@types/yargs": "~12.0.9",
-    "eslint": "~5.12.0",
+    "eslint": "^5.12.1",
     "eslint-config-google": "~0.11.0",
     "jest": "~24.8.0",
     "jest-extended": "~0.11.2",
@@ -59,7 +60,6 @@
     "tslint": "~5.12.1",
     "tslint-eslint-rules": "~5.4.0",
     "tslint-microsoft-contrib": "~6.0.0",
-    "@gerrit0/typedoc": "~0.15.3",
     "typescript": "~3.5.2"
   },
   "dependencies": {
@@ -88,7 +88,7 @@
     "node-dir": "~0.1.17",
     "ora": "~3.2.0",
     "pg": "~7.9.0",
-    "pipeproc": "^0.3.2",
+    "pipeproc": "^0.3.3",
     "require-all": "~3.0.0",
     "resolve-from": "~4.0.0",
     "rimraf": "~2.6.3",
