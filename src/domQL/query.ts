@@ -41,7 +41,7 @@ export function runQuery(env: Window, query: Query, el: El): boolean {
 
 function createNodeQuery(env: Window, el: El, attribute: string): NodeQuery {
     return function() {
-        if ((attribute === "className" || attribute === "class")) {
+        if ((attribute === "className" || attribute === "class" || attribute === "classList")) {
             if (!el.classList || el.classList.length === 0) {
                 return null;
             } else {

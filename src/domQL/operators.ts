@@ -143,9 +143,7 @@ export const operators: {[key: string]: Function} = {
 
 function _neq(domResult: string | string[] | null, expected: string): boolean {
     if (Array.isArray(domResult)) {
-        return !!domResult.find(member => {
-            return member !== expected;
-        });
+        return !domResult.includes(expected);
     } else if (domResult) {
         return domResult !== expected;
     } else {
@@ -155,19 +153,19 @@ function _neq(domResult: string | string[] | null, expected: string): boolean {
 
 function _nlike(domResult: string | string[] | null, expected: string | RegExp): boolean {
     if (Array.isArray(domResult)) {
-        return !!domResult.find(member => {
+        return domResult.filter(member => {
             if (member && typeof member.match === "function") {
                 if (typeof expected === "string") {
-                    return !member.match(expected);
+                    return member.match(expected);
                 } else if (expected instanceof RegExp) {
-                    return !member.match(new RegExp(expected, "i"));
+                    return member.match(new RegExp(expected, "i"));
                 } else {
                     return false;
                 }
             } else {
                 return false;
             }
-        });
+        }).length === 0;
     } else if (domResult && typeof domResult.match === "function") {
         if (typeof expected === "string") {
             return !domResult.match(expected);
@@ -183,15 +181,15 @@ function _nlike(domResult: string | string[] | null, expected: string | RegExp):
 
 function _nin(domResult: string | string[] | null, expected: string[]): boolean {
     if (Array.isArray(domResult)) {
-        return !!domResult.find(member => {
+        return domResult.filter(member => {
             if (expected && typeof expected.indexOf === "function") {
-                return expected.indexOf(member) === -1;
+                return expected.includes(member);
             } else {
                 return false;
             }
-        });
+        }).length === 0;
     } else if (domResult && expected && typeof expected.indexOf === "function") {
-        return expected.indexOf(domResult) === -1;
+        return !expected.includes(domResult);
     } else {
         return false;
     }

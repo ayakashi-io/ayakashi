@@ -22,7 +22,7 @@ describe("select tests", function() {
                 </head>
                 <body>
                     <div class="container">
-                        <a href="http://example.com" id="link1" class="links">Link1</a>
+                        <a href="http://example.com" id="link1" class="links hidden hidden2">Link1</a>
                     </div>
                     <div class="container2">
                         <a href="http://example.com" id="link2" class="links">Link2</a>
@@ -348,5 +348,119 @@ describe("select tests", function() {
                 resolve();
             });
         });
+    });
+
+    test("select class with neq", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({
+            and: [{
+                tagName: {
+                    eq: "a"
+                }
+            }, {
+                class: {
+                    neq: "hidden"
+                }
+            }]
+        });
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link2"]);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("select class with $neq", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({
+            and: [{
+                tagName: {
+                    eq: "a"
+                }
+            }, {
+                class: {
+                    $neq: "hidden"
+                }
+            }]
+        });
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link2"]);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("select class with nlike", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({
+            and: [{
+                tagName: {
+                    eq: "a"
+                }
+            }, {
+                class: {
+                    nlike: "hid"
+                }
+            }]
+        });
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link2"]);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("select class with $nlike", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({
+            and: [{
+                tagName: {
+                    eq: "a"
+                }
+            }, {
+                class: {
+                    $nlike: "hid"
+                }
+            }]
+        });
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link2"]);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("select class with nin", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({
+            and: [{
+                tagName: {
+                    eq: "a"
+                }
+            }, {
+                class: {
+                    nin: ["hidden", "hidden2"]
+                }
+            }]
+        });
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link2"]);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("select class with $nin", async function() {
+        const ayakashiInstance = await getAyakashiInstance();
+        await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({
+            and: [{
+                tagName: {
+                    eq: "a"
+                }
+            }, {
+                class: {
+                    $nin: ["hidden", "hidden2"]
+                }
+            }]
+        });
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link2"]);
+        await ayakashiInstance.__connection.release();
     });
 });

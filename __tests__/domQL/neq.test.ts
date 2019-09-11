@@ -11,11 +11,11 @@ const dom = new JSDOM(`
             color: red;
         }
     </style>
-    <div style="color:blue">
-        <ul id="myList">
-            <li class="listValues" data-my="test">value 1</li>
-            <li class="listValues">value 2</li>
-            <li class="listValues">value 3</li>
+    <div style="color:blue" class="match">
+        <ul id="myList" class="match">
+            <li class="listValues match" data-my="test">value 1</li>
+            <li class="listValues match">value 2</li>
+            <li class="listValues hidden">value 3</li>
         </ul>
     </div>
 `);
@@ -90,14 +90,14 @@ describe("test neq", function() {
     it("by class, strict", function() {
         const results = domQuery({
             where: {
-                className: {
-                    $neq: "uknownClass"
+                class: {
+                    $neq: "match"
                 }
             }
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(3);
+        expect(results).toBeArrayOfSize(1);
     });
 
     it("by class, non-strict", function() {
@@ -111,6 +111,25 @@ describe("test neq", function() {
             env: dom.window
         });
         expect(results).toBeArrayOfSize(15);
+    });
+
+    it("by class with and", function() {
+        const results = domQuery({
+            where: {
+                and: [{
+                    tagName: {
+                        eq: "li"
+                    }
+                }, {
+                    class: {
+                        neq: "hidden"
+                    }
+                }]
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(2);
     });
 
     it("by data key, strict", function() {

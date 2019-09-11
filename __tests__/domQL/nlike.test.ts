@@ -11,11 +11,11 @@ const dom = new JSDOM(`
             color: red;
         }
     </style>
-    <div style="color:blue">
-        <ul id="myList">
+    <div style="color:blue" class="match">
+        <ul id="myList" class="match">
             <li class="listValues" data-my="test">value 1</li>
-            <li class="listValues">value 2</li>
-            <li class="listValues">value 3</li>
+            <li class="listValues match">value 2</li>
+            <li class="listValues match">value 3</li>
         </ul>
     </div>
 `);
@@ -113,19 +113,6 @@ describe("test nlike", function() {
         expect(results).toBeEmpty();
     });
 
-    it("by class, strict", function() {
-        const results = domQuery({
-            where: {
-                className: {
-                    $nlike: "uknownClass"
-                }
-            }
-        }, {
-            env: dom.window
-        });
-        expect(results).toBeArrayOfSize(3);
-    });
-
     it("by class, non-strict", function() {
         const results = domQuery({
             where: {
@@ -137,6 +124,19 @@ describe("test nlike", function() {
             env: dom.window
         });
         expect(results).toBeArrayOfSize(15);
+    });
+
+    it("by class, strict", function() {
+        const results = domQuery({
+            where: {
+                class: {
+                    $nlike: "match"
+                }
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(1);
     });
 
     it("by data key, strict", function() {

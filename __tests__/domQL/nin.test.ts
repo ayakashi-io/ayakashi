@@ -11,11 +11,11 @@ const dom = new JSDOM(`
             color: red;
         }
     </style>
-    <div style="color:blue">
-        <ul id="myList">
+    <div style="color:blue" class="match match2">
+        <ul id="myList" class="match match2">
             <li class="listValues" data-my="test">value 1</li>
-            <li class="listValues">value 2</li>
-            <li class="listValues">value 3</li>
+            <li class="listValues match match2">value 2</li>
+            <li class="listValues match match2">value 3</li>
         </ul>
     </div>
 `);
@@ -91,13 +91,26 @@ describe("test nin", function() {
         const results = domQuery({
             where: {
                 className: {
-                    $nin: ["uknownClass"]
+                    $nin: ["match", "match2"]
                 }
             }
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(3);
+        expect(results).toBeArrayOfSize(1);
+    });
+
+    it("by class, strict, no match", function() {
+        const results = domQuery({
+            where: {
+                className: {
+                    $nin: ["match", "match2", "listValues"]
+                }
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(0);
     });
 
     it("by class, non-strict", function() {
