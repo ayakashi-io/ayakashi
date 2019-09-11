@@ -57,7 +57,7 @@ describe("test nlike", function() {
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(14);
+        expect(results).toBeArrayOfSize(4);
     });
 
     it("by id, non-strict, with regex", function() {
@@ -70,7 +70,7 @@ describe("test nlike", function() {
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(14);
+        expect(results).toBeArrayOfSize(4);
     });
 
     it("with an invalid attribute, strict", function() {
@@ -96,7 +96,7 @@ describe("test nlike", function() {
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(15);
+        expect(results).toBeArrayOfSize(5);
     });
 
     it("by id with recursive: false", function() {
@@ -123,7 +123,7 @@ describe("test nlike", function() {
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(15);
+        expect(results).toBeArrayOfSize(5);
     });
 
     it("by class, strict", function() {
@@ -163,7 +163,7 @@ describe("test nlike", function() {
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(15);
+        expect(results).toBeArrayOfSize(5);
     });
 
     it("by data value, strict", function() {
@@ -190,7 +190,7 @@ describe("test nlike", function() {
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(15);
+        expect(results).toBeArrayOfSize(5);
     });
 
     it("by style, strict", function() {
@@ -217,6 +217,6 @@ describe("test nlike", function() {
         }, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(12);
+        expect(results).toBeArrayOfSize(2);
     });
 });

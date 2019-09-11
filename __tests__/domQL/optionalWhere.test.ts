@@ -25,7 +25,7 @@ describe("test optional where", function() {
         const results = domQuery({}, {
             env: dom.window
         });
-        expect(results).toBeArrayOfSize(15);
+        expect(results).toBeArrayOfSize(5);
     });
 
     it("with a scope", function() {
@@ -33,6 +33,6 @@ describe("test optional where", function() {
             env: dom.window,
             scope: dom.window.document.querySelector("#myList")
         });
-        expect(results).toBeArrayOfSize(10);
+        expect(results).toBeArrayOfSize(3);
     });
 });

@@ -20,6 +20,7 @@ export function domWalk(env: Window, query: Query, scope: Element) {
     if (query.order === "desc") {
         _domWalk(scope, el => {
             if (el === scope) return;
+            if (el && el.nodeName === "#text") return;
             if (!query.where) {
                 results.push(<Node>el);
             } else {
@@ -33,6 +34,7 @@ export function domWalk(env: Window, query: Query, scope: Element) {
     } else {
         _domWalk(scope, el => {
             if (el === scope) return;
+            if (el && el.nodeName === "#text") return;
             let hasMatch = false;
             if (!query.where) {
                 hasMatch = true;
@@ -61,6 +63,7 @@ export function tagWalk(env: Window, query: Query, scope: Element) {
     if (query.order === "desc") {
         tags.reverse().forEach(el => {
             if (el === scope) return;
+            if (el && el.nodeName === "#text") return;
             let hasMatch = false;
             if (!query.where) {
                 hasMatch = true;
@@ -78,6 +81,7 @@ export function tagWalk(env: Window, query: Query, scope: Element) {
     } else {
         tags.forEach(el => {
             if (el === scope) return;
+            if (el && el.nodeName === "#text") return;
             let hasMatch = false;
             if (!query.where) {
                 hasMatch = true;
