@@ -149,8 +149,12 @@ async function recursiveExtract<T, U>(
                             upcased = false;
                             continue;
                         }
-                        if (myDataAttr[i] === "-") {
-                            formatted.push(myDataAttr[i + 1].toUpperCase());
+                        if (myDataAttr[i] === "-" && (!myDataAttr[i + 1] || myDataAttr[i + 1] !== "-")) {
+                            if (myDataAttr[i + 1]) {
+                                formatted.push(myDataAttr[i + 1].toUpperCase());
+                            } else {
+                                formatted.push("-");
+                            }
                             upcased = true;
                         } else {
                             formatted.push(myDataAttr[i]);

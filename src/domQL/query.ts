@@ -59,7 +59,14 @@ function createNodeQuery(env: Window, el: El, attribute: string): NodeQuery {
             } else {
                 return <string[]>Object.keys(el.dataset).map(k => el.dataset[k]).filter(dataValue => !!dataValue);
             }
-        } else if (attribute.indexOf("style-") > -1) {
+        } else if (attribute.includes("data-")) {
+            if (!el.dataset || Object.keys(el.dataset).length === 0) {
+                return null;
+            } else {
+                const dataAttr = formatDataAttribute(attribute);
+                return el.dataset[dataAttr] || null;
+            }
+        } else if (attribute.includes("style-")) {
             if (el.nodeName !== "#text") {
                 const styleProp = attribute.replace("style-", "");
                 const compStyles = env.getComputedStyle(el);
@@ -150,4 +157,27 @@ function formatExpected(attribute: string, expected: unknown) {
     }
 
     return expected;
+}
+
+function formatDataAttribute(dataAttr: string) {
+    const myDataAttr = dataAttr.replace("data-", "");
+    const formatted = [];
+    let upcased = false;
+    for (let i = 0; i < myDataAttr.length; i += 1) {
+        if (upcased) {
+            upcased = false;
+            continue;
+        }
+        if (myDataAttr[i] === "-" && (!myDataAttr[i + 1] || myDataAttr[i + 1] !== "-")) {
+            if (myDataAttr[i + 1]) {
+                formatted.push(myDataAttr[i + 1].toUpperCase());
+            } else {
+                formatted.push("-");
+            }
+            upcased = true;
+        } else {
+            formatted.push(myDataAttr[i]);
+        }
+    }
+    return formatted.join("");
 }
