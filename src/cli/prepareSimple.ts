@@ -3,7 +3,11 @@ import {getDirectory} from "./getDirectory";
 import {sep} from "path";
 import {Config} from "../runner/parseConfig";
 
-export function prepareSimple(file: string, out: string): {config: Config, directory: string, scraper: string} {
+export function prepareSimple(
+    file: string,
+    out: string,
+    scraperType: "scraper" | "renderlessScraper" | "apiScraper"
+): {config: Config, directory: string, scraper: string} {
     const opLog = getOpLog();
     if (file === ".") {
         opLog.error("Simple mode requires a scraper file as input");
@@ -38,7 +42,7 @@ export function prepareSimple(file: string, out: string): {config: Config, direc
     return {
         config: {
             waterfall: [{
-                type: "scraper",
+                type: scraperType,
                 module: <string>scraper,
                 config: {
                     localAutoLoad: false,

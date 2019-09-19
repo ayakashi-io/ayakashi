@@ -50,6 +50,14 @@ yargs
                 type: "boolean",
                 describe: "Run a single scraper"
             })
+            .option("simpleRenderless", {
+                type: "boolean",
+                describe: "Run a single renderlessScraper"
+            })
+            .option("simpleApi", {
+                type: "boolean",
+                describe: "Run a single apiScraper"
+            })
             .option("resume", {
                 type: "boolean",
                 describe: "Resume execution of a previous unfinished run"
@@ -84,7 +92,17 @@ yargs
             directory = fromJson.directory;
         } else {
             if (argv.simple) {
-                const simple = prepareSimple(<string>argv.dir, <string>argv.out);
+                const simple = prepareSimple(<string>argv.dir, <string>argv.out, "scraper");
+                config = simple.config;
+                directory = simple.directory;
+                simpleScraper = simple.scraper;
+            } else if (argv.simpleRenderless) {
+                const simple = prepareSimple(<string>argv.dir, <string>argv.out, "renderlessScraper");
+                config = simple.config;
+                directory = simple.directory;
+                simpleScraper = simple.scraper;
+            } else if (argv.simpleApi) {
+                const simple = prepareSimple(<string>argv.dir, <string>argv.out, "apiScraper");
                 config = simple.config;
                 directory = simple.directory;
                 simpleScraper = simple.scraper;

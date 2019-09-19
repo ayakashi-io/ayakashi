@@ -135,7 +135,7 @@ export type Config = {
         /**
          * The type of the step.
          */
-        type: "scraper" | "renderlessScraper" | "script",
+        type: "scraper" | "renderlessScraper" | "apiScraper" | "script",
         /**
          * The name of the module.
          */
