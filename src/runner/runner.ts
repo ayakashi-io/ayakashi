@@ -247,10 +247,6 @@ async function launch(config: Config, storeProjectFolder: string, chromePath: st
     if (config.config && config.config.persistentSession === true) {
         persistentSession = true;
     }
-    let ignoreCertificateErrors = false;
-    if (config.config && config.config.ignoreCertificateErrors === true) {
-        ignoreCertificateErrors = true;
-    }
     let proxyUrl;
     if (config.config && config.config.proxyUrl) {
         proxyUrl = config.config.proxyUrl;
@@ -285,8 +281,7 @@ async function launch(config: Config, storeProjectFolder: string, chromePath: st
         proxyUrl: proxyUrl,
         windowHeight: windowHeight,
         windowWidth: windowWidth,
-        userAgent: userAgent.toString(),
-        ignoreCertificateErrors: ignoreCertificateErrors
+        userAgent: userAgent.toString()
     });
 
     return headlessChrome;

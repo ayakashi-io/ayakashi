@@ -73,28 +73,6 @@ describe("launcher tests", function() {
         })()).rejects.toThrowError("chrome_path_not_set");
     });
 
-    test("it should ignore certificate errors if ignoreCertificateErrors is set", async function() {
-        headlessChrome = getInstance();
-        const bridgePort = await getRandomPort();
-        await headlessChrome.init({
-            chromePath: chromePath,
-            ignoreCertificateErrors: true,
-            bridgePort: bridgePort,
-            protocolPort: await getRandomPort()
-        });
-        const target = await headlessChrome.createTarget();
-        if (!target) throw new Error("no_target");
-        const connection = await createConnection(target, bridgePort);
-        await connection.activate();
-        await connection.client.Page.navigate({url: "https://expired.badssl.com/"});
-        await connection.client.Page.loadEventFired();
-        const result = await connection.evaluate<string>(function() {
-            return document.title;
-        });
-        expect(result).toBe("expired.badssl.com");
-        await connection.release();
-    });
-
     test("it should use a custom user-agent if it is passed", async function() {
         headlessChrome = getInstance();
         const bridgePort = await getRandomPort();

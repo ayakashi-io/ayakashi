@@ -285,4 +285,27 @@ describe("target/connection tests", function() {
         })()).rejects.toThrowError("cannot_pipe_events_into_active_connection");
         await connection.release();
     });
+
+    test("it should ignore certificate errors if ignoreCertificateErrors is set", async function() {
+        const target = await headlessChrome.createTarget();
+        if (!target) throw new Error("no_target");
+        const connection = await createConnection(target, bridgePort);
+        if (!connection) throw new Error("jest_connection_not_created");
+        await connection.activate();
+        await connection.client.Page.navigate({url: "https://expired.badssl.com/"});
+        await connection.client.Page.loadEventFired();
+        const result = await connection.evaluate<string>(function() {
+            return document.title;
+        });
+        expect(result).toBe("");
+        //set the flag
+        await connection.client.Security.setIgnoreCertificateErrors({ignore: true});
+        await connection.client.Page.navigate({url: "https://expired.badssl.com/"});
+        await connection.client.Page.loadEventFired();
+        const result2 = await connection.evaluate<string>(function() {
+            return document.title;
+        });
+        expect(result2).toBe("expired.badssl.com");
+        await connection.release();
+    });
 });

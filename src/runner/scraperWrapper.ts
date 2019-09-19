@@ -96,6 +96,10 @@ export default async function scraperWrapper(log: PassedLog) {
             opLog.error("Could not create a connection");
             throw e;
         }
+        //ignoreCertificateErrors option
+        if (log.body.ignoreCertificateErrors) {
+            await connection.client.Security.setIgnoreCertificateErrors({ignore: true});
+        }
 
         //check pipes and initialize the instance using the prelude
         if (log.body.config.pipeConsole !== false) {

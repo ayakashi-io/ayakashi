@@ -70,6 +70,7 @@ export interface ICDPClient {
     };
     Security: {
         enable: () => Promise<void>;
+        setIgnoreCertificateErrors: (arg: {ignore: boolean}) => Promise<void>;
     };
     Console: {
         enable: () => Promise<void>;

@@ -19,7 +19,6 @@ export interface IHeadlessChrome {
         headless?: boolean,
         maxTargets?: number,
         launchAttempts?: number,
-        ignoreCertificateErrors?: boolean,
         userAgent?: string,
         autoOpenDevTools?: boolean,
         proxyUrl?: string,
@@ -55,7 +54,6 @@ export function getInstance(): IHeadlessChrome {
             this.chromeInstance = await launchChrome({
                 chromePath: options.chromePath,
                 headless: options.headless === false ? false : true,
-                ignoreCertificateErrors: options.ignoreCertificateErrors === true ? true : false,
                 autoOpenDevTools: options.autoOpenDevTools === true ? true : false,
                 userAgent: options.userAgent || "",
                 launchAttempts: options.launchAttempts || MAX_LAUNCH_ATTEMPTS,
@@ -157,7 +155,6 @@ async function launchChrome(options: {
     chromePath: string,
     headless: boolean,
     launchAttempts: number,
-    ignoreCertificateErrors: boolean,
     autoOpenDevTools: boolean,
     userAgent: string,
     windowSize: string,
@@ -170,10 +167,6 @@ async function launchChrome(options: {
     if (options.headless) {
         flags.push("--headless");
     }
-    if (options.ignoreCertificateErrors) {
-        flags.push("--ignore-certificate-errors");
-        flags.push("--allow-insecure-localhost");
-    }
     if (options.userAgent) {
         flags.push(`--user-agent=${options.userAgent}`);
     }
@@ -184,6 +177,7 @@ async function launchChrome(options: {
         flags.push(`--proxy-server=${options.proxyUrl}`);
     }
     flags.push(`--window-size=${options.windowSize}`);
+    flags.push("--allow-insecure-localhost");
     let attempt = 0;
     let instance: IBrowserInstance | null = null;
 
