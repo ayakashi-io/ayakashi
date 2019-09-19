@@ -150,14 +150,27 @@ export async function run(projectFolder: string, config: Config, options: {
         }
 
         //launch pipeproc
-        const stepCount = steps.length <= 4 ? 1 : countSteps(steps) - 3;
-        const workers = stepCount > cpus().length ? cpus().length : stepCount;
-        opLog.info(`using workers: ${workers}`);
+        let workers: number;
+        if (config.config && config.config.workers && config.config.workers > 0) {
+            workers = config.config.workers;
+        } else {
+            const stepCount = steps.length <= 4 ? 1 : countSteps(steps) - 3;
+            workers = stepCount > cpus().length ? cpus().length : stepCount;
+        }
+        let workerConcurrency: number;
+        if (config.config && config.config.workerConcurrency && config.config.workerConcurrency > 0) {
+            workerConcurrency = config.config.workerConcurrency;
+            opLog.info(`using workers: ${workers} (concurrency: ${workerConcurrency})`);
+        } else {
+            workerConcurrency = 1;
+            opLog.info(`using workers: ${workers}`);
+        }
         const waiter = opLog.waiter("initializing");
         await pipeprocClient.spawn({
             socket: `ipc://${pathResolve(storeProjectFolder, "run.sock")}`,
             location: getPipeprocFolder(storeProjectFolder),
             workers: workers,
+            workerConcurrency: workerConcurrency,
             workerRestartAfter: 100
         });
         const SIGINT = "SIGINT";

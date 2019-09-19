@@ -117,6 +117,16 @@ export type Config = {
          * Sets the port of the internal devTools protocol server, default is 9730. Use 0 for a random port.
          */
         protocolPort?: number
+        /**
+         * Sets the number of workers to use.
+         * Defaults to "auto" which will spawn as many workers as needed by the current pipeline (not more than the total system thread count).
+         */
+        workers?: number
+        /**
+         * Sets the number of steps each worker can execute at the same time.
+         * Defaults to 1. It should only be increased if there are more parallel steps than the worker count and the steps are mostly I/O bound.
+         */
+        workerConcurrency?: number
     },
     /**
      * Execute the steps in a serial manner by passing each step's output to next one's input.
