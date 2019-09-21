@@ -30,7 +30,7 @@ import {
     saveLastConfig,
     configChanged
 } from "../store/project";
-import {getRandomPort} from "./getRandomPort";
+import {getRandomPort} from "../utils/getRandomPort";
 import debug from "debug";
 const d = debug("ayakashi:runner");
 
