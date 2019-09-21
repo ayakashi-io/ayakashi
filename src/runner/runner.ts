@@ -30,6 +30,7 @@ import {
     saveLastConfig,
     configChanged
 } from "../store/project";
+import {sessionDbInit} from "../store/sessionDb";
 import {getRandomPort} from "../utils/getRandomPort";
 import debug from "debug";
 const d = debug("ayakashi:runner");
@@ -153,6 +154,10 @@ export async function run(projectFolder: string, config: Config, options: {
                 throw new Error("Config modified");
             }
         }
+
+        //initialize sessionDb
+        const {sessionDb} = await sessionDbInit(storeProjectFolder, {create: true});
+        await sessionDb.close();
 
         //launch pipeproc
         let workers: number;

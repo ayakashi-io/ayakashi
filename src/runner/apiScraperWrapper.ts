@@ -5,6 +5,7 @@ import {apiPrelude} from "../prelude/apiPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {attachRequest} from "../prelude/actions/request";
 import {getOpLog} from "../opLog/opLog";
+import {sessionDbInit} from "../store/sessionDb";
 import {getUserAgentData} from "../utils/userAgent";
 import {EmulatorOptions} from "../runner/parseConfig";
 import debug from "debug";
@@ -42,10 +43,20 @@ export default async function apiScraperWrapper(log: PassedLog) {
 
         const ayakashiInstance = apiPrelude();
 
+        //initialize sessionDb
+        const {sessionDb, UserAgentDataModel} = await sessionDbInit(log.body.storeProjectFolder, {create: false});
+
         //user-agent setup
-        const userAgentData = getUserAgentData(
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
+        const userAgentData = await getUserAgentData(
+            sessionDb,
+            UserAgentDataModel,
+            {
+                agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+                platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
+            },
+            {
+                persistentSession: log.body.persistentSession
+            }
         );
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
@@ -90,6 +101,7 @@ export default async function apiScraperWrapper(log: PassedLog) {
             }
         } catch (e) {
             opLog.error(e.message);
+            await sessionDb.close();
             throw e;
         }
         //run the scraper
@@ -108,6 +120,7 @@ export default async function apiScraperWrapper(log: PassedLog) {
         if (!result && !yieldWatcher.yieldedAtLeastOnce) {
             await ayakashiInstance.yield({continue: true});
         }
+        await sessionDb.close();
     } catch (e) {
         d(e);
         throw e;

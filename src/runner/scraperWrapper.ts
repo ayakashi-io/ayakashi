@@ -11,6 +11,7 @@ import {PipeProc} from "pipeproc";
 import {compile} from "../preloaderCompiler/compiler";
 import {getOpLog} from "../opLog/opLog";
 import {getUserAgentData} from "../utils/userAgent";
+import {sessionDbInit} from "../store/sessionDb";
 
 import {
     loadLocalActions,
@@ -97,14 +98,23 @@ export default async function scraperWrapper(log: PassedLog) {
             opLog.error("Could not create a connection");
             throw e;
         }
+        //initialize sessionDb
+        const {sessionDb, UserAgentDataModel} = await sessionDbInit(log.body.storeProjectFolder, {create: false});
         //ignoreCertificateErrors option
         if (log.body.ignoreCertificateErrors) {
             await connection.client.Security.setIgnoreCertificateErrors({ignore: true});
         }
         //user-agent setup
-        const userAgentData = getUserAgentData(
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
+        const userAgentData = await getUserAgentData(
+            sessionDb,
+            UserAgentDataModel,
+            {
+                agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+                platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
+            },
+            {
+                persistentSession: log.body.persistentSession
+            }
         );
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
         await connection.client.Emulation.setUserAgentOverride({
@@ -214,6 +224,7 @@ export default async function scraperWrapper(log: PassedLog) {
         } catch (e) {
             opLog.error(e.message);
             await connection.release();
+            await sessionDb.close();
             throw e;
         }
         //run the scraper
@@ -225,6 +236,7 @@ export default async function scraperWrapper(log: PassedLog) {
         } catch (e) {
             opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             await connection.release();
+            await sessionDb.close();
             throw e;
         }
         if (result) {
@@ -234,6 +246,7 @@ export default async function scraperWrapper(log: PassedLog) {
             await ayakashiInstance.yield({continue: true});
         }
         await connection.release();
+        await sessionDb.close();
     } catch (e) {
         d(e);
         throw e;

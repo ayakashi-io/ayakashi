@@ -13,6 +13,7 @@ import {renderlessPrelude} from "../prelude/renderlessPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {getOpLog} from "../opLog/opLog";
 import {getUserAgentData} from "../utils/userAgent";
+import {sessionDbInit} from "../store/sessionDb";
 import {EmulatorOptions} from "../runner/parseConfig";
 import debug from "debug";
 const d = debug("ayakashi:renderlessScraperWrapper");
@@ -61,10 +62,20 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
 
         const ayakashiInstance = await renderlessPrelude();
 
+        //initialize sessionDb
+        const {sessionDb, UserAgentDataModel} = await sessionDbInit(log.body.storeProjectFolder, {create: false});
+
         //user-agent setup
-        const userAgentData = getUserAgentData(
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
+        const userAgentData = await getUserAgentData(
+            sessionDb,
+            UserAgentDataModel,
+            {
+                agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+                platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
+            },
+            {
+                persistentSession: log.body.persistentSession
+            }
         );
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
@@ -89,6 +100,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
                 loadLocalProps(ayakashiInstance, log.body.projectFolder);
             } else {
                 await ayakashiInstance.__connection.release();
+                await sessionDb.close();
                 throw new Error("Invalid page");
             }
             d("DOM built");
@@ -101,6 +113,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
                 loadLocalProps(ayakashiInstance, log.body.projectFolder);
             } else {
                 await ayakashiInstance.__connection.release();
+                await sessionDb.close();
                 throw new Error("Invalid page");
             }
             d("DOM built");
@@ -151,6 +164,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         } catch (e) {
             opLog.error(e.message);
             await ayakashiInstance.__connection.release();
+            await sessionDb.close();
             throw e;
         }
         //run the scraper
@@ -162,6 +176,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         } catch (e) {
             opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             await ayakashiInstance.__connection.release();
+            await sessionDb.close();
             throw e;
         }
         if (result) {
@@ -171,6 +186,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             await ayakashiInstance.yield({continue: true});
         }
         await ayakashiInstance.__connection.release();
+        await sessionDb.close();
     } catch (e) {
         d(e);
         throw e;
