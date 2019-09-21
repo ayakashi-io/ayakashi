@@ -290,7 +290,7 @@ async function launch(config: Config, storeProjectFolder: string, chromePath: st
         autoOpenDevTools: autoOpenDevTools,
         bridgePort: <number>(config.config!).bridgePort,
         protocolPort: <number>(config.config!).protocolPort,
-        sessionDir: persistentSession ? pathResolve(storeProjectFolder, ".session") : undefined,
+        sessionDir: persistentSession ? pathResolve(storeProjectFolder, "chromium_session") : undefined,
         proxyUrl: proxyUrl,
         windowHeight: windowHeight,
         windowWidth: windowWidth
