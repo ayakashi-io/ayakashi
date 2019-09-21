@@ -19,7 +19,6 @@ export interface IHeadlessChrome {
         headless?: boolean,
         maxTargets?: number,
         launchAttempts?: number,
-        userAgent?: string,
         autoOpenDevTools?: boolean,
         proxyUrl?: string,
         sessionDir?: string,
@@ -55,7 +54,6 @@ export function getInstance(): IHeadlessChrome {
                 chromePath: options.chromePath,
                 headless: options.headless === false ? false : true,
                 autoOpenDevTools: options.autoOpenDevTools === true ? true : false,
-                userAgent: options.userAgent || "",
                 launchAttempts: options.launchAttempts || MAX_LAUNCH_ATTEMPTS,
                 windowSize: `${options.windowWidth || 1920},${options.windowHeight || 1080}`,
                 proxyUrl: options.proxyUrl || "",
@@ -156,7 +154,6 @@ async function launchChrome(options: {
     headless: boolean,
     launchAttempts: number,
     autoOpenDevTools: boolean,
-    userAgent: string,
     windowSize: string,
     proxyUrl: string,
     sessionDir: string,
@@ -167,9 +164,6 @@ async function launchChrome(options: {
     const flags = [];
     if (options.headless) {
         flags.push("--headless");
-    }
-    if (options.userAgent) {
-        flags.push(`--user-agent=${options.userAgent}`);
     }
     if (options.autoOpenDevTools) {
         flags.push("--auto-open-devtools-for-tabs");

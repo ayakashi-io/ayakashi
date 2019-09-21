@@ -96,7 +96,7 @@
     "sequelize": "~5.10.0",
     "sqlite3": "~4.0.6",
     "tedious": "~5.0.3",
-    "user-agents": "~1.0.186",
+    "user-agents": "~1.0.386",
     "uuid": "~3.3.2",
     "yargs": "~13.2.2"
   },

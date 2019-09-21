@@ -1,6 +1,7 @@
 import request from "@ayakashi/request";
 import requestCore from "@ayakashi/request/core";
-import {createConnection, EmulatorOptions, IConnection} from "../engine/createConnection";
+import {createConnection, IConnection} from "../engine/createConnection";
+import {EmulatorOptions} from "../runner/parseConfig";
 import {Target} from "../engine/createTarget";
 import {prelude, IAyakashiInstance} from "../prelude/prelude";
 import {attachYields} from "../prelude/actions/yield";
@@ -9,8 +10,8 @@ import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {compile} from "../preloaderCompiler/compiler";
 import {getOpLog} from "../opLog/opLog";
-//@ts-ignore
-import UserAgent from "user-agents";
+import {getUserAgentData} from "../utils/userAgent";
+
 import {
     loadLocalActions,
     loadLocalExtractors,
@@ -100,6 +101,17 @@ export default async function scraperWrapper(log: PassedLog) {
         if (log.body.ignoreCertificateErrors) {
             await connection.client.Security.setIgnoreCertificateErrors({ignore: true});
         }
+        //user-agent setup
+        const userAgentData = getUserAgentData(
+            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
+        );
+        const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
+        await connection.client.Emulation.setUserAgentOverride({
+            userAgent: userAgentData.userAgent,
+            platform: userAgentData.platform,
+            acceptLanguage: acceptLanguage
+        });
 
         //check pipes and initialize the instance using the prelude
         if (log.body.config.pipeConsole !== false) {
@@ -116,26 +128,14 @@ export default async function scraperWrapper(log: PassedLog) {
         }
         const ayakashiInstance = await prelude(connection);
 
-        //user-agent setup
-        let userAgent = "";
-        if (!log.body.userAgent || log.body.userAgent === "random") {
-            userAgent = new UserAgent();
-        }
-        if (log.body.userAgent && log.body.userAgent === "desktop") {
-            userAgent = new UserAgent({deviceCategory: "desktop"});
-        }
-        if (log.body.userAgent && log.body.userAgent === "mobile") {
-            userAgent = new UserAgent({deviceCategory: "mobile"});
-        }
-
         //attach the request API
         const myRequest = requestCore.defaults({
             headers: {
-                "User-Agent": userAgent.toString(),
+                "User-Agent": userAgentData.userAgent,
                 //tslint:disable max-line-length
                 Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
                 //tslint:enable max-line-length
-                "accept-language": "en-US,en;q=0.9",
+                "accept-language": acceptLanguage,
                 "cache-control": "no-cache",
                 pragma: "no-cache"
             },

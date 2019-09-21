@@ -7,29 +7,11 @@ import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
 import {retry as asyncRetry} from "async";
 import {ExponentialStrategy} from "backoff";
 import request from "@ayakashi/request";
+import {EmulatorOptions} from "../runner/parseConfig";
 
 const d = debug("ayakashi:engine:connection");
 
 type Unsubscriber = () => void;
-
-/**
- * Emulation options for the scraper to use.
- */
-export type EmulatorOptions = {
-    /**
-     * Sets the available width.
-     */
-    width: number,
-    /**
-     * Sets the available height.
-     */
-    height: number,
-    /**
-     * Set it to true to emulate a mobile device.
-     */
-    mobile: boolean,
-    deviceScaleFactor: 0
-};
 
 export interface ICDPClient {
     _ws: {
@@ -76,8 +58,13 @@ export interface ICDPClient {
         enable: () => Promise<void>;
     };
     Emulation: {
-        setDeviceMetricsOverride: (metrics: EmulatorOptions) => void;
-        setVisibleSize: (size: {width: EmulatorOptions["width"], height: EmulatorOptions["height"]}) => void;
+        setDeviceMetricsOverride: (metrics: EmulatorOptions) => Promise<void>;
+        setVisibleSize: (size: {width: EmulatorOptions["width"], height: EmulatorOptions["height"]}) => Promise<void>;
+        setUserAgentOverride: (arg: {
+            userAgent: string,
+            acceptLanguage: string,
+            platform: string
+        }) => Promise<void>;
     };
     Target: {
         createTarget: (options: {url: string, browserContextId?: string}) => Promise<{targetId: string}>;

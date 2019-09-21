@@ -1,11 +1,46 @@
 import {resolve as pathResolve, sep} from "path";
-import {EmulatorOptions} from "../engine/createConnection";
 
 const fullPath = pathResolve(__dirname);
 let appRoot = fullPath.replace(sep + "lib" + sep + "runner", "");
 if (process.platform === "win32") {
     appRoot = appRoot.replace(/\\/g, "/");
 }
+
+/**
+ * Emulation options for the scraper to use.
+ */
+export type EmulatorOptions = {
+    /**
+     * Sets the available width.
+     */
+    width: number,
+    /**
+     * Sets the available height.
+     */
+    height: number,
+    /**
+     * Set it to true to emulate a mobile device.
+     */
+    mobile: boolean,
+    deviceScaleFactor: 0,
+    /**
+     * Configures the userAgent for this scraper.
+     * By default a random chrome-desktop userAgent is used.
+     */
+    userAgent?: "random" | "desktop" | "mobile" | "chrome-desktop" | "chrome-mobile"
+    /**
+     * Configures the language for this scraper.
+     * It will be applied as the browser's language and on the Accept-Language header on HTTP requests.
+     * Defaults to "en-US".
+     */
+    acceptLanguage?: string
+    /**
+     * Configures the value navigator.platform should return.
+     * Defaults to "Win32" for desktop and "Linux armv8l" for mobile.
+     * Setting a custom platform will also affect the generated userAgent.
+     */
+    platform?: "Win32" | "MacIntel" | "Linux armv8l" | "Linux armv7l" | "iPad" | "iPhone" | "Linux x86_64"
+};
 
 type StepConfig = {
     /**
@@ -73,11 +108,6 @@ export type Config = {
          * Setting it to `false` will disable headless mode.
          */
         headless?: boolean,
-        /**
-         * Configures the userAgent for all scrapers.
-         * By default a random userAgent is used.
-         */
-        userAgent?: "random" | "desktop" | "mobile",
         /**
          * Sets a proxy url for all scrapers.
          */
@@ -643,7 +673,6 @@ function addPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousStep}",
                             appRoot: "${appRoot}",
-                            userAgent: "${(config.config && config.config.userAgent) || ""}",
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
@@ -663,7 +692,6 @@ function addPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousStep}",
                             appRoot: "${appRoot}",
-                            userAgent: "${(config.config && config.config.userAgent) || ""}",
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
@@ -682,7 +710,6 @@ function addPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousStep}",
                             appRoot: "${appRoot}",
-                            userAgent: "${(config.config && config.config.userAgent) || ""}",
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
@@ -751,7 +778,6 @@ function addParallelPreStep(
                                 procName: "proc_from_pre_${step}_to_${step}",
                                 selfTopic: "${ppst}",
                                 appRoot: "${appRoot}",
-                                userAgent: "${(config.config && config.config.userAgent) || ""}",
                                 proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                                 ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                             });
@@ -771,7 +797,6 @@ function addParallelPreStep(
                                 procName: "proc_from_pre_${step}_to_${step}",
                                 selfTopic: "${ppst}",
                                 appRoot: "${appRoot}",
-                                userAgent: "${(config.config && config.config.userAgent) || ""}",
                                 proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                                 ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                             });
@@ -790,7 +815,6 @@ function addParallelPreStep(
                                 procName: "proc_from_pre_${step}_to_${step}",
                                 selfTopic: "${ppst}",
                                 appRoot: "${appRoot}",
-                                userAgent: "${(config.config && config.config.userAgent) || ""}",
                                 proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                                 ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                             });
@@ -840,7 +864,6 @@ function addParallelPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousPreviousStep}",
                             appRoot: "${appRoot}",
-                            userAgent: "${(config.config && config.config.userAgent) || ""}",
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
@@ -859,7 +882,6 @@ function addParallelPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousPreviousStep}",
                             appRoot: "${appRoot}",
-                            userAgent: "${(config.config && config.config.userAgent) || ""}",
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });
@@ -877,7 +899,6 @@ function addParallelPreStep(
                             procName: "proc_from_pre_${step}_to_${step}",
                             selfTopic: "${previousPreviousStep}",
                             appRoot: "${appRoot}",
-                            userAgent: "${(config.config && config.config.userAgent) || ""}",
                             proxyUrl: "${(config.config && config.config.proxyUrl) || ""}",
                             ignoreCertificateErrors: ${(config.config && config.config.ignoreCertificateErrors) || false}
                         });

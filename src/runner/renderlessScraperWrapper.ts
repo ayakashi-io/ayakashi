@@ -8,12 +8,12 @@ import {
     loadLocalProps,
     loadExternalExtractors
 } from "./loaders";
-//@ts-ignore
-import UserAgent from "user-agents";
 import {PipeProc} from "pipeproc";
 import {renderlessPrelude} from "../prelude/renderlessPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {getOpLog} from "../opLog/opLog";
+import {getUserAgentData} from "../utils/userAgent";
+import {EmulatorOptions} from "../runner/parseConfig";
 import debug from "debug";
 const d = debug("ayakashi:renderlessScraperWrapper");
 
@@ -26,6 +26,7 @@ type PassedLog = {
             pipeConsole?: boolean,
             pipeExceptions?: boolean,
             localAutoLoad?: boolean,
+            emulatorOptions?: EmulatorOptions,
             simple?: boolean
         },
         load: {
@@ -61,25 +62,20 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         const ayakashiInstance = await renderlessPrelude();
 
         //user-agent setup
-        let userAgent = "";
-        if (!log.body.userAgent || log.body.userAgent === "random") {
-            userAgent = new UserAgent();
-        }
-        if (log.body.userAgent && log.body.userAgent === "desktop") {
-            userAgent = new UserAgent({deviceCategory: "desktop"});
-        }
-        if (log.body.userAgent && log.body.userAgent === "mobile") {
-            userAgent = new UserAgent({deviceCategory: "mobile"});
-        }
+        const userAgentData = getUserAgentData(
+            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
+        );
+        const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
         //define the load methods
         ayakashiInstance.load = async function(url, timeout) {
             d("loading url: ", url);
             const html = await request.get(url, {
                 headers: {
-                    "User-Agent": userAgent.toString(),
+                    "User-Agent": userAgentData.userAgent,
                     Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-                    "accept-language": "en-US,en;q=0.9"
+                    "accept-language": acceptLanguage
                 },
                 proxy: log.body.proxyUrl || undefined,
                 strictSSL: !log.body.ignoreCertificateErrors,
@@ -113,11 +109,11 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         //attach the request API
         const myRequest = requestCore.defaults({
             headers: {
-                "User-Agent": userAgent.toString(),
+                "User-Agent": userAgentData.userAgent,
                 //tslint:disable max-line-length
                 Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
                 //tslint:enable max-line-length
-                "accept-language": "en-US,en;q=0.9",
+                "accept-language": acceptLanguage,
                 "cache-control": "no-cache",
                 pragma: "no-cache"
             },

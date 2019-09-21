@@ -3,8 +3,6 @@ import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {v4 as uuid} from "uuid";
 import dayjs from "dayjs";
-//@ts-ignore
-import UserAgent from "user-agents";
 import {getOpLog} from "../opLog/opLog";
 import {cpus} from "os";
 import {existsSync} from "fs";
@@ -67,6 +65,13 @@ export async function run(projectFolder: string, config: Config, options: {
                 opLog.error("This was a typo and has been deprecated.");
                 opLog.error("Please move all your scraper files to a 'scrapers' folder (with a single 'p').");
                 throw new Error("Deprecated folder structure");
+        }
+        //@ts-ignore
+        if (config.config && config.config.userAgent) {
+            opLog.error("The global userAgent option has been deprecated.");
+            opLog.error("You can configure the userAgent in the emulatorOptions of each pipeline step");
+            opLog.error("Read more here: https://ayakashi.io/docs/reference/ayakashi-config-file.html#emulator-options");
+            throw new Error("Deprecated configuration option");
         }
         config.config = config.config || {};
         if (config.config.bridgePort === 0) {
@@ -272,16 +277,6 @@ async function launch(config: Config, storeProjectFolder: string, chromePath: st
     if (config.config && config.config.windowWidth) {
         windowWidth = config.config.windowWidth;
     }
-    let userAgent = "";
-    if (!config.config || (config.config && (!config.config.userAgent || config.config.userAgent === "random"))) {
-        userAgent = new UserAgent();
-    }
-    if (config.config && config.config.userAgent === "desktop") {
-        userAgent = new UserAgent({deviceCategory: "desktop"});
-    }
-    if (config.config && config.config.userAgent === "mobile") {
-        userAgent = new UserAgent({deviceCategory: "mobile"});
-    }
     //spawn the chrome instance
     const headlessChrome = getInstance();
     await headlessChrome.init({
@@ -293,8 +288,7 @@ async function launch(config: Config, storeProjectFolder: string, chromePath: st
         sessionDir: persistentSession ? pathResolve(storeProjectFolder, ".session") : undefined,
         proxyUrl: proxyUrl,
         windowHeight: windowHeight,
-        windowWidth: windowWidth,
-        userAgent: userAgent.toString()
+        windowWidth: windowWidth
     });
 
     return headlessChrome;
