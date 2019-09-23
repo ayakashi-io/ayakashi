@@ -3,6 +3,7 @@ import {Sequelize, Op} from "sequelize";
 import {CookieStatic} from "../store/sessionDb";
 import {CookieJar, jar} from "@ayakashi/request/core";
 import {eachSeries as asyncEach, retry as asyncRetry} from "async";
+import dayjs from "dayjs";
 import debug from "debug";
 const d = debug("ayakashi:Cookie");
 
@@ -148,7 +149,19 @@ class CookieStore extends Store {
                         key: cookie.key
                     }]
                 },
-                defaults: cookie
+                defaults: {
+                    key: cookie.key,
+                    value: cookie.value,
+                    expires: dayjs(cookie.expires).isValid() ? cookie.expires : null,
+                    maxAge: cookie.maxAge || null,
+                    domain: cookie.domain,
+                    path: cookie.path,
+                    secure: cookie.secure,
+                    httpOnly: cookie.httpOnly,
+                    hostOnly: cookie.hostOnly,
+                    creation: cookie.creation,
+                    lastAccessed: cookie.lastAccessed
+                }
             })
             .then(([cookieInstance, created]) => {
                 if (created) {
