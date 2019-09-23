@@ -167,7 +167,19 @@ class CookieStore extends Store {
                 if (created) {
                     return cb(null);
                 }
-                this.CookieModel.update(cookie, {
+                this.CookieModel.update({
+                    key: cookie.key,
+                    value: cookie.value,
+                    expires: dayjs(cookie.expires).isValid() ? cookie.expires : null,
+                    maxAge: cookie.maxAge || null,
+                    domain: cookie.domain,
+                    path: cookie.path,
+                    secure: cookie.secure,
+                    httpOnly: cookie.httpOnly,
+                    hostOnly: cookie.hostOnly,
+                    creation: cookie.creation,
+                    lastAccessed: cookie.lastAccessed
+                }, {
                     where: {
                         id: cookieInstance.id
                     }
