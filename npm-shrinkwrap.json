@@ -4473,6 +4473,11 @@
       "resolved": "https://registry.npmjs.org/invert-kv/-/invert-kv-2.0.0.tgz",
       "integrity": "sha512-wPVv/y/QQ/Uiirj/vh3oP+1Ww+AWehmi1g5fFWGPF6IpCBCDVrhgHRMvrLfdYcwDh3QJbGXDW4JAuzxElLSqKA=="
     },
+    "ip-regex": {
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/ip-regex/-/ip-regex-2.1.0.tgz",
+      "integrity": "sha1-+ni/XS5pE8kRzp+BnuUUa7bYROk="
+    },
     "ipaddr.js": {
       "version": "1.9.0",
       "resolved": "https://registry.npmjs.org/ipaddr.js/-/ipaddr.js-1.9.0.tgz",
@@ -5135,12 +5140,30 @@
             "whatwg-url": "^6.4.1",
             "ws": "^5.2.0",
             "xml-name-validator": "^3.0.0"
+          },
+          "dependencies": {
+            "tough-cookie": {
+              "version": "2.5.0",
+              "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.5.0.tgz",
+              "integrity": "sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==",
+              "dev": true,
+              "requires": {
+                "psl": "^1.1.28",
+                "punycode": "^2.1.1"
+              }
+            }
           }
         },
         "parse5": {
           "version": "4.0.0",
           "resolved": "https://registry.npmjs.org/parse5/-/parse5-4.0.0.tgz",
           "integrity": "sha512-VrZ7eOd3T1Fk4XWNXMgiGBK/z0MG48BWG2uQNU4I72fkQuKUTZpl+u9k+CxEG0twMVzSmXEEz12z5Fnw1jIQFA==",
+          "dev": true
+        },
+        "punycode": {
+          "version": "2.1.1",
+          "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.1.1.tgz",
+          "integrity": "sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==",
           "dev": true
         },
         "whatwg-url": {
@@ -5719,6 +5742,22 @@
         "whatwg-url": "^7.0.0",
         "ws": "^6.1.2",
         "xml-name-validator": "^3.0.0"
+      },
+      "dependencies": {
+        "punycode": {
+          "version": "2.1.1",
+          "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.1.1.tgz",
+          "integrity": "sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A=="
+        },
+        "tough-cookie": {
+          "version": "2.5.0",
+          "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.5.0.tgz",
+          "integrity": "sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==",
+          "requires": {
+            "psl": "^1.1.28",
+            "punycode": "^2.1.1"
+          }
+        }
       }
     },
     "jsesc": {
@@ -7683,6 +7722,22 @@
         "request-promise-core": "1.1.2",
         "stealthy-require": "^1.1.1",
         "tough-cookie": "^2.3.3"
+      },
+      "dependencies": {
+        "punycode": {
+          "version": "2.1.1",
+          "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.1.1.tgz",
+          "integrity": "sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A=="
+        },
+        "tough-cookie": {
+          "version": "2.5.0",
+          "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.5.0.tgz",
+          "integrity": "sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==",
+          "requires": {
+            "psl": "^1.1.28",
+            "punycode": "^2.1.1"
+          }
+        }
       }
     },
     "require-all": {
@@ -8834,10 +8889,11 @@
       "integrity": "sha1-f/0feMi+KMO6Rc1OGj9e4ZO9mYg="
     },
     "tough-cookie": {
-      "version": "2.5.0",
-      "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-2.5.0.tgz",
-      "integrity": "sha512-nlLsUzgm1kfLXSXfRZMc1KLAugd4hqJHDTvc2hDIwS3mZAfMEuMbc03SujMF+GEcpaX/qboeycw6iO8JwVv2+g==",
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-3.0.1.tgz",
+      "integrity": "sha512-yQyJ0u4pZsv9D4clxO69OEjLWYw+jbgspjTue4lTQZLfV0c5l1VmK2y1JK8E9ahdpltPOaAThPcp5nKPUgSnsg==",
       "requires": {
+        "ip-regex": "^2.1.0",
         "psl": "^1.1.28",
         "punycode": "^2.1.1"
       },

@@ -24,7 +24,7 @@ export async function getUserAgentData(
             if (savedData) {
                 return savedData.userAgentData;
             }
-            //generate new data based input
+            //generate new data based on input
             const data = generate(input.agent, input.platform);
             //persist them
             await userAgentModel.create({

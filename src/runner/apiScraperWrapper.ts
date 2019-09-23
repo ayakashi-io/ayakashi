@@ -7,6 +7,7 @@ import {attachRequest} from "../prelude/actions/request";
 import {getOpLog} from "../opLog/opLog";
 import {sessionDbInit} from "../store/sessionDb";
 import {getUserAgentData} from "../utils/userAgent";
+import {getCookieJar, updateCookieJar} from "../utils/cookieStore";
 import {EmulatorOptions} from "../runner/parseConfig";
 import debug from "debug";
 const d = debug("ayakashi:apiScraperWrapper");
@@ -44,7 +45,10 @@ export default async function apiScraperWrapper(log: PassedLog) {
         const ayakashiInstance = apiPrelude();
 
         //initialize sessionDb
-        const {sessionDb, UserAgentDataModel} = await sessionDbInit(log.body.storeProjectFolder, {create: false});
+        const {sessionDb, UserAgentDataModel, CookieModel} = await sessionDbInit(log.body.storeProjectFolder, {create: false});
+
+        //cookies
+        const jar = await getCookieJar(sessionDb, CookieModel, {persistentSession: log.body.persistentSession});
 
         //user-agent setup
         const userAgentData = await getUserAgentData(
@@ -74,7 +78,8 @@ export default async function apiScraperWrapper(log: PassedLog) {
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
             gzipOrBrotli: true,
-            timeout: 10000
+            timeout: 10000,
+            jar: jar
         });
         attachRequest(ayakashiInstance, myRequest);
 
@@ -114,6 +119,8 @@ export default async function apiScraperWrapper(log: PassedLog) {
             opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             throw e;
         }
+        //update the cookie jar
+        await updateCookieJar(jar, sessionDb, CookieModel, {persistentSession: log.body.persistentSession});
         if (result) {
             await ayakashiInstance.yield(result);
         }
