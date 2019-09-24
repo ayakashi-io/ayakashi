@@ -1,4 +1,6 @@
 import {getInstance} from "../engine/browser";
+import {startBridge} from "../bridge/bridge";
+import {addConnectionRoutes} from "../bridge/connection";
 import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {v4 as uuid} from "uuid";
@@ -34,6 +36,7 @@ import {sessionDbInit} from "../store/sessionDb";
 import {getRandomPort} from "../utils/getRandomPort";
 import debug from "debug";
 const d = debug("ayakashi:runner");
+const SIGINT = "SIGINT";
 
 export async function run(projectFolder: string, config: Config, options: {
     resume: boolean,
@@ -100,6 +103,15 @@ export async function run(projectFolder: string, config: Config, options: {
         throw e;
     }
 
+    //start bridge
+    const {bridge, closeBridge} = await startBridge(config.config.bridgePort);
+    async function bridgeSigintListener() {
+        d("trap SIGINT, closing bridge");
+        await closeBridge();
+        process.removeListener(SIGINT, bridgeSigintListener);
+    }
+    process.on(SIGINT, bridgeSigintListener);
+
     let chromePath: string;
     if (config.config && config.config.chromePath) {
         chromePath = config.config.chromePath;
@@ -115,6 +127,7 @@ export async function run(projectFolder: string, config: Config, options: {
         if (isUsingNormalScraper(steps, config)) {
             d("using normal scraper(s), chrome will be spawned");
             headlessChrome = await launch(config, storeProjectFolder, chromePath);
+            addConnectionRoutes(bridge, headlessChrome);
         } else {
             d("using renderless scraper(s) only, chrome will not be spawned");
         }
@@ -183,7 +196,6 @@ export async function run(projectFolder: string, config: Config, options: {
             workerConcurrency: workerConcurrency,
             workerRestartAfter: 100
         });
-        const SIGINT = "SIGINT";
         async function sigintListener() {
             d("trap SIGINT, closing pipeproc");
             await pipeprocClient.shutdown();
@@ -229,6 +241,7 @@ export async function run(projectFolder: string, config: Config, options: {
         if (headlessChrome) {
             await headlessChrome.close();
         }
+        await closeBridge();
         await pipeprocClient.shutdown();
         if (!procWithError) {
             opLog.info("cleaning run state");
@@ -247,6 +260,11 @@ export async function run(projectFolder: string, config: Config, options: {
             if (headlessChrome) {
                 await headlessChrome.close();
             }
+        } catch (_e) {
+            d(_e);
+        }
+        try {
+            await closeBridge();
         } catch (_e) {
             d(_e);
         }
@@ -288,7 +306,6 @@ async function launch(config: Config, storeProjectFolder: string, chromePath: st
         headless: headless,
         chromePath: chromePath,
         autoOpenDevTools: autoOpenDevTools,
-        bridgePort: <number>(config.config!).bridgePort,
         protocolPort: <number>(config.config!).protocolPort,
         sessionDir: persistentSession ? pathResolve(storeProjectFolder, "chromium_session") : undefined,
         proxyUrl: proxyUrl,

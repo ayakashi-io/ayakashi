@@ -2,8 +2,6 @@ const CDP = require("chrome-remote-interface");
 import debug from "debug";
 import {launch, IBrowserInstance} from "./launcher";
 import {createTarget, Target} from "./createTarget";
-import {startBridge} from "./bridge";
-import {Server} from "http";
 import {getOpLog} from "../opLog/opLog";
 import {ICDPClient} from "./createConnection";
 
@@ -13,7 +11,6 @@ const HOST = "localhost";
 
 export interface IHeadlessChrome {
     chromeInstance: IBrowserInstance | null;
-    bridge: Server | null;
     init: (options: {
         chromePath: string,
         headless?: boolean,
@@ -24,7 +21,6 @@ export interface IHeadlessChrome {
         sessionDir?: string,
         windowWidth?: number,
         windowHeight?: number,
-        bridgePort: number,
         protocolPort: number
     }) => Promise<void>;
     close: () => Promise<void>;
@@ -36,14 +32,12 @@ const MAX_LAUNCH_ATTEMPTS = 3;
 
 export function getInstance(): IHeadlessChrome {
     const SIGINT = "SIGINT";
-    let BRIDGE_PORT: number;
     let isHeadless = true;
     let isPersistentSession = false;
     let masterConnection: ICDPClient;
     const opLog = getOpLog();
     return {
         chromeInstance: null,
-        bridge: null,
         init: async function(options) {
             if (this.chromeInstance) return;
             if (!options) throw new Error("init_options_not_set");
@@ -66,18 +60,16 @@ export function getInstance(): IHeadlessChrome {
             isHeadless = options.headless !== false;
             isPersistentSession = !!options.sessionDir;
             try {
-                BRIDGE_PORT = options.bridgePort;
-                this.bridge = await startBridge(this, BRIDGE_PORT);
                 masterConnection = await getMasterConnection(HOST, this.chromeInstance.port);
                 const sigintListener = async() => {
-                    d("trap SIGINT, killing bridge and chrome");
+                    d("trap SIGINT, closing chrome");
                     await this.close();
                     process.removeListener(SIGINT, sigintListener);
                 };
                 process.on(SIGINT, sigintListener);
             } catch (err) {
                 d(err);
-                throw new Error("could_not_start_bridge");
+                throw new Error("could not establish master connection");
             }
         },
         close: async function() {
@@ -100,21 +92,6 @@ export function getInstance(): IHeadlessChrome {
                 d(err);
                 opLog.error("Failed to close chrome");
             }
-            return new Promise((resolve, reject) => {
-                if (this.bridge) {
-                    this.bridge.close()
-                    .on("close", () => {
-                        this.bridge = null;
-                        resolve();
-                    })
-                    .on("error", (err) => {
-                        d(err);
-                        reject(new Error("could_not_close_bridge"));
-                    });
-                } else {
-                    resolve();
-                }
-            });
         },
         createTarget: async function() {
             if (this.chromeInstance) {

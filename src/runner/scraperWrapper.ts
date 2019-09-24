@@ -254,7 +254,7 @@ export default async function scraperWrapper(log: PassedLog) {
 }
 
 async function getTarget(port: number): Promise<Target | null> {
-    const resp = await request.post(`http://localhost:${port}/create_target`);
+    const resp = await request.post(`http://localhost:${port}/connection/create_target`);
     d("bridge response:", resp);
     if (resp) {
         const parsedResp = JSON.parse(resp);

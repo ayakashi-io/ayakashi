@@ -250,7 +250,7 @@ export async function createConnection(
                             await client.close();
                         }
                         if (!disabledBridge) {
-                            await request.post(`http://localhost:${bridgePort}/connection_released`, {
+                            await request.post(`http://localhost:${bridgePort}/connection/released`, {
                                 json: {
                                     targetId: target.targetId,
                                     browserContextId: target.browserContextId

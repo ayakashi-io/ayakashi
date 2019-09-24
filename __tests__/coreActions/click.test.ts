@@ -7,6 +7,8 @@ import {getChromePath} from "../../src/store/chromium";
 import {createStaticServer} from "../utils/startServer";
 import {getRandomPort} from "../utils/getRandomPort";
 import {getAyakashiInstance} from "../utils/getAyakashiInstance";
+import {startBridge} from "../../src/bridge/bridge";
+import {addConnectionRoutes} from "../../src/bridge/connection";
 
 let staticServerPort: number;
 let staticServer: http.Server;
@@ -14,6 +16,7 @@ let staticServer: http.Server;
 let headlessChrome: IHeadlessChrome;
 let bridgePort: number;
 let protocolPort: number;
+let closeBridge: () => Promise<void>;
 
 jest.setTimeout(600000);
 
@@ -54,15 +57,18 @@ describe("clicking tests", function() {
         headlessChrome = getInstance();
         bridgePort = await getRandomPort();
         protocolPort = await getRandomPort();
+        const b = await startBridge(bridgePort);
+        closeBridge = b.closeBridge;
+        addConnectionRoutes(b.bridge, headlessChrome);
         await headlessChrome.init({
             chromePath: chromePath,
-            bridgePort: bridgePort,
             protocolPort: protocolPort
         });
     });
 
     afterEach(async function() {
         await headlessChrome.close();
+        await closeBridge();
     });
 
     afterAll(function(done) {
