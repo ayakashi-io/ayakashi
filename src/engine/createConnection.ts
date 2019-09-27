@@ -4,10 +4,9 @@ import {Target} from "./createTarget";
 import {isRegExp} from "util";
 //@ts-ignore
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
-import {retry as asyncRetry} from "async";
-import {ExponentialStrategy} from "backoff";
 import request from "@ayakashi/request";
 import {EmulatorOptions} from "../runner/parseConfig";
+import {retryOnErrorOrTimeOut} from "../utils/retryOnErrorOrTimeout";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -442,55 +441,5 @@ function pipeEvent(
     connection.client.on(`${domain}.${eventName}`, listener);
     connection.unsubscribers.push(function() {
         connection.client.removeListener(`${domain}.${eventName}`, listener);
-    });
-}
-
-async function retryOnErrorOrTimeOut<T>(task: () => Promise<T>): Promise<T> {
-    const strategy = new ExponentialStrategy({
-        randomisationFactor: 0.5,
-        initialDelay: 100,
-        maxDelay: 1000,
-        factor: 2
-    });
-    let retried = 0;
-    return new Promise(function(resolve, reject) {
-        asyncRetry({
-            times: 10,
-            interval: function() {
-                return strategy.next();
-            }
-        }, function(cb) {
-            let resolved = false;
-            let aborted = false;
-            const timedOut = setTimeout(function() {
-                if (!resolved) {
-                    retried += 1;
-                    d(`connection creation/release timed out -`, `retries: ${retried}`);
-                    aborted = true;
-                    cb(new Error(`timed_out`));
-                }
-            }, 1000);
-            task()
-            .then(function(taskResult) {
-                if (!aborted) {
-                    resolved = true;
-                    clearTimeout(timedOut);
-                    cb(null, taskResult);
-                }
-            })
-            .catch(function(err: Error) {
-                if (!aborted) {
-                    resolved = true;
-                    clearTimeout(timedOut);
-                    cb(err);
-                }
-            });
-        }, function(err, taskResult: T) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(taskResult);
-            }
-        });
     });
 }

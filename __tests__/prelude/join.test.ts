@@ -5,7 +5,7 @@ import http from "http";
 import {getInstance, IHeadlessChrome} from "../../src/engine/browser";
 import {getChromePath} from "../../src/store/chromium";
 import {createStaticServer} from "../utils/startServer";
-import {getRandomPort} from "../utils/getRandomPort";
+import {getRandomPort} from "../../src/utils/getRandomPort";
 import {getAyakashiInstance} from "../utils/getAyakashiInstance";
 import {startBridge} from "../../src/bridge/bridge";
 import {addConnectionRoutes} from "../../src/bridge/connection";

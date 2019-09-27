@@ -4,6 +4,7 @@ import {launch, IBrowserInstance} from "./launcher";
 import {createTarget, Target} from "./createTarget";
 import {getOpLog} from "../opLog/opLog";
 import {ICDPClient} from "./createConnection";
+import {retryOnErrorOrTimeOut} from "../utils/retryOnErrorOrTimeout";
 
 const d = debug("ayakashi:engine:browser");
 
@@ -60,7 +61,9 @@ export function getInstance(): IHeadlessChrome {
             isHeadless = options.headless !== false;
             isPersistentSession = !!options.sessionDir;
             try {
-                masterConnection = await getMasterConnection(HOST, this.chromeInstance.port);
+                masterConnection = await retryOnErrorOrTimeOut(() => {
+                    return getMasterConnection(HOST, this.chromeInstance!.port);
+                });
                 const sigintListener = async() => {
                     d("trap SIGINT, closing chrome");
                     await this.close();
@@ -190,7 +193,12 @@ function sleep(delay: number) {
 
 async function getMasterConnection(host: string, port: number): Promise<ICDPClient> {
     const {webSocketDebuggerUrl} = await CDP.Version({host, port});
-    return CDP({
+    const masterConnection: ICDPClient = await CDP({
         target: webSocketDebuggerUrl || `ws://${host}:${port}/devtools/browser`
     });
+    if (!masterConnection.Target) {
+        throw new Error("could not establish master connection");
+    }
+
+    return masterConnection;
 }

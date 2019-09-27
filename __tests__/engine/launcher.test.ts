@@ -14,7 +14,7 @@ import {addConnectionRoutes} from "../../src/bridge/connection";
 import {Express} from "express";
 
 import {createStaticServer} from "../utils/startServer";
-import {getRandomPort} from "../utils/getRandomPort";
+import {getRandomPort} from "../../src/utils/getRandomPort";
 
 let staticServerPort: number;
 let staticServer: http.Server;
