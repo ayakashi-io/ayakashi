@@ -1,6 +1,7 @@
 import {getInstance} from "../engine/browser";
 import {startBridge} from "../bridge/bridge";
 import {addConnectionRoutes} from "../bridge/connection";
+import {addUserAgentRoutes} from "../bridge/userAgent";
 import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {v4 as uuid} from "uuid";
@@ -32,7 +33,7 @@ import {
     saveLastConfig,
     configChanged
 } from "../store/project";
-import {sessionDbInit} from "../store/sessionDb";
+import {sessionDbInit} from "../sessionDb/sessionDb";
 import {getRandomPort} from "../utils/getRandomPort";
 import debug from "debug";
 const d = debug("ayakashi:runner");
@@ -127,6 +128,7 @@ export async function run(projectFolder: string, config: Config, options: {
         if (isUsingNormalScraper(steps, config)) {
             d("using normal scraper(s), chrome will be spawned");
             headlessChrome = await launch(config, storeProjectFolder, chromePath);
+            //add bridge connection routes
             addConnectionRoutes(bridge, headlessChrome);
         } else {
             d("using renderless scraper(s) only, chrome will not be spawned");
@@ -169,8 +171,9 @@ export async function run(projectFolder: string, config: Config, options: {
         }
 
         //initialize sessionDb
-        const {sessionDb} = await sessionDbInit(storeProjectFolder, {create: true});
-        await sessionDb.close();
+        const {sessionDb, UserAgentDataModel} = await sessionDbInit(storeProjectFolder, {create: true});
+        //add bridge userAgent routes
+        addUserAgentRoutes(bridge, sessionDb, UserAgentDataModel);
 
         //launch pipeproc
         let workers: number;

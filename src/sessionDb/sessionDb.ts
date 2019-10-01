@@ -1,6 +1,6 @@
 import {Sequelize, JSON as jsonDataType, INTEGER, TEXT, BOOLEAN, Model, BuildOptions, DATE} from "sequelize";
 import {join as pathJoin} from "path";
-import {UserAgentDataType} from "../utils/userAgent";
+import {UserAgentDataType} from "./userAgent";
 //tslint:disable interface-name callable-types variable-name
 interface UserAgentData extends Model {
     readonly userAgentData: UserAgentDataType;

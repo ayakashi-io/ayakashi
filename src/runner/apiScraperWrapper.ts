@@ -5,9 +5,7 @@ import {apiPrelude} from "../prelude/apiPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {attachRequest} from "../prelude/actions/request";
 import {getOpLog} from "../opLog/opLog";
-import {sessionDbInit} from "../store/sessionDb";
-import {getUserAgentData} from "../utils/userAgent";
-import {getCookieJar, updateCookieJar} from "../utils/cookieStore";
+import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
 import debug from "debug";
 const d = debug("ayakashi:apiScraperWrapper");
@@ -22,6 +20,9 @@ type PassedLog = {
             emulatorOptions?: EmulatorOptions
         },
         module: string,
+        connectionConfig: {
+            bridgePort: number
+        },
         saveTopic: string,
         selfTopic: string,
         projectFolder: string,
@@ -41,27 +42,22 @@ export default async function apiScraperWrapper(log: PassedLog) {
     try {
         const opLog = getOpLog();
         opLog.info("running apiScraper", log.body.module);
+        const bridgeClient = getBridgeClient(log.body.connectionConfig.bridgePort);
 
         const ayakashiInstance = apiPrelude();
 
-        //initialize sessionDb
-        const {sessionDb, UserAgentDataModel, CookieModel} = await sessionDbInit(log.body.storeProjectFolder, {create: false});
-
         //cookies
-        const jar = await getCookieJar(sessionDb, CookieModel, {persistentSession: log.body.persistentSession});
+        // const jar = await getCookieJar(sessionDb, CookieModel, {persistentSession: log.body.persistentSession});
 
         //user-agent setup
-        const userAgentData = await getUserAgentData(
-            sessionDb,
-            UserAgentDataModel,
-            {
-                agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
-                platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
-            },
-            {
-                persistentSession: log.body.persistentSession
-            }
-        );
+        const userAgentData = await bridgeClient.getUserAgentData({
+            agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+            platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined,
+            persistentSession: log.body.persistentSession
+        });
+        if (!userAgentData) {
+            throw new Error("could not generate userAgent");
+        }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
         //attach the request API
@@ -78,8 +74,7 @@ export default async function apiScraperWrapper(log: PassedLog) {
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
             gzipOrBrotli: true,
-            timeout: 10000,
-            jar: jar
+            timeout: 10000
         });
         attachRequest(ayakashiInstance, myRequest);
 
@@ -106,7 +101,6 @@ export default async function apiScraperWrapper(log: PassedLog) {
             }
         } catch (e) {
             opLog.error(e.message);
-            await sessionDb.close();
             throw e;
         }
         //run the scraper
@@ -120,14 +114,13 @@ export default async function apiScraperWrapper(log: PassedLog) {
             throw e;
         }
         //update the cookie jar
-        await updateCookieJar(jar, sessionDb, CookieModel, {persistentSession: log.body.persistentSession});
+        // await updateCookieJar(jar, sessionDb, CookieModel, {persistentSession: log.body.persistentSession});
         if (result) {
             await ayakashiInstance.yield(result);
         }
         if (!result && !yieldWatcher.yieldedAtLeastOnce) {
             await ayakashiInstance.yield({continue: true});
         }
-        await sessionDb.close();
     } catch (e) {
         d(e);
         throw e;

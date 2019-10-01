@@ -1,7 +1,7 @@
 //@ts-ignore
 import UserAgent from "user-agents";
 import {EmulatorOptions} from "../runner/parseConfig";
-import {UserAgentDataStatic} from "../store/sessionDb";
+import {UserAgentDataStatic} from "./sessionDb";
 import {Sequelize} from "sequelize";
 
 export type UserAgentDataType = {userAgent: string, platform: string, vendor: string};
@@ -11,13 +11,11 @@ export async function getUserAgentData(
     userAgentModel: UserAgentDataStatic,
     input: {
         agent: EmulatorOptions["userAgent"] | undefined,
-        platform: EmulatorOptions["platform"] | undefined
-    },
-    options: {
+        platform: EmulatorOptions["platform"] | undefined,
         persistentSession: boolean
     }
 ): Promise<UserAgentDataType> {
-    if (options.persistentSession) {
+    if (input.persistentSession) {
         return sessionDb.transaction(async function(t) {
             //return the saved data if we have already persisted them
             const savedData = await userAgentModel.findOne({transaction: t});

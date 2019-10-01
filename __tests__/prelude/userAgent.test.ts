@@ -9,7 +9,7 @@ import {getRandomPort} from "../../src/utils/getRandomPort";
 import {getAyakashiInstance} from "../utils/getAyakashiInstance";
 import {startBridge} from "../../src/bridge/bridge";
 import {addConnectionRoutes} from "../../src/bridge/connection";
-import {generate} from "../../src/utils/userAgent";
+import {generate} from "../../src/sessionDb/userAgent";
 
 let staticServerPort: number;
 let staticServer: http.Server;

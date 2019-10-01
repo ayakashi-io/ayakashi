@@ -1,6 +1,6 @@
 import {Store, Cookie, CookieJar as JarStore} from "tough-cookie";
 import {Sequelize, Op} from "sequelize";
-import {CookieStatic} from "../store/sessionDb";
+import {CookieStatic} from "../sessionDb/sessionDb";
 import {CookieJar, jar} from "@ayakashi/request/core";
 import {eachSeries as asyncEach, retry as asyncRetry} from "async";
 import dayjs from "dayjs";

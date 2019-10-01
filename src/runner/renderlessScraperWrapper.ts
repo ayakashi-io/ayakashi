@@ -12,8 +12,7 @@ import {PipeProc} from "pipeproc";
 import {renderlessPrelude} from "../prelude/renderlessPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {getOpLog} from "../opLog/opLog";
-import {getUserAgentData} from "../utils/userAgent";
-import {sessionDbInit} from "../store/sessionDb";
+import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
 import debug from "debug";
 const d = debug("ayakashi:renderlessScraperWrapper");
@@ -40,6 +39,9 @@ type PassedLog = {
             }[]
         },
         module: string,
+        connectionConfig: {
+            bridgePort: number
+        },
         saveTopic: string,
         selfTopic: string,
         projectFolder: string,
@@ -59,24 +61,19 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
     try {
         const opLog = getOpLog();
         opLog.info("running renderlessScraper", log.body.module);
+        const bridgeClient = getBridgeClient(log.body.connectionConfig.bridgePort);
 
         const ayakashiInstance = await renderlessPrelude();
 
-        //initialize sessionDb
-        const {sessionDb, UserAgentDataModel} = await sessionDbInit(log.body.storeProjectFolder, {create: false});
-
         //user-agent setup
-        const userAgentData = await getUserAgentData(
-            sessionDb,
-            UserAgentDataModel,
-            {
-                agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
-                platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
-            },
-            {
-                persistentSession: log.body.persistentSession
-            }
-        );
+        const userAgentData = await bridgeClient.getUserAgentData({
+            agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+            platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined,
+            persistentSession: log.body.persistentSession
+        });
+        if (!userAgentData) {
+            throw new Error("could not generate userAgent");
+        }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
         //define the load methods
@@ -100,7 +97,6 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
                 loadLocalProps(ayakashiInstance, log.body.projectFolder);
             } else {
                 await ayakashiInstance.__connection.release();
-                await sessionDb.close();
                 throw new Error("Invalid page");
             }
             d("DOM built");
@@ -113,7 +109,6 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
                 loadLocalProps(ayakashiInstance, log.body.projectFolder);
             } else {
                 await ayakashiInstance.__connection.release();
-                await sessionDb.close();
                 throw new Error("Invalid page");
             }
             d("DOM built");
@@ -164,7 +159,6 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         } catch (e) {
             opLog.error(e.message);
             await ayakashiInstance.__connection.release();
-            await sessionDb.close();
             throw e;
         }
         //run the scraper
@@ -176,7 +170,6 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         } catch (e) {
             opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             await ayakashiInstance.__connection.release();
-            await sessionDb.close();
             throw e;
         }
         if (result) {
@@ -186,7 +179,6 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             await ayakashiInstance.yield({continue: true});
         }
         await ayakashiInstance.__connection.release();
-        await sessionDb.close();
     } catch (e) {
         d(e);
         throw e;
