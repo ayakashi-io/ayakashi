@@ -46,9 +46,6 @@ export default async function apiScraperWrapper(log: PassedLog) {
 
         const ayakashiInstance = apiPrelude();
 
-        //cookies
-        // const jar = await getCookieJar(sessionDb, CookieModel, {persistentSession: log.body.persistentSession});
-
         //user-agent setup
         const userAgentData = await bridgeClient.getUserAgentData({
             agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
@@ -113,8 +110,6 @@ export default async function apiScraperWrapper(log: PassedLog) {
             opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             throw e;
         }
-        //update the cookie jar
-        // await updateCookieJar(jar, sessionDb, CookieModel, {persistentSession: log.body.persistentSession});
         if (result) {
             await ayakashiInstance.yield(result);
         }
