@@ -34,7 +34,7 @@ await ayakashi.loadHtml("<body>hi</body>");
 ```
 */
     loadHtml: (this: IRenderlessAyakashiInstance, html: string) => Promise<void>;
-    __attachDOM: (this: IRenderlessAyakashiInstance, dom: JSDOM) => void;
+    __attachDOM: (this: IRenderlessAyakashiInstance, dom: JSDOM) => Promise<void>;
     __connection: {
         release: () => Promise<void>;
     };

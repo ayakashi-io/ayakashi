@@ -1,4 +1,3 @@
-import request from "@ayakashi/request";
 import requestCore from "@ayakashi/request/core";
 import {attachRequest} from "../prelude/actions/request";
 import {resolve as pathResolve} from "path";
@@ -76,44 +75,6 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
-        //define the load methods
-        ayakashiInstance.load = async function(url, timeout) {
-            d("loading url: ", url);
-            const html = await request.get(url, {
-                headers: {
-                    "User-Agent": userAgentData.userAgent,
-                    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-                    "accept-language": acceptLanguage
-                },
-                proxy: log.body.proxyUrl || undefined,
-                strictSSL: !log.body.ignoreCertificateErrors,
-                timeout: timeout || 10000,
-                gzipOrBrotli: true
-            });
-            d("url loaded");
-            d("building DOM");
-            if (html) {
-                await this.__attachDOM(new JSDOM(html));
-                loadLocalProps(ayakashiInstance, log.body.projectFolder);
-            } else {
-                await ayakashiInstance.__connection.release();
-                throw new Error("Invalid page");
-            }
-            d("DOM built");
-        };
-        ayakashiInstance.loadHtml = async function(html) {
-            d("url loaded");
-            d("building DOM");
-            if (html) {
-                await this.__attachDOM(new JSDOM(html));
-                loadLocalProps(ayakashiInstance, log.body.projectFolder);
-            } else {
-                await ayakashiInstance.__connection.release();
-                throw new Error("Invalid page");
-            }
-            d("DOM built");
-        };
-
         //attach the request API
         const myRequest = requestCore.defaults({
             headers: {
@@ -131,6 +92,35 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             timeout: 10000
         });
         attachRequest(ayakashiInstance, myRequest);
+
+        //define the load methods
+        ayakashiInstance.load = async function(url, timeout) {
+            d("loading url: ", url);
+            const html = await ayakashiInstance.get(url, {
+                timeout: timeout || 10000
+            });
+            d("url loaded");
+            d("building DOM");
+            if (html) {
+                await this.__attachDOM(new JSDOM(html));
+                loadLocalProps(ayakashiInstance, log.body.projectFolder);
+            } else {
+                await ayakashiInstance.__connection.release();
+                throw new Error("Invalid page");
+            }
+            d("DOM built");
+        };
+        ayakashiInstance.loadHtml = async function(html) {
+            d("building DOM");
+            if (html) {
+                await this.__attachDOM(new JSDOM(html));
+                loadLocalProps(ayakashiInstance, log.body.projectFolder);
+            } else {
+                await ayakashiInstance.__connection.release();
+                throw new Error("Invalid page");
+            }
+            d("DOM built");
+        };
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();
