@@ -4,10 +4,9 @@ import {Target} from "./createTarget";
 import {isRegExp} from "util";
 //@ts-ignore
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
-import {retry as asyncRetry} from "async";
-import {ExponentialStrategy} from "backoff";
-import request from "@ayakashi/request";
 import {EmulatorOptions} from "../runner/parseConfig";
+import {retryOnErrorOrTimeOut} from "../utils/retryOnErrorOrTimeout";
+import {getBridgeClient} from "../bridge/client";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -163,11 +162,11 @@ export interface IConnection {
 export async function createConnection(
     target: Target,
     bridgePort: number,
-    emulatorOptions?: EmulatorOptions,
-    disabledBridge?: boolean
+    emulatorOptions?: EmulatorOptions
 ): Promise<IConnection> {
     try {
         d("creating new connection", target.targetId);
+        const bridgeClient = getBridgeClient(bridgePort);
         const client: ICDPClient = await retryOnErrorOrTimeOut<ICDPClient>(async function() {
             const _client: ICDPClient = await CDP({target: target.webSocketDebuggerUrl});
             await Promise.all([
@@ -249,14 +248,7 @@ export async function createConnection(
                             d("closing client");
                             await client.close();
                         }
-                        if (!disabledBridge) {
-                            await request.post(`http://localhost:${bridgePort}/connection_released`, {
-                                json: {
-                                    targetId: target.targetId,
-                                    browserContextId: target.browserContextId
-                                }
-                            });
-                        }
+                        await bridgeClient.connectionReleased(target);
                         connection.active = false;
                     });
                     d(`connection released`);
@@ -442,55 +434,5 @@ function pipeEvent(
     connection.client.on(`${domain}.${eventName}`, listener);
     connection.unsubscribers.push(function() {
         connection.client.removeListener(`${domain}.${eventName}`, listener);
-    });
-}
-
-async function retryOnErrorOrTimeOut<T>(task: () => Promise<T>): Promise<T> {
-    const strategy = new ExponentialStrategy({
-        randomisationFactor: 0.5,
-        initialDelay: 100,
-        maxDelay: 1000,
-        factor: 2
-    });
-    let retried = 0;
-    return new Promise(function(resolve, reject) {
-        asyncRetry({
-            times: 10,
-            interval: function() {
-                return strategy.next();
-            }
-        }, function(cb) {
-            let resolved = false;
-            let aborted = false;
-            const timedOut = setTimeout(function() {
-                if (!resolved) {
-                    retried += 1;
-                    d(`connection creation/release timed out -`, `retries: ${retried}`);
-                    aborted = true;
-                    cb(new Error(`timed_out`));
-                }
-            }, 1000);
-            task()
-            .then(function(taskResult) {
-                if (!aborted) {
-                    resolved = true;
-                    clearTimeout(timedOut);
-                    cb(null, taskResult);
-                }
-            })
-            .catch(function(err: Error) {
-                if (!aborted) {
-                    resolved = true;
-                    clearTimeout(timedOut);
-                    cb(err);
-                }
-            });
-        }, function(err, taskResult: T) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(taskResult);
-            }
-        });
     });
 }

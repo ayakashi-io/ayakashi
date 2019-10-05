@@ -5,7 +5,7 @@ import {apiPrelude} from "../prelude/apiPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {attachRequest} from "../prelude/actions/request";
 import {getOpLog} from "../opLog/opLog";
-import {getUserAgentData} from "../utils/userAgent";
+import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
 import debug from "debug";
 const d = debug("ayakashi:apiScraperWrapper");
@@ -20,6 +20,9 @@ type PassedLog = {
             emulatorOptions?: EmulatorOptions
         },
         module: string,
+        connectionConfig: {
+            bridgePort: number
+        },
         saveTopic: string,
         selfTopic: string,
         projectFolder: string,
@@ -39,14 +42,19 @@ export default async function apiScraperWrapper(log: PassedLog) {
     try {
         const opLog = getOpLog();
         opLog.info("running apiScraper", log.body.module);
+        const bridgeClient = getBridgeClient(log.body.connectionConfig.bridgePort);
 
         const ayakashiInstance = apiPrelude();
 
         //user-agent setup
-        const userAgentData = getUserAgentData(
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
-        );
+        const userAgentData = await bridgeClient.getUserAgentData({
+            agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+            platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined,
+            persistentSession: log.body.persistentSession
+        });
+        if (!userAgentData) {
+            throw new Error("could not generate userAgent");
+        }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
         //attach the request API

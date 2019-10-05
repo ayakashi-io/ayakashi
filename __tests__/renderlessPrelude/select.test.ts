@@ -3,7 +3,7 @@ import "jest-extended";
 //tslint:enable
 import http from "http";
 import {createStaticServer} from "../utils/startServer";
-import {getRandomPort} from "../utils/getRandomPort";
+import {getRandomPort} from "../../src/utils/getRandomPort";
 import {getAyakashiInstance} from "../utils/getRenderlessAyakashiInstance";
 
 let staticServerPort: number;

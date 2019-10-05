@@ -5,9 +5,11 @@ import http from "http";
 import {getInstance, IHeadlessChrome} from "../../src/engine/browser";
 import {getChromePath} from "../../src/store/chromium";
 import {createStaticServer} from "../utils/startServer";
-import {getRandomPort} from "../utils/getRandomPort";
+import {getRandomPort} from "../../src/utils/getRandomPort";
 import {getAyakashiInstance} from "../utils/getAyakashiInstance";
-import {getUserAgentData} from "../../src/utils/userAgent";
+import {startBridge} from "../../src/bridge/bridge";
+import {addConnectionRoutes} from "../../src/bridge/connection";
+import {generate} from "../../src/sessionDb/userAgent";
 
 let staticServerPort: number;
 let staticServer: http.Server;
@@ -15,6 +17,7 @@ let staticServer: http.Server;
 let headlessChrome: IHeadlessChrome;
 let bridgePort: number;
 let protocolPort: number;
+let closeBridge: () => Promise<void>;
 
 jest.setTimeout(600000);
 
@@ -48,15 +51,18 @@ describe("userAgent tests", function() {
         headlessChrome = getInstance();
         bridgePort = await getRandomPort();
         protocolPort = await getRandomPort();
+        const b = await startBridge(bridgePort);
+        closeBridge = b.closeBridge;
+        addConnectionRoutes(b.bridge, headlessChrome);
         await headlessChrome.init({
             chromePath: chromePath,
-            bridgePort: bridgePort,
             protocolPort: protocolPort
         });
     });
 
     afterEach(async function() {
         await headlessChrome.close();
+        await closeBridge();
     });
 
     afterAll(function(done) {
@@ -68,7 +74,7 @@ describe("userAgent tests", function() {
     test("the default platform and userAgent are used", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const userAgentData = getUserAgentData(undefined, undefined);
+        const userAgentData = generate(undefined, undefined);
         await ayakashiInstance.__connection.client.Emulation.setUserAgentOverride({
             userAgent: userAgentData.userAgent,
             platform: userAgentData.platform,
@@ -90,7 +96,7 @@ describe("userAgent tests", function() {
     test("mobile defaults", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const userAgentData = getUserAgentData("mobile", undefined);
+        const userAgentData = generate("mobile", undefined);
         await ayakashiInstance.__connection.client.Emulation.setUserAgentOverride({
             userAgent: userAgentData.userAgent,
             platform: userAgentData.platform,
@@ -111,7 +117,7 @@ describe("userAgent tests", function() {
     test("chrome-desktop and custom platform", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const userAgentData = getUserAgentData("chrome-desktop", "MacIntel");
+        const userAgentData = generate("chrome-desktop", "MacIntel");
         await ayakashiInstance.__connection.client.Emulation.setUserAgentOverride({
             userAgent: userAgentData.userAgent,
             platform: userAgentData.platform,
@@ -133,7 +139,7 @@ describe("userAgent tests", function() {
     test("invalid platform-userAgent combination", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const userAgentData = getUserAgentData("chrome-desktop", "iPhone");
+        const userAgentData = generate("chrome-desktop", "iPhone");
         await ayakashiInstance.__connection.client.Emulation.setUserAgentOverride({
             userAgent: userAgentData.userAgent,
             platform: userAgentData.platform,
@@ -155,7 +161,7 @@ describe("userAgent tests", function() {
     test("browser language", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const userAgentData = getUserAgentData("chrome-desktop", "MacIntel");
+        const userAgentData = generate("chrome-desktop", "MacIntel");
         await ayakashiInstance.__connection.client.Emulation.setUserAgentOverride({
             userAgent: userAgentData.userAgent,
             platform: userAgentData.platform,

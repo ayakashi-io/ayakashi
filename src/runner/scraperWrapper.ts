@@ -1,8 +1,6 @@
-import request from "@ayakashi/request";
 import requestCore from "@ayakashi/request/core";
 import {createConnection, IConnection} from "../engine/createConnection";
 import {EmulatorOptions} from "../runner/parseConfig";
-import {Target} from "../engine/createTarget";
 import {prelude, IAyakashiInstance} from "../prelude/prelude";
 import {attachYields} from "../prelude/actions/yield";
 import {attachRequest} from "../prelude/actions/request";
@@ -10,7 +8,7 @@ import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {compile} from "../preloaderCompiler/compiler";
 import {getOpLog} from "../opLog/opLog";
-import {getUserAgentData} from "../utils/userAgent";
+import {getBridgeClient} from "../bridge/client";
 
 import {
     loadLocalActions,
@@ -69,10 +67,11 @@ export default async function scraperWrapper(log: PassedLog) {
     try {
         const opLog = getOpLog();
         opLog.info("running scraper", log.body.module);
+        const bridgeClient = getBridgeClient(log.body.connectionConfig.bridgePort);
         //get a tab and create a connection
         let tab;
         try {
-            tab = await getTarget(log.body.connectionConfig.bridgePort);
+            tab = await bridgeClient.getTarget();
             if (!tab) {
                 throw new Error("no_target");
             }
@@ -102,10 +101,14 @@ export default async function scraperWrapper(log: PassedLog) {
             await connection.client.Security.setIgnoreCertificateErrors({ignore: true});
         }
         //user-agent setup
-        const userAgentData = getUserAgentData(
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
-        );
+        const userAgentData = await bridgeClient.getUserAgentData({
+            agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+            platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined,
+            persistentSession: log.body.persistentSession
+        });
+        if (!userAgentData) {
+            throw new Error("could not generate userAgent");
+        }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
         await connection.client.Emulation.setUserAgentOverride({
             userAgent: userAgentData.userAgent,
@@ -237,21 +240,6 @@ export default async function scraperWrapper(log: PassedLog) {
     } catch (e) {
         d(e);
         throw e;
-    }
-}
-
-async function getTarget(port: number): Promise<Target | null> {
-    const resp = await request.post(`http://localhost:${port}/create_target`);
-    d("bridge response:", resp);
-    if (resp) {
-        const parsedResp = JSON.parse(resp);
-        if (parsedResp.ok) {
-            return parsedResp.target;
-        } else {
-            return null;
-        }
-    } else {
-        return null;
     }
 }
 

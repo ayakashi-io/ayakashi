@@ -12,7 +12,7 @@ import {PipeProc} from "pipeproc";
 import {renderlessPrelude} from "../prelude/renderlessPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {getOpLog} from "../opLog/opLog";
-import {getUserAgentData} from "../utils/userAgent";
+import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
 import debug from "debug";
 const d = debug("ayakashi:renderlessScraperWrapper");
@@ -39,6 +39,9 @@ type PassedLog = {
             }[]
         },
         module: string,
+        connectionConfig: {
+            bridgePort: number
+        },
         saveTopic: string,
         selfTopic: string,
         projectFolder: string,
@@ -58,14 +61,19 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
     try {
         const opLog = getOpLog();
         opLog.info("running renderlessScraper", log.body.module);
+        const bridgeClient = getBridgeClient(log.body.connectionConfig.bridgePort);
 
         const ayakashiInstance = await renderlessPrelude();
 
         //user-agent setup
-        const userAgentData = getUserAgentData(
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
-            (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined
-        );
+        const userAgentData = await bridgeClient.getUserAgentData({
+            agent: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.userAgent) || undefined,
+            platform: (log.body.config.emulatorOptions && log.body.config.emulatorOptions.platform) || undefined,
+            persistentSession: log.body.persistentSession
+        });
+        if (!userAgentData) {
+            throw new Error("could not generate userAgent");
+        }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
         //define the load methods
