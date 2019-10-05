@@ -48,6 +48,14 @@ export function getBridgeClient(port: number) {
                 d(e);
                 return null;
             }
+        },
+        connectionReleased: async function(target: Target): Promise<void> {
+            await request.post(`http://localhost:${port}/connection/released`, {
+                json: {
+                    targetId: target.targetId,
+                    browserContextId: target.browserContextId
+                }
+            });
         }
     };
 }

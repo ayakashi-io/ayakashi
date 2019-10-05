@@ -4,9 +4,9 @@ import {Target} from "./createTarget";
 import {isRegExp} from "util";
 //@ts-ignore
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
-import request from "@ayakashi/request";
 import {EmulatorOptions} from "../runner/parseConfig";
 import {retryOnErrorOrTimeOut} from "../utils/retryOnErrorOrTimeout";
+import {getBridgeClient} from "../bridge/client";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -162,11 +162,11 @@ export interface IConnection {
 export async function createConnection(
     target: Target,
     bridgePort: number,
-    emulatorOptions?: EmulatorOptions,
-    disabledBridge?: boolean
+    emulatorOptions?: EmulatorOptions
 ): Promise<IConnection> {
     try {
         d("creating new connection", target.targetId);
+        const bridgeClient = getBridgeClient(bridgePort);
         const client: ICDPClient = await retryOnErrorOrTimeOut<ICDPClient>(async function() {
             const _client: ICDPClient = await CDP({target: target.webSocketDebuggerUrl});
             await Promise.all([
@@ -248,14 +248,7 @@ export async function createConnection(
                             d("closing client");
                             await client.close();
                         }
-                        if (!disabledBridge) {
-                            await request.post(`http://localhost:${bridgePort}/connection/released`, {
-                                json: {
-                                    targetId: target.targetId,
-                                    browserContextId: target.browserContextId
-                                }
-                            });
-                        }
+                        await bridgeClient.connectionReleased(target);
                         connection.active = false;
                     });
                     d(`connection released`);
