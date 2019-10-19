@@ -77,7 +77,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
         //get cookie jar
-        const jar = await getCookieJar(log.body.connectionConfig.bridgePort, {
+        const {jar} = await getCookieJar(log.body.connectionConfig.bridgePort, {
             persistentSession: log.body.persistentSession
         });
 

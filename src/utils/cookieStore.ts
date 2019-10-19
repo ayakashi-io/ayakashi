@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 
 //tslint:disable interface-name variable-name
 
-export function getCookieUrl(cookie: Cookie.Serialized): string {
+export function getCookieUrl(cookie: Cookie | Cookie.Serialized): string {
     let url = "";
     if (cookie.secure) {
         url += "https://";
@@ -17,6 +17,13 @@ export function getCookieUrl(cookie: Cookie.Serialized): string {
     url += (cookie.path || "");
 
     return url;
+}
+
+export function toCookieString(cookie: Cookie | Cookie.Serialized) {
+    if (!cookie) return "";
+    const cookieObject = Cookie.fromJSON(cookie);
+    if (!cookieObject) return "";
+    return cookieObject.cookieString();
 }
 
 export interface DbCookieStore extends Store {

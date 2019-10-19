@@ -9,6 +9,8 @@ import {PipeProc} from "pipeproc";
 import {compile} from "../preloaderCompiler/compiler";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
+import {getCookieJar, updateCookieJar} from "./cookies";
+import {getCookieUrl, toCookieString} from "../utils/cookieStore";
 
 import {
     loadLocalActions,
@@ -81,7 +83,7 @@ export default async function scraperWrapper(log: PassedLog) {
             throw e;
         }
 
-        let connection;
+        let connection: IConnection;
         try {
             connection = await createConnection(
                 tab,
@@ -116,6 +118,44 @@ export default async function scraperWrapper(log: PassedLog) {
             acceptLanguage: acceptLanguage
         });
 
+        //get cookie jar
+        const {jar, cookies} = await getCookieJar(log.body.connectionConfig.bridgePort, {
+            persistentSession: log.body.persistentSession
+        });
+        //add all cookies from the jar to chrome
+        if (cookies.length > 0) {
+            await connection.client.Network.setCookies({
+                cookies: cookies.map(function(cookie) {
+                    return {
+                        name: cookie.key,
+                        value: cookie.value,
+                        url: getCookieUrl(cookie),
+                        domain: cookie.domain || undefined,
+                        path: cookie.path || undefined,
+                        secure: cookie.secure,
+                        httpOnly: cookie.httpOnly
+                    };
+                })
+            });
+        }
+        //add all chrome cookies to jar and to the persistent store
+        connection.unsubscribers.push(connection.client.Page.domContentEventFired(async function() {
+            const chromeCookies = await connection.client.Network.getCookies();
+            chromeCookies.cookies.forEach(function(chromeCookie) {
+                jar.setCookie(toCookieString({
+                    key: chromeCookie.name,
+                    value: chromeCookie.value,
+                    domain: chromeCookie.domain,
+                    path: chromeCookie.path,
+                    secure: chromeCookie.secure,
+                    httpOnly: chromeCookie.httpOnly
+                }), getCookieUrl(chromeCookie));
+            });
+            await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
+                persistentSession: log.body.persistentSession
+            });
+        }));
+
         //check pipes and initialize the instance using the prelude
         if (log.body.config.pipeConsole !== false) {
             connection.pipe.console(function(text) {
@@ -145,7 +185,8 @@ export default async function scraperWrapper(log: PassedLog) {
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
             gzipOrBrotli: true,
-            timeout: 10000
+            timeout: 10000,
+            jar: jar
         });
         attachRequest(ayakashiInstance, myRequest);
 

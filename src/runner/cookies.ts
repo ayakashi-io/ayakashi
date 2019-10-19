@@ -1,10 +1,13 @@
 import {Cookie, CookieJar as JarStore} from "tough-cookie";
 import {CookieJar, jar} from "@ayakashi/request/core";
-import {getCookieUrl} from "../utils/cookieStore";
+import {getCookieUrl, toCookieString} from "../utils/cookieStore";
 import {getBridgeClient} from "../bridge/client";
 
 //tslint:disable interface-name variable-name
-export async function getCookieJar(port: number, options: {persistentSession: boolean}): Promise<CookieJar> {
+export async function getCookieJar(
+    port: number,
+    options: {persistentSession: boolean}
+): Promise<{jar: CookieJar, cookies: Cookie[]}> {
     if (options.persistentSession) {
         const bridgeClient = getBridgeClient(port);
         //create a new memory jar and add any cookies we have on the persistent store to it
@@ -12,16 +15,16 @@ export async function getCookieJar(port: number, options: {persistentSession: bo
         const cookies = await bridgeClient.getCookieJar();
         return new Promise(function(resolve, _reject) {
             cookies.forEach(function(cookie) {
-                memJar.setCookie(String(Cookie.fromJSON(cookie)), getCookieUrl(<Cookie>cookie), {
+                memJar.setCookie(toCookieString(cookie), getCookieUrl(cookie), {
                     now: new Date(cookie.creation),
                     ignoreError: true
                 });
             });
-            resolve(memJar);
+            resolve({jar: memJar, cookies: <Cookie[]>cookies});
         });
     } else {
         //just return a new memory jar
-        return jar();
+        return {jar: jar(), cookies: []};
     }
 }
 
