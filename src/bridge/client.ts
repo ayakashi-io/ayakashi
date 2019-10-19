@@ -2,6 +2,7 @@ import request from "@ayakashi/request";
 import {Target} from "../engine/createTarget";
 import {UserAgentDataType} from "../sessionDb/userAgent";
 import {EmulatorOptions} from "../runner/parseConfig";
+import {Cookie} from "tough-cookie";
 import debug from "debug";
 
 const d = debug("ayakashi:bridge:client");
@@ -56,6 +57,36 @@ export function getBridgeClient(port: number) {
                     browserContextId: target.browserContextId
                 }
             });
+        },
+        getCookieJar: async function(): Promise<Cookie.Serialized[]> {
+            try {
+                const resp = await request.post(`http://localhost:${port}/cookies/get_jar`);
+                d("get_jar response:", resp);
+                if (resp) {
+                    const parsedResp: {ok: boolean, cookies: Cookie.Serialized[]} = JSON.parse(resp);
+                    if (resp.ok) {
+                        return parsedResp.cookies;
+                    } else {
+                        return [];
+                    }
+                } else {
+                    return [];
+                }
+            } catch (e) {
+                d(e);
+                return [];
+            }
+        },
+        updateCookieJar: async function(cookies: Cookie.Serialized[]): Promise<void> {
+            try {
+                await request.post(`http://localhost:${port}/cookies/update_jar`, {
+                    json: {
+                        cookies: cookies
+                    }
+                });
+            } catch (e) {
+                d(e);
+            }
         }
     };
 }

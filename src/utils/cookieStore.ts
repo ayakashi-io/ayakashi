@@ -1,61 +1,12 @@
-import {Store, Cookie, CookieJar as JarStore} from "tough-cookie";
+import {Store, Cookie} from "tough-cookie";
 import {Sequelize, Op} from "sequelize";
 import {CookieStatic} from "../sessionDb/sessionDb";
-import {CookieJar, jar} from "@ayakashi/request/core";
-import {eachSeries as asyncEach, retry as asyncRetry} from "async";
+import {retry as asyncRetry} from "async";
 import dayjs from "dayjs";
-import debug from "debug";
-const d = debug("ayakashi:Cookie");
 
 //tslint:disable interface-name variable-name
 
-export async function getCookieJar(sessionDb: Sequelize, CookieModel: CookieStatic, options: {persistentSession: boolean}): Promise<CookieJar> {
-    if (options.persistentSession) {
-        d("restoring jar");
-        //create a new memory jar and add any cookies we have on the persistent store to it
-        const memJar = jar();
-        const storeJar = new JarStore(new CookieStore(sessionDb, CookieModel));
-        return new Promise(function(resolve, reject) {
-            storeJar.serialize(function(err, serialized) {
-                if (err) return reject(err);
-                serialized.cookies.forEach(function(cookie) {
-                    memJar.setCookie(String(Cookie.fromJSON(cookie)), getCookieUrl(<Cookie>cookie), {
-                        now: new Date(cookie.creation),
-                        ignoreError: true
-                    });
-                });
-                d("jar restored");
-                resolve(memJar);
-            });
-        });
-    } else {
-        //just return a new memory jar
-        return jar();
-    }
-}
-
-export async function updateCookieJar(memJar: CookieJar, sessionDb: Sequelize, CookieModel: CookieStatic, options: {persistentSession: boolean}) {
-    if (!options.persistentSession) return;
-    d("updating jar");
-    //@ts-ignore
-    const memStore: JarStore = memJar._jar;
-    const cookies = memStore.serializeSync().cookies;
-    const storeJar = new JarStore(new CookieStore(sessionDb, CookieModel));
-    return new Promise(function(resolve, reject) {
-        asyncEach(cookies, function(cookie, next) {
-            storeJar.setCookie(<Cookie>Cookie.fromJSON(cookie), getCookieUrl(cookie), next);
-        }, function(err) {
-            if (err) {
-                reject(err);
-            } else {
-                d("jar updated");
-                resolve();
-            }
-        });
-    });
-}
-
-function getCookieUrl(cookie: Cookie.Serialized): string {
+export function getCookieUrl(cookie: Cookie.Serialized): string {
     let url = "";
     if (cookie.secure) {
         url += "https://";
@@ -68,12 +19,12 @@ function getCookieUrl(cookie: Cookie.Serialized): string {
     return url;
 }
 
-interface CookieStore extends Store {
+export interface DbCookieStore extends Store {
     sessionDb: Sequelize;
     CookieModel: CookieStatic;
 }
 
-class CookieStore extends Store {
+export class DbCookieStore extends Store {
     constructor(sessionDb: Sequelize, CookieModel: CookieStatic) {
         super();
         this.sessionDb = sessionDb;

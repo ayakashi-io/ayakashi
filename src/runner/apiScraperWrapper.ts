@@ -7,6 +7,7 @@ import {attachRequest} from "../prelude/actions/request";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
+import {getCookieJar, updateCookieJar} from "./cookies";
 import debug from "debug";
 const d = debug("ayakashi:apiScraperWrapper");
 
@@ -57,6 +58,10 @@ export default async function apiScraperWrapper(log: PassedLog) {
         }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
+        //get cookie jar
+        const jar = await getCookieJar(log.body.connectionConfig.bridgePort, {
+            persistentSession: log.body.persistentSession
+        });
         //attach the request API
         const myRequest = requestCore.defaults({
             headers: {
@@ -71,7 +76,8 @@ export default async function apiScraperWrapper(log: PassedLog) {
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
             gzipOrBrotli: true,
-            timeout: 10000
+            timeout: 10000,
+            jar: jar
         });
         attachRequest(ayakashiInstance, myRequest);
 
@@ -110,6 +116,10 @@ export default async function apiScraperWrapper(log: PassedLog) {
             opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             throw e;
         }
+        //update the cookie jar
+        await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
+            persistentSession: log.body.persistentSession
+        });
         if (result) {
             await ayakashiInstance.yield(result);
         }

@@ -13,6 +13,7 @@ import {attachYields} from "../prelude/actions/yield";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
+import {getCookieJar, updateCookieJar} from "./cookies";
 import debug from "debug";
 const d = debug("ayakashi:renderlessScraperWrapper");
 
@@ -75,6 +76,11 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
+        //get cookie jar
+        const jar = await getCookieJar(log.body.connectionConfig.bridgePort, {
+            persistentSession: log.body.persistentSession
+        });
+
         //attach the request API
         const myRequest = requestCore.defaults({
             headers: {
@@ -89,7 +95,8 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
             gzipOrBrotli: true,
-            timeout: 10000
+            timeout: 10000,
+            jar: jar
         });
         attachRequest(ayakashiInstance, myRequest);
 
@@ -162,6 +169,10 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             await ayakashiInstance.__connection.release();
             throw e;
         }
+        //update the cookie jar
+        await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
+            persistentSession: log.body.persistentSession
+        });
         if (result) {
             await ayakashiInstance.yield(result);
         }
