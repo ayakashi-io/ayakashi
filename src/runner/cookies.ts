@@ -1,6 +1,6 @@
 import {Cookie} from "tough-cookie";
 import {CookieJar, jar} from "@ayakashi/request/core";
-import {getCookieUrl, toCookieString, getAllCookiesFromRequestJar} from "../utils/cookieStore";
+import {getCookieUrl, toCookieString, getAllCookiesFromRequestJar} from "../sessionDb/cookieStore";
 import {getBridgeClient} from "../bridge/client";
 
 //tslint:disable interface-name variable-name

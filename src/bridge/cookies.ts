@@ -2,7 +2,7 @@ import {Router, Express, json} from "express";
 import {eachSeries as asyncEach} from "async";
 import {Cookie, CookieJar as JarStore} from "tough-cookie";
 import {CookieStatic} from "../sessionDb/sessionDb";
-import {DbCookieStore, getCookieUrl} from "../utils/cookieStore";
+import {DbCookieStore, getCookieUrl} from "../sessionDb/cookieStore";
 import {Sequelize} from "sequelize";
 import debug from "debug";
 

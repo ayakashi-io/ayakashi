@@ -10,7 +10,7 @@ import {compile} from "../preloaderCompiler/compiler";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
 import {getCookieJar, updateCookieJar} from "./cookies";
-import {getCookieUrl, toCookieString, getAllCookiesFromRequestJar} from "../utils/cookieStore";
+import {getCookieUrl, toCookieString, getAllCookiesFromRequestJar} from "../sessionDb/cookieStore";
 
 import {
     loadLocalActions,
