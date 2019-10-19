@@ -1,6 +1,6 @@
-import {Cookie, CookieJar as JarStore} from "tough-cookie";
+import {Cookie} from "tough-cookie";
 import {CookieJar, jar} from "@ayakashi/request/core";
-import {getCookieUrl, toCookieString} from "../utils/cookieStore";
+import {getCookieUrl, toCookieString, getAllCookiesFromRequestJar} from "../utils/cookieStore";
 import {getBridgeClient} from "../bridge/client";
 
 //tslint:disable interface-name variable-name
@@ -31,8 +31,6 @@ export async function getCookieJar(
 export async function updateCookieJar(port: number, memJar: CookieJar, options: {persistentSession: boolean}) {
     if (!options.persistentSession) return;
     const bridgeClient = getBridgeClient(port);
-    //@ts-ignore
-    const memStore: JarStore = memJar._jar;
-    const cookies = memStore.serializeSync().cookies;
+    const cookies = getAllCookiesFromRequestJar(memJar);
     await bridgeClient.updateCookieJar(cookies);
 }

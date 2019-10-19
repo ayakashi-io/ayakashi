@@ -10,7 +10,7 @@ import {compile} from "../preloaderCompiler/compiler";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
 import {getCookieJar, updateCookieJar} from "./cookies";
-import {getCookieUrl, toCookieString} from "../utils/cookieStore";
+import {getCookieUrl, toCookieString, getAllCookiesFromRequestJar} from "../utils/cookieStore";
 
 import {
     loadLocalActions,
@@ -188,7 +188,29 @@ export default async function scraperWrapper(log: PassedLog) {
             timeout: 10000,
             jar: jar
         });
-        attachRequest(ayakashiInstance, myRequest);
+        attachRequest(ayakashiInstance, myRequest, async function() {
+            const requestCookies = getAllCookiesFromRequestJar(jar);
+            //sync request cookies with chrome
+            if (requestCookies.length > 0) {
+                await connection.client.Network.setCookies({
+                    cookies: requestCookies.map(function(cookie) {
+                        return {
+                            name: cookie.key,
+                            value: cookie.value,
+                            url: getCookieUrl(cookie),
+                            domain: cookie.domain || undefined,
+                            path: cookie.path || undefined,
+                            secure: cookie.secure,
+                            httpOnly: cookie.httpOnly
+                        };
+                    })
+                });
+            }
+            //sync request cookies with the persistent store
+            await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
+                persistentSession: log.body.persistentSession
+            });
+        });
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();

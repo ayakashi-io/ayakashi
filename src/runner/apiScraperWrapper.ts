@@ -79,7 +79,12 @@ export default async function apiScraperWrapper(log: PassedLog) {
             timeout: 10000,
             jar: jar
         });
-        attachRequest(ayakashiInstance, myRequest);
+        attachRequest(ayakashiInstance, myRequest, async function() {
+            //sync request cookies with the persistent store
+            await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
+                persistentSession: log.body.persistentSession
+            });
+        });
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();
@@ -116,10 +121,6 @@ export default async function apiScraperWrapper(log: PassedLog) {
             opLog.error(`There was an error while running scraper <${log.body.module}> -`, e.message, e.stack);
             throw e;
         }
-        //update the cookie jar
-        await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
-            persistentSession: log.body.persistentSession
-        });
         if (result) {
             await ayakashiInstance.yield(result);
         }

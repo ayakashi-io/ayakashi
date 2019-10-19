@@ -98,7 +98,12 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             timeout: 10000,
             jar: jar
         });
-        attachRequest(ayakashiInstance, myRequest);
+        attachRequest(ayakashiInstance, myRequest, async function() {
+            //sync request cookies with the persistent store
+            await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
+                persistentSession: log.body.persistentSession
+            });
+        });
 
         //define the load methods
         ayakashiInstance.load = async function(url, timeout) {
@@ -169,10 +174,6 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             await ayakashiInstance.__connection.release();
             throw e;
         }
-        //update the cookie jar
-        await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
-            persistentSession: log.body.persistentSession
-        });
         if (result) {
             await ayakashiInstance.yield(result);
         }
