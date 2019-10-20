@@ -1,8 +1,9 @@
 import {Router, Express, json} from "express";
 import {eachSeries as asyncEach} from "async";
-import {Cookie, CookieJar as JarStore} from "tough-cookie";
+import {Cookie, CookieJar} from "tough-cookie";
 import {CookieStatic} from "../sessionDb/sessionDb";
-import {DbCookieStore, getCookieUrl} from "../sessionDb/cookieStore";
+import {DbCookieStore} from "../sessionDb/cookieStore";
+import {getCookieUrl} from "../utils/cookieHelpers";
 import {Sequelize} from "sequelize";
 import debug from "debug";
 
@@ -17,7 +18,7 @@ export function addCookiesRoutes(app: Express, sessionDb: Sequelize, CookieModel
     router.post("/get_jar", async function(_req, res) {
         d("restoring jar");
         try {
-            const storeJar = new JarStore(new DbCookieStore(sessionDb, CookieModel));
+            const storeJar = new CookieJar(new DbCookieStore(sessionDb, CookieModel));
             storeJar.serialize(function(err, serialized) {
                 if (err) {
                     d(err);
@@ -40,9 +41,13 @@ export function addCookiesRoutes(app: Express, sessionDb: Sequelize, CookieModel
         d("updating jar");
         try {
             const cookies: Cookie.Serialized[] = req.body.cookies;
-            const storeJar = new JarStore(new DbCookieStore(sessionDb, CookieModel));
-            asyncEach(cookies, function(cookie, next) {
-                storeJar.setCookie(<Cookie>Cookie.fromJSON(cookie), getCookieUrl(cookie), next);
+            const storeJar = new CookieJar(new DbCookieStore(sessionDb, CookieModel));
+            asyncEach(cookies, function(cookieObject, next) {
+                const cookie = Cookie.fromJSON(cookieObject);
+                if (!cookie) {
+                    return next();
+                }
+                storeJar.setCookie(cookie, getCookieUrl(cookie), next);
             }, function(err) {
                 if (err) {
                     d(err);

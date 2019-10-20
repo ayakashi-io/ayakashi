@@ -12,7 +12,7 @@ const d = debug("ayakashi:engine:connection");
 
 type Unsubscriber = () => void;
 
-type ChromeCookie = {
+export type ChromeCookie = {
     name: string;
     value: string;
     url?: string;

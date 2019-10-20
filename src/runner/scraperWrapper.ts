@@ -10,7 +10,13 @@ import {compile} from "../preloaderCompiler/compiler";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
 import {getCookieJar, updateCookieJar} from "./cookies";
-import {getCookieUrl, toCookieString, getAllCookiesFromRequestJar} from "../sessionDb/cookieStore";
+import {
+    getCookieUrl,
+    toCookieString,
+    getAllCookiesFromRequestJar,
+    toChromeCookies,
+    toRequestCookies
+} from "../utils/cookieHelpers";
 
 import {
     loadLocalActions,
@@ -125,31 +131,14 @@ export default async function scraperWrapper(log: PassedLog) {
         //add all cookies from the jar to chrome
         if (cookies.length > 0) {
             await connection.client.Network.setCookies({
-                cookies: cookies.map(function(cookie) {
-                    return {
-                        name: cookie.key,
-                        value: cookie.value,
-                        url: getCookieUrl(cookie),
-                        domain: cookie.domain || undefined,
-                        path: cookie.path || undefined,
-                        secure: cookie.secure,
-                        httpOnly: cookie.httpOnly
-                    };
-                })
+                cookies: toChromeCookies(cookies)
             });
         }
-        //add all chrome cookies to jar and to the persistent store
+        //add all chrome cookies to jar and to the persistent store after every page load
         connection.unsubscribers.push(connection.client.Page.domContentEventFired(async function() {
             const chromeCookies = await connection.client.Network.getCookies();
-            chromeCookies.cookies.forEach(function(chromeCookie) {
-                jar.setCookie(toCookieString({
-                    key: chromeCookie.name,
-                    value: chromeCookie.value,
-                    domain: chromeCookie.domain,
-                    path: chromeCookie.path,
-                    secure: chromeCookie.secure,
-                    httpOnly: chromeCookie.httpOnly
-                }), getCookieUrl(chromeCookie));
+            toRequestCookies(chromeCookies.cookies).forEach(function(chromeCookie) {
+                jar.setCookie(toCookieString(chromeCookie), getCookieUrl(chromeCookie));
             });
             await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
                 persistentSession: log.body.persistentSession
@@ -193,17 +182,7 @@ export default async function scraperWrapper(log: PassedLog) {
             //sync request cookies with chrome
             if (requestCookies.length > 0) {
                 await connection.client.Network.setCookies({
-                    cookies: requestCookies.map(function(cookie) {
-                        return {
-                            name: cookie.key,
-                            value: cookie.value,
-                            url: getCookieUrl(cookie),
-                            domain: cookie.domain || undefined,
-                            path: cookie.path || undefined,
-                            secure: cookie.secure,
-                            httpOnly: cookie.httpOnly
-                        };
-                    })
+                    cookies: toChromeCookies(requestCookies)
                 });
             }
             //sync request cookies with the persistent store

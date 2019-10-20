@@ -2,36 +2,9 @@ import {Store, Cookie} from "tough-cookie";
 import {Sequelize, Op} from "sequelize";
 import {CookieStatic} from "./sessionDb";
 import {retry as asyncRetry} from "async";
-import {CookieJar} from "@ayakashi/request/core";
 import dayjs from "dayjs";
 
 //tslint:disable interface-name variable-name
-
-export function getAllCookiesFromRequestJar(requestjar: CookieJar): Cookie[] {
-    //@ts-ignore
-    const memStore: JarStore = requestjar._jar;
-    return memStore.serializeSync().cookies;
-}
-
-export function getCookieUrl(cookie: Cookie | Cookie.Serialized): string {
-    let url = "";
-    if (cookie.secure) {
-        url += "https://";
-    } else {
-        url += "http://";
-    }
-    url += cookie.domain;
-    url += (cookie.path || "");
-
-    return url;
-}
-
-export function toCookieString(cookie: Cookie | Cookie.Serialized) {
-    if (!cookie) return "";
-    const cookieObject = Cookie.fromJSON(cookie);
-    if (!cookieObject) return "";
-    return cookieObject.cookieString();
-}
 
 export interface DbCookieStore extends Store {
     sessionDb: Sequelize;
