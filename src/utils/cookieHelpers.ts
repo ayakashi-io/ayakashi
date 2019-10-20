@@ -5,7 +5,14 @@ import {ChromeCookie} from "../engine/createConnection";
 export function getAllCookiesFromRequestJar(requestjar: CookieJar): Cookie[] {
     //@ts-ignore
     const memStore = requestjar._jar;
-    return memStore.serializeSync().cookies;
+    const cookies: Cookie.Serialized[] = memStore.serializeSync().cookies;
+    return cookies
+        .map(function(cookie) {
+            return Cookie.fromJSON(cookie);
+        })
+        .filter(function(cookie) {
+            return cookie !== null;
+        }) as Cookie[];
 }
 
 export function toChromeCookies(cookies: Cookie[]): ChromeCookie[] {
@@ -22,20 +29,27 @@ export function toChromeCookies(cookies: Cookie[]): ChromeCookie[] {
     });
 }
 
-export function toRequestCookies(cookies: ChromeCookie[]): Cookie.Serialized[] {
-    return cookies.map(function(chromeCookie) {
-        return {
-            key: chromeCookie.name,
-            value: chromeCookie.value,
-            domain: chromeCookie.domain,
-            path: chromeCookie.path,
-            secure: chromeCookie.secure,
-            httpOnly: chromeCookie.httpOnly
-        };
-    });
+export function toRequestCookies(cookies: ChromeCookie[]): Cookie[] {
+    return cookies
+        .map(function(chromeCookie) {
+            return {
+                key: chromeCookie.name,
+                value: chromeCookie.value,
+                domain: chromeCookie.domain,
+                path: chromeCookie.path,
+                secure: chromeCookie.secure,
+                httpOnly: chromeCookie.httpOnly
+            };
+        })
+        .map(function(cookie) {
+            return Cookie.fromJSON(cookie);
+        })
+        .filter(function(cookie) {
+            return cookie !== null;
+        }) as Cookie[];
 }
 
-export function getCookieUrl(cookie: Cookie | Cookie.Serialized): string {
+export function getCookieUrl(cookie: Cookie): string {
     let url = "";
     if (cookie.secure) {
         url += "https://";
@@ -48,7 +62,7 @@ export function getCookieUrl(cookie: Cookie | Cookie.Serialized): string {
     return url;
 }
 
-export function toCookieString(cookie: Cookie | Cookie.Serialized) {
+export function toCookieString(cookie: Cookie): string {
     if (!cookie) return "";
     const cookieObject = Cookie.fromJSON(cookie);
     if (!cookieObject) return "";

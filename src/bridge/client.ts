@@ -58,14 +58,20 @@ export function getBridgeClient(port: number) {
                 }
             });
         },
-        getCookieJar: async function(): Promise<Cookie.Serialized[]> {
+        getCookieJar: async function(): Promise<Cookie[]> {
             try {
                 const resp = await request.post(`http://localhost:${port}/cookies/get_jar`);
                 d("get_jar response:", resp);
                 if (resp) {
                     const parsedResp: {ok: boolean, cookies: Cookie.Serialized[]} = JSON.parse(resp);
                     if (resp.ok) {
-                        return parsedResp.cookies;
+                        return parsedResp.cookies
+                            .map(function(cookie) {
+                                return Cookie.fromJSON(cookie);
+                            })
+                            .filter(function(cookie) {
+                                return cookie !== null;
+                            }) as Cookie[];
                     } else {
                         return [];
                     }
@@ -77,11 +83,11 @@ export function getBridgeClient(port: number) {
                 return [];
             }
         },
-        updateCookieJar: async function(cookies: Cookie.Serialized[]): Promise<void> {
+        updateCookieJar: async function(cookies: Cookie[]): Promise<void> {
             try {
                 await request.post(`http://localhost:${port}/cookies/update_jar`, {
                     json: {
-                        cookies: cookies
+                        cookies: cookies.map(cookie => cookie.toJSON())
                     }
                 });
             } catch (e) {

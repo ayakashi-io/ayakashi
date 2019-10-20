@@ -13,14 +13,18 @@ export async function getCookieJar(
         //create a new memory jar and add any cookies we have on the persistent store to it
         const memJar = jar();
         const cookies = await bridgeClient.getCookieJar();
-        return new Promise(function(resolve, _reject) {
-            cookies.forEach(function(cookie) {
-                memJar.setCookie(toCookieString(cookie), getCookieUrl(cookie), {
-                    now: new Date(cookie.creation),
-                    ignoreError: true
+        return new Promise(function(resolve, reject) {
+            try {
+                cookies.forEach(function(cookie) {
+                    memJar.setCookie(toCookieString(cookie), getCookieUrl(cookie), {
+                        now: cookie.creation ? new Date(cookie.creation) : new Date(),
+                        ignoreError: true
+                    });
                 });
-            });
-            resolve({jar: memJar, cookies: <Cookie[]>cookies});
+                resolve({jar: memJar, cookies: cookies});
+            } catch (err) {
+                reject(err);
+            }
         });
     } else {
         //just return a new memory jar

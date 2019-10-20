@@ -137,8 +137,8 @@ export default async function scraperWrapper(log: PassedLog) {
         //add all chrome cookies to jar and to the persistent store after every page load
         connection.unsubscribers.push(connection.client.Page.domContentEventFired(async function() {
             const chromeCookies = await connection.client.Network.getCookies();
-            toRequestCookies(chromeCookies.cookies).forEach(function(chromeCookie) {
-                jar.setCookie(toCookieString(chromeCookie), getCookieUrl(chromeCookie));
+            toRequestCookies(chromeCookies.cookies).forEach(function(cookie) {
+                jar.setCookie(toCookieString(cookie), getCookieUrl(cookie));
             });
             await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
                 persistentSession: log.body.persistentSession

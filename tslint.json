@@ -84,7 +84,8 @@
         "no-string-based-set-timeout": false,
         "prefer-template": false,
         "jsdoc-format": false,
-        "no-non-null-assertion": false
+        "no-non-null-assertion": false,
+        "prefer-type-cast": false
     },
     "jsRules": {
         "max-line-length": {
