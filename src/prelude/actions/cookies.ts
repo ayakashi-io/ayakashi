@@ -10,6 +10,7 @@ import {
     getCookieUrl,
     toCookieString
 } from "../../utils/cookieHelpers";
+import {uniqBy} from "lodash";
 
 type CookieFilter = {
     key?: string;
@@ -86,6 +87,9 @@ export function attachCookieActions(
         if (connection) {
             const {cookies} = await connection.client.Network.getCookies();
             requestCookies = requestCookies.concat(toRequestCookies(cookies));
+            requestCookies = uniqBy(requestCookies, function(cookie) {
+                return `${cookie.domain || ""}${cookie.path || ""}${cookie.key}`;
+            });
         }
         return requestCookies;
     }

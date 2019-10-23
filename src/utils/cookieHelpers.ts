@@ -23,10 +23,19 @@ export function toChromeCookies(cookies: Cookie[]): ChromeCookie[] {
             url: getCookieUrl(cookie),
             domain: cookie.domain || undefined,
             path: cookie.path || undefined,
+            expires: requestCookieExpireToChromeExpire(cookie.expires),
             secure: cookie.secure,
             httpOnly: cookie.httpOnly
         };
     });
+}
+
+function requestCookieExpireToChromeExpire(date: Date | string) {
+    if (!date || typeof date === "string") {
+        return undefined;
+    } else {
+        return date.getTime();
+    }
 }
 
 export function toRequestCookies(cookies: ChromeCookie[]): Cookie[] {
@@ -39,6 +48,7 @@ export function toRequestCookies(cookies: ChromeCookie[]): Cookie[] {
                 path: chromeCookie.path,
                 secure: chromeCookie.secure,
                 httpOnly: chromeCookie.httpOnly,
+                expires: chromeCookie.expires,
                 sameSite: chromeCookie.sameSite ? chromeCookie.sameSite.toLowerCase() : undefined
             };
         })

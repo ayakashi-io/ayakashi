@@ -57,7 +57,11 @@ export async function sessionDbInit(storeProjectFolder: string, opts: {create: b
         creation: {type: DATE},
         lastAccessed: {type: DATE}
     }, {
-        freezeTableName: true
+        freezeTableName: true,
+        indexes: [{
+            unique: true,
+            fields: ["domain", "path", "key"]
+        }]
     });
 
     if (opts.create) {
