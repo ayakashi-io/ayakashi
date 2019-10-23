@@ -22,14 +22,25 @@ type CookieFilter = {
 type SerializedCookie = {
     key: string;
     value: string;
-    expires: string;
     domain: string;
     path: string;
-    secure: boolean;
-    httpOnly: boolean;
-    hostOnly: boolean;
     creation: string;
-    lastAccessed: string;
+    expires?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    hostOnly?: boolean;
+    lastAccessed?: string;
+};
+
+type NewCookie = {
+    key: string;
+    value: string;
+    domain: string;
+    path: string;
+    expires?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    hostOnly?: boolean;
 };
 
 export interface ICookieActions {
@@ -37,9 +48,9 @@ export interface ICookieActions {
 
     getCookies: (filter?: CookieFilter) => Promise<SerializedCookie[]>;
 
-    setCookie: (cookie: Cookie) => Promise<void>;
+    setCookie: (cookie: NewCookie) => Promise<void>;
 
-    setCookies: (cookies: Cookie[]) => Promise<void>;
+    setCookies: (cookies: NewCookie[]) => Promise<void>;
 }
 
 export function attachCookieActions(
@@ -71,13 +82,13 @@ export function attachCookieActions(
     };
 
     ayakashiInstance.setCookie = async function(cookie) {
-        memJar.setCookie(toCookieString(cookie), getCookieUrl(cookie));
+        memJar.setCookie(toCookieString(<Cookie>cookie), getCookieUrl(<Cookie>cookie));
         await cookieSyncCallback();
     };
 
     ayakashiInstance.setCookies = async function(cookies) {
         for (const cookie of cookies) {
-            memJar.setCookie(toCookieString(cookie), getCookieUrl(cookie));
+            memJar.setCookie(toCookieString(<Cookie>cookie), getCookieUrl(<Cookie>cookie));
         }
         await cookieSyncCallback();
     };
