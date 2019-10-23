@@ -4,6 +4,7 @@ import {PipeProc} from "pipeproc";
 import {apiPrelude} from "../prelude/apiPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {attachRequest} from "../prelude/actions/request";
+import {attachCookieActions} from "../prelude/actions/cookies";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
@@ -79,12 +80,14 @@ export default async function apiScraperWrapper(log: PassedLog) {
             timeout: 10000,
             jar: jar
         });
-        attachRequest(ayakashiInstance, myRequest, async function() {
+        async function cookieSync() {
             //sync request cookies with the persistent store
             await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
                 persistentSession: log.body.persistentSession
             });
-        });
+        }
+        attachRequest(ayakashiInstance, myRequest, cookieSync);
+        attachCookieActions(ayakashiInstance, jar, null, cookieSync);
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();

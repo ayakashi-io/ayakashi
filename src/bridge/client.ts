@@ -64,7 +64,7 @@ export function getBridgeClient(port: number) {
                 d("get_jar response:", resp);
                 if (resp) {
                     const parsedResp: {ok: boolean, cookies: Cookie.Serialized[]} = JSON.parse(resp);
-                    if (resp.ok) {
+                    if (parsedResp.ok) {
                         return parsedResp.cookies
                             .map(function(cookie) {
                                 return Cookie.fromJSON(cookie);

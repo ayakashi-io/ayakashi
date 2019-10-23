@@ -4,6 +4,7 @@ import {EmulatorOptions} from "../runner/parseConfig";
 import {prelude, IAyakashiInstance} from "../prelude/prelude";
 import {attachYields} from "../prelude/actions/yield";
 import {attachRequest} from "../prelude/actions/request";
+import {attachCookieActions} from "../prelude/actions/cookies";
 import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {compile} from "../preloaderCompiler/compiler";
@@ -177,7 +178,7 @@ export default async function scraperWrapper(log: PassedLog) {
             timeout: 10000,
             jar: jar
         });
-        attachRequest(ayakashiInstance, myRequest, async function() {
+        async function cookieSync() {
             const requestCookies = getAllCookiesFromRequestJar(jar);
             //sync request cookies with chrome
             if (requestCookies.length > 0) {
@@ -189,7 +190,9 @@ export default async function scraperWrapper(log: PassedLog) {
             await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
                 persistentSession: log.body.persistentSession
             });
-        });
+        }
+        attachRequest(ayakashiInstance, myRequest, cookieSync);
+        attachCookieActions(ayakashiInstance, jar, connection, cookieSync);
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();

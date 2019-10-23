@@ -10,6 +10,7 @@ import {
 import {PipeProc} from "pipeproc";
 import {renderlessPrelude} from "../prelude/renderlessPrelude";
 import {attachYields} from "../prelude/actions/yield";
+import {attachCookieActions} from "../prelude/actions/cookies";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
@@ -98,12 +99,14 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
             timeout: 10000,
             jar: jar
         });
-        attachRequest(ayakashiInstance, myRequest, async function() {
+        async function cookieSync() {
             //sync request cookies with the persistent store
             await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
                 persistentSession: log.body.persistentSession
             });
-        });
+        }
+        attachRequest(ayakashiInstance, myRequest, cookieSync);
+        attachCookieActions(ayakashiInstance, jar, null, cookieSync);
 
         //define the load methods
         ayakashiInstance.load = async function(url, timeout) {

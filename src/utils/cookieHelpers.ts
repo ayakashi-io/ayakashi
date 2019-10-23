@@ -38,7 +38,8 @@ export function toRequestCookies(cookies: ChromeCookie[]): Cookie[] {
                 domain: chromeCookie.domain,
                 path: chromeCookie.path,
                 secure: chromeCookie.secure,
-                httpOnly: chromeCookie.httpOnly
+                httpOnly: chromeCookie.httpOnly,
+                sameSite: chromeCookie.sameSite ? chromeCookie.sameSite.toLowerCase() : undefined
             };
         })
         .map(function(cookie) {
