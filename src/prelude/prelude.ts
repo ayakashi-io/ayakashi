@@ -4,6 +4,7 @@ import {attachQuery, ISelectActions} from "./actions/select";
 import {attachExtract, ExtractorFn, IExtractActions} from "./actions/extract";
 import {IYieldActions} from "./actions/yield";
 import {IRequestActions} from "./actions/request";
+import {ICookieActions} from "./actions/cookies";
 import {IDomProp} from "./query/query";
 import {Query, QueryOptions} from "../domQL/domQL";
 import {attachCoreExtractors} from "../coreExtractors/extractors";
@@ -19,7 +20,7 @@ import scrollingActions from "../coreActions/scroll";
 import typingActions from "../coreActions/typing";
 import waitingActions from "../coreActions/waiting";
 
-export interface IAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, IMetaActions {
+export interface IAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, IMetaActions, ICookieActions {
     propRefs: {
         [key: string]: IDomProp
     };

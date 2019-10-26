@@ -12,6 +12,18 @@ const d = debug("ayakashi:engine:connection");
 
 type Unsubscriber = () => void;
 
+export type ChromeCookie = {
+    name: string;
+    value: string;
+    url?: string;
+    domain?: string;
+    path?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    sameSite?: "Strict" | "Lax" | "Extended" | "None";
+    expires?: number;
+};
+
 export interface ICDPClient {
     _ws: {
         readyState: 1 | 2 | 3
@@ -22,6 +34,8 @@ export interface ICDPClient {
     };
     Network: {
         enable: () => Promise<void>;
+        setCookies: (arg: {cookies: ChromeCookie[]}) => Promise<boolean>;
+        getCookies: (arg?: {urls?: string[]}) => Promise<{cookies: ChromeCookie[]}>;
     };
     Page: {
         enable: () => Promise<void>;

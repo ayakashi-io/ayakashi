@@ -2,6 +2,7 @@ import {getInstance} from "../engine/browser";
 import {startBridge} from "../bridge/bridge";
 import {addConnectionRoutes} from "../bridge/connection";
 import {addUserAgentRoutes} from "../bridge/userAgent";
+import {addCookiesRoutes} from "../bridge/cookies";
 import {resolve as pathResolve} from "path";
 import {PipeProc} from "pipeproc";
 import {v4 as uuid} from "uuid";
@@ -171,9 +172,11 @@ export async function run(projectFolder: string, config: Config, options: {
         }
 
         //initialize sessionDb
-        const {sessionDb, UserAgentDataModel} = await sessionDbInit(storeProjectFolder, {create: true});
+        const {sessionDb, UserAgentDataModel, CookieModel} = await sessionDbInit(storeProjectFolder, {create: true});
         //add bridge userAgent routes
         addUserAgentRoutes(bridge, sessionDb, UserAgentDataModel);
+        //add bridge cookie routes
+        addCookiesRoutes(bridge, sessionDb, CookieModel);
 
         //launch pipeproc
         let workers: number;

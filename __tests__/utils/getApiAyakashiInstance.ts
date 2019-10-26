@@ -18,7 +18,7 @@ export function getAyakashiInstance() {
         gzipOrBrotli: true
     });
 
-    attachRequest(ayakashiInstance, myRequest);
+    attachRequest(ayakashiInstance, myRequest, async function() {});
 
     return ayakashiInstance;
 }

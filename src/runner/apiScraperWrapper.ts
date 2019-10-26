@@ -4,9 +4,11 @@ import {PipeProc} from "pipeproc";
 import {apiPrelude} from "../prelude/apiPrelude";
 import {attachYields} from "../prelude/actions/yield";
 import {attachRequest} from "../prelude/actions/request";
+import {attachCookieActions} from "../prelude/actions/cookies";
 import {getOpLog} from "../opLog/opLog";
 import {getBridgeClient} from "../bridge/client";
 import {EmulatorOptions} from "../runner/parseConfig";
+import {getCookieJar, updateCookieJar} from "./cookies";
 import debug from "debug";
 const d = debug("ayakashi:apiScraperWrapper");
 
@@ -57,6 +59,10 @@ export default async function apiScraperWrapper(log: PassedLog) {
         }
         const acceptLanguage = (log.body.config.emulatorOptions && log.body.config.emulatorOptions.acceptLanguage) || "en-US";
 
+        //get cookie jar
+        const {jar} = await getCookieJar(log.body.connectionConfig.bridgePort, {
+            persistentSession: log.body.persistentSession
+        });
         //attach the request API
         const myRequest = requestCore.defaults({
             headers: {
@@ -71,9 +77,17 @@ export default async function apiScraperWrapper(log: PassedLog) {
             proxy: log.body.proxyUrl || undefined,
             strictSSL: !log.body.ignoreCertificateErrors,
             gzipOrBrotli: true,
-            timeout: 10000
+            timeout: 10000,
+            jar: jar
         });
-        attachRequest(ayakashiInstance, myRequest);
+        async function cookieSync() {
+            //sync request cookies with the persistent store
+            await updateCookieJar(log.body.connectionConfig.bridgePort, jar, {
+                persistentSession: log.body.persistentSession
+            });
+        }
+        attachRequest(ayakashiInstance, myRequest, cookieSync);
+        attachCookieActions(ayakashiInstance, jar, null, cookieSync);
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();

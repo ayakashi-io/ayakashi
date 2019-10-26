@@ -8,13 +8,14 @@ import {attachCoreExtractors} from "../coreExtractors/extractors";
 import {attachRetry, IRetryActions} from "./actions/retry";
 import {IRequestActions} from "./actions/request";
 import {IYieldActions} from "./actions/yield";
+import {ICookieActions} from "./actions/cookies";
 import {JSDOM} from "jsdom";
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 type MetaActionsNoPause = Omit<IMetaActions, "pause">;
 type MetaActionsNoRegisterAction = Omit<MetaActionsNoPause, "registerAction">;
-export interface IRenderlessAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, MetaActionsNoRegisterAction {
+export interface IRenderlessAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, MetaActionsNoRegisterAction, ICookieActions {
     propRefs: IAyakashiInstance["propRefs"];
     extractors: IAyakashiInstance["extractors"];
     page: JSDOM;
