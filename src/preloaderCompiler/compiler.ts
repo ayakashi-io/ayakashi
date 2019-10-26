@@ -36,7 +36,7 @@ export function compile(
                 {standalone: `${namespace}__${wrapperName}`}
             )
         );
-        if (noCache || process.platform === "win32") {
+        if (noCache) {
             d("not using preloader cache");
         } else {
             mkdirp(cacheFolder);
