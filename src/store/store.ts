@@ -2,10 +2,7 @@ import {homedir} from "os";
 import mkdirp from "mkdirp";
 
 export function getStoreDir(): Promise<string> {
-    let storeDir = `${homedir()}/.ayakashi`;
-    if (process.platform === "win32") {
-        storeDir = storeDir.replace(/\\/g, "/");
-    }
+    const storeDir = `${homedir()}/.ayakashi`;
     return new Promise(function(resolve, reject) {
         mkdirp(storeDir, function(err) {
             if (err) {

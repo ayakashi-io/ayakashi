@@ -53,8 +53,11 @@ export async function run(projectFolder: string, config: Config, options: {
     let initializers: string[];
     const pipeprocClient = PipeProc();
     let headlessChrome = null;
-    const storeProjectFolder =
+    let storeProjectFolder =
         await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder, options.sessionKey);
+    if (process.platform === "win32") {
+        storeProjectFolder = storeProjectFolder.replace(/\\/g, "/");
+    }
     try {
         steps = firstPass(config);
         checkStepLevels(steps);
