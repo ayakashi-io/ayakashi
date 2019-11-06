@@ -42,7 +42,7 @@ describe("smoke test", function() {
                 }
             }]
         };
-        exec(`node ./lib/cli/cli.js run ./__tests__/__e2e__/smoke/test_files --clean --jsonConfig '${JSON.stringify(config)}'`, function() {
+        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/smoke/test_files --clean --jsonConfig '${JSON.stringify(config)}'`, function() {
             const results: {
                 name: string
             }[] = resultServer.getResults();
