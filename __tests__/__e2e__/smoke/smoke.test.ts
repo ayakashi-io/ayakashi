@@ -42,7 +42,13 @@ describe("smoke test", function() {
                 }
             }]
         };
-        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/smoke/test_files --clean --jsonConfig '${JSON.stringify(config)}'`, function() {
+        let strConfig: string;
+        if (process.platform === "win32") {
+            strConfig = JSON.stringify(config).replace(/"/g, `\\"`);
+        } else {
+            strConfig = JSON.stringify(config);
+        }
+        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/smoke/test_files --clean --jsonConfig '${strConfig}'`, function() {
             const results: {
                 name: string
             }[] = resultServer.getResults();
