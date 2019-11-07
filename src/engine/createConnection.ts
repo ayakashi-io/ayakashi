@@ -1,12 +1,12 @@
 const CDP = require("chrome-remote-interface");
 import debug from "debug";
 import {Target} from "./createTarget";
-import {isRegExp} from "util";
 //@ts-ignore
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
 import {EmulatorOptions} from "../runner/parseConfig";
 import {retryOnErrorOrTimeOut} from "../utils/retryOnErrorOrTimeout";
 import {getBridgeClient} from "../bridge/client";
+import {replacer} from "../utils/marshalling";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -382,30 +382,11 @@ async function evaluate<T>(
         let exp: string;
         const namespace = connection.namespace ? `window['${connection.namespace}']` : null;
         if (args && args.length > 0) {
-            args.forEach(function(arg, i) {
-                if (typeof arg === "function") {
-                    args[i] = arg.toString();
-                } else if (isRegExp(arg)) {
-                    args[i] = {isRegex: true, source: arg.source, flags: arg.flags};
-                }
-            });
             //tslint:disable
             exp = `(function() {
-                "use strict";
-                const args = ${JSON.stringify(args)};
-                const ns = ${namespace};\n` +
-                "args.forEach(function(arg, i) {\
-                    if (arg && typeof arg.indexOf === 'function' && (arg.indexOf('function') === 0 || arg.indexOf('=>') > -1)) {\
-                        const func = args[i];\
-                        args[i] = function(results) {\
-                            let exec = new Function('results', `return (${func}).call(this, results);`);\
-                            return exec.call(ns, results);\
-                        };\
-                    }\
-                    if (arg && arg.isRegex) {\
-                        args[i] = new RegExp(arg.source, arg.flags);\
-                    }\
-                });" +
+                "use strict";\n
+                const serializedArgs = '${JSON.stringify(args, replacer)}';\n` +
+                `const args = JSON.parse(serializedArgs, ${namespace}.preloaders.marshalling.getReviver("${connection.namespace}"));\n` +
                 `return (${String(fn)}).apply(${namespace}, args)
             })()`;
             //tslint:enable

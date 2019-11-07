@@ -45,6 +45,18 @@ export async function getAyakashiInstance(
         as: "detectionPatches",
         waitForDOM: false
     });
+    const marshalling = await compile(
+        pathResolve(".", "lib"),
+        "./utils/marshalling",
+        "ayakashi",
+        "",
+        true
+    );
+    await connection.injectPreloader({
+        compiled: marshalling,
+        as: "marshalling",
+        waitForDOM: false
+    });
     connection.pipe.console(console.log);
     connection.pipe.uncaughtException(console.error);
     await connection.activate();
