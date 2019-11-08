@@ -127,45 +127,6 @@ describe("target/connection tests", function() {
         await connection.release();
     });
 
-    test.skip("it can pipe console.log", async function() {
-        const target = await headlessChrome.createTarget();
-        if (!target) throw new Error("no_target");
-        const connection = await createConnection(target, bridgePort);
-        if (!connection) throw new Error("jest_connection_not_created");
-        connection.pipe.console(function(text) {
-            expect(text).toBe("hi there!");
-        });
-        await connection.activate();
-        await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
-        await connection.client.Page.loadEventFired();
-        await connection.evaluate(function() {
-            console.log("hi there!");
-        });
-        await connection.release();
-    });
-
-    test.skip("it can pipe uncaughtException", async function() {
-        const target = await headlessChrome.createTarget();
-        if (!target) throw new Error("no_target");
-        const connection = await createConnection(target, bridgePort);
-        if (!connection) throw new Error("jest_connection_not_created");
-        connection.pipe.uncaughtException(function(exception) {
-            expect(exception.text).toMatch("my test error");
-        });
-        await connection.injectPreloader({
-            compiled: {
-                wrapper: "ayakashi__test",
-                source: "throw new Error('my test error');"
-            },
-            as: null,
-            waitForDOM: false
-        });
-        await connection.activate();
-        await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
-        await connection.client.Page.loadEventFired();
-        await connection.release();
-    });
-
     test("it should throw an error if an event is piped into an active connection", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
