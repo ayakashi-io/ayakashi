@@ -86,7 +86,7 @@ describe("launcher tests", function() {
         })()).rejects.toThrowError("chrome_path_not_set");
     });
 
-    test("it can use persistent sessions", async function() {
+    test.skip("it can use persistent sessions", async function() {
         headlessChrome = getInstance();
         const sessionDir = mkdtempSync(join(tmpdir(), "ayakashi-test-session."));
         await headlessChrome.init({
@@ -132,7 +132,7 @@ describe("launcher tests", function() {
         expect(result).toBe("hello");
     });
 
-    test("browserContexts are isolated", async function() {
+    test.skip("browserContexts are isolated", async function() {
         headlessChrome = getInstance();
         await headlessChrome.init({
             chromePath: chromePath,
@@ -164,7 +164,7 @@ describe("launcher tests", function() {
         expect(result).toBeNull();
     });
 
-    test("when not using browserContexts, the context is shared", async function() {
+    test.skip("when not using browserContexts, the context is shared", async function() {
         headlessChrome = getInstance();
         const sessionDir = mkdtempSync(join(tmpdir(), "ayakashi-test-session."));
         await headlessChrome.init({

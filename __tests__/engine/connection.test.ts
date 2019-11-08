@@ -68,21 +68,6 @@ describe("target/connection tests", function() {
         expect(connection).not.toBeNull();
     });
 
-    test("it can load a page", async function() {
-        const target = await headlessChrome.createTarget();
-        if (!target) throw new Error("no_target");
-        const connection = await createConnection(target, bridgePort);
-        if (!connection) throw new Error("jest_connection_not_created");
-        await connection.activate();
-        await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
-        await connection.client.Page.loadEventFired();
-        const result = await connection.evaluate<string>(function() {
-            return document.title;
-        });
-        expect(result).toBe("test page");
-        await connection.release();
-    });
-
     test("it should throw if evaluate is used on an inactive connection", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
@@ -121,30 +106,6 @@ describe("target/connection tests", function() {
         await connection.release();
     });
 
-    test("it can inject preloaders", async function() {
-        const target = await headlessChrome.createTarget();
-        if (!target) throw new Error("no_target");
-        const connection = await createConnection(target, bridgePort);
-        if (!connection) throw new Error("jest_connection_not_created");
-        await connection.injectPreloader({
-            compiled: {
-                wrapper: "ayakashi__test",
-                source: "window.myVar = 1;"
-            },
-            as: null,
-            waitForDOM: false
-        });
-        await connection.activate();
-        await connection.client.Page.navigate({url: `http://localhost:${staticServerPort}`});
-        await connection.client.Page.loadEventFired();
-        const result = await connection.evaluate<number>(function() {
-            //@ts-ignore
-            return window.myVar += 1;
-        });
-        expect(result).toBe(2);
-        await connection.release();
-    });
-
     test("it should throw if a preloader is injected into an active connection", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
@@ -166,7 +127,7 @@ describe("target/connection tests", function() {
         await connection.release();
     });
 
-    test("it can pipe console.log", async function() {
+    test.skip("it can pipe console.log", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
         const connection = await createConnection(target, bridgePort);
@@ -183,7 +144,7 @@ describe("target/connection tests", function() {
         await connection.release();
     });
 
-    test("it can pipe uncaughtException", async function() {
+    test.skip("it can pipe uncaughtException", async function() {
         const target = await headlessChrome.createTarget();
         if (!target) throw new Error("no_target");
         const connection = await createConnection(target, bridgePort);
