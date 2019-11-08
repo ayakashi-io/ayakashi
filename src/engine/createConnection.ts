@@ -6,7 +6,7 @@ import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
 import {EmulatorOptions} from "../runner/parseConfig";
 import {retryOnErrorOrTimeOut} from "../utils/retryOnErrorOrTimeout";
 import {getBridgeClient} from "../bridge/client";
-import {replacer} from "../utils/marshalling";
+import {replacer, getReviver} from "../utils/marshalling";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -382,16 +382,31 @@ async function evaluate<T>(
         let exp: string;
         const namespace = connection.namespace ? `window['${connection.namespace}']` : null;
         if (args && args.length > 0) {
-            //tslint:disable
             exp = `(function() {
                 "use strict";\n
-                const serializedArgs = '${JSON.stringify(args, replacer)}';\n` +
-                `const args = JSON.parse(serializedArgs, ${namespace}.preloaders.marshalling.getReviver("${connection.namespace}"));\n` +
-                `return (${String(fn)}).apply(${namespace}, args)
+                const serializedArgs = '${JSON.stringify(args, replacer)}';\n
+                const args = JSON.parse(serializedArgs, ${namespace}.preloaders.marshalling.getReviver("${namespace}"));\n
+                let result = (${String(fn)}).apply(${namespace}, args);
+                if (result instanceof Promise) {
+                    return result.then(function(resolved) {
+                        return JSON.stringify(resolved, ${namespace}.preloaders.marshalling.replacer);
+                    });
+                } else {
+                    return JSON.stringify(result, ${namespace}.preloaders.marshalling.replacer);
+                }
             })()`;
-            //tslint:enable
         } else {
-            exp = `(${String(fn)}).apply(${namespace})`;
+            exp = `
+                (function() {
+                    let result = (${String(fn)}).apply(${namespace});
+                    if (result instanceof Promise) {
+                        return result.then(function(resolved) {
+                            return JSON.stringify(resolved, ${namespace}.preloaders.marshalling.replacer);
+                        });
+                    } else {
+                        return JSON.stringify(result, ${namespace}.preloaders.marshalling.replacer);
+                    }
+                })()`;
         }
         const evaled = await connection.client.Runtime.evaluate({
             expression: exp,
@@ -402,7 +417,12 @@ async function evaluate<T>(
             //@ts-ignore
             throw new EvalError(evaled.exceptionDetails.exception.description || evaled.exceptionDetails.text);
         } else {
-            return evaled.result.value;
+            if (typeof evaled.result.value === "string") {
+                const reviver = getReviver("{ayakashi: {}}");
+                return JSON.parse(evaled.result.value, reviver);
+            } else {
+                return evaled.result.value;
+            }
         }
     } catch (err) {
         d(err);

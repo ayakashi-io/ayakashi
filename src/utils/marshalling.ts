@@ -4,7 +4,9 @@ export function replacer(_key: string, value: unknown) {
     if (value && typeof value === "function") {
         return {
             __ayakashi__isFunction__: true,
-            __ayakashi__fn__: Buffer.from(value.toString()).toString("base64")
+            __ayakashi__fn__: !isBrowser() ?
+                Buffer.from(value.toString()).toString("base64") :
+                btoa(value.toString())
         };
     } else if (value && isRegExp(value)) {
         return {
@@ -17,7 +19,7 @@ export function replacer(_key: string, value: unknown) {
     }
 }
 
-export function getReviver(ns: string) {
+export function getReviver(ns: unknown) {
     return function reviver(
         _key: string,
         value: {
@@ -29,12 +31,19 @@ export function getReviver(ns: string) {
         }
     ) {
         if (value && typeof value === "object" && value.__ayakashi__isFunction__ && value.__ayakashi__fn__) {
-            const fn = atob(value.__ayakashi__fn__);
-            return function(results: unknown) {
-                const exec = new Function("results", `return (${fn}).call(this, results);`);
-                //@ts-ignore
-                return exec.call(window[ns], results);
-            };
+            const fn = !isBrowser() ?
+                Buffer.from(value.__ayakashi__fn__, "base64").toString("utf8") :
+                atob(value.__ayakashi__fn__);
+            return (new Function("results", `
+                function getNs() {
+                    try {
+                        return ${ns};
+                    } catch(_e) {
+                        return {ayakashi: {}};
+                    }
+                }
+                return (${fn}).call(getNs(), results);
+            `));
         } else if (value && typeof value === "object" && value.__ayakashi__isRegex__) {
             return new RegExp(value.__ayakashi__source__ || "", value.__ayakashi__flags__);
         } else {
@@ -42,3 +51,5 @@ export function getReviver(ns: string) {
         }
     };
 }
+
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");

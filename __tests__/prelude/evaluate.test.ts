@@ -73,7 +73,7 @@ describe("evaluate expressions", function() {
     test("can evaluate async expressions", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluateAsync<number>(function(num) {
+        const result = await ayakashiInstance.evaluateAsync(function(num) {
             return new Promise(function(resolve) {
                 setTimeout(function() {
                     resolve(num);
@@ -87,17 +87,27 @@ describe("evaluate expressions", function() {
     test("can pass arguments to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluate<number>(function(num) {
+        const result = await ayakashiInstance.evaluate(function(num) {
             return num;
         }, 1);
         expect(result).toBe(1);
         await ayakashiInstance.__connection.release();
     });
 
+    test("can pass string arguments to evaluate", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(str) {
+            return str;
+        }, "hello");
+        expect(result).toBe("hello");
+        await ayakashiInstance.__connection.release();
+    });
+
     test("can pass objects to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluate<number>(function(param) {
+        const result = await ayakashiInstance.evaluate(function(param) {
             return param.num;
         }, {num: 1});
         expect(result).toBe(1);
@@ -107,7 +117,7 @@ describe("evaluate expressions", function() {
     test("can pass functions to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluate<number>(function(fn) {
+        const result = await ayakashiInstance.evaluate(function(fn) {
             return fn();
         }, function() { return 1; });
         expect(result).toBe(1);
@@ -117,7 +127,7 @@ describe("evaluate expressions", function() {
     test("can pass arrow functions to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluate<number>(function(fn) {
+        const result = await ayakashiInstance.evaluate(function(fn) {
             return fn();
         }, () => 1);
         expect(result).toBe(1);
@@ -127,7 +137,7 @@ describe("evaluate expressions", function() {
     test("can pass nested functions to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluate<number>(function(param) {
+        const result = await ayakashiInstance.evaluate(function(param) {
             return param.myFn();
         }, {myFn: function() { return 1; }});
         expect(result).toBe(1);
@@ -137,17 +147,178 @@ describe("evaluate expressions", function() {
     test("can pass nested arrow functions to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluate<number>(function(param) {
+        const result = await ayakashiInstance.evaluate(function(param) {
             return param.myFn();
         }, {myFn: () => 1});
         expect(result).toBe(1);
         await ayakashiInstance.__connection.release();
     });
 
+    test("can return a function from evaluate", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function() {
+            return function() { return 1; };
+        });
+        expect(result()).toBe(1);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("can return a nested function from evaluate", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function() {
+            return {myFun: function() { return 1; }};
+        });
+        expect(result.myFun()).toBe(1);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("can pass a function back and forth", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(param) {
+            return param;
+        }, function() { return 1; });
+        expect(result()).toBe(1);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("can pass a nested function back and forth", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(param) {
+            return param;
+        }, {myFun: function() { return 1; }});
+        expect(result.myFun()).toBe(1);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("can pass a function back and forth with evaluateAsync", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluateAsync(function(param) {
+            return new Promise(function(resolve) {
+                setTimeout(function() {
+                    resolve(param);
+                }, 0);
+            });
+        }, function() { return 1; });
+        //@ts-ignore
+        expect(result()).toBe(1);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("'this' inside evaluate points to ayakashi page", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function() {
+            return this === window.ayakashi;
+        });
+        expect(result).toBe(true);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("'this' of a passed function points to ayakashi page", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(fn) {
+            return fn() === window.ayakashi;
+        }, function() { return this; });
+        expect(result).toBe(true);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("'this' of a passed nested function points to ayakashi page", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(param) {
+            return param.myFn() === window.ayakashi;
+        }, {myFn: function() { return this; }});
+        expect(result).toBe(true);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("'this' of a returned function points to a stub object", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function() {
+            return function() {
+                return Object.keys(this);
+            };
+        });
+        expect(result()).toBeArrayOfSize(1);
+        expect(result()[0]).toBe("ayakashi");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("'this' of a nested returned function points to a stub object", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function() {
+            return {
+                myFn: function() {
+                    return Object.keys(this);
+                }
+            };
+        });
+        expect(result.myFn()).toBeArrayOfSize(1);
+        expect(result.myFn()[0]).toBe("ayakashi");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("'this' of a back and forth function points to a stub object", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(fn) {
+            return fn;
+        }, function() {
+            return Object.keys(this);
+        });
+        expect(result()).toBeArrayOfSize(1);
+        expect(result()[0]).toBe("ayakashi");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("'this' of a nested back and forth function points to a stub object", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(param) {
+            return param;
+        }, {
+            fn: function() {
+                return Object.keys(this);
+            }
+        });
+        expect(result.fn()).toBeArrayOfSize(1);
+        expect(result.fn()[0]).toBe("ayakashi");
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("can return a regex from evaluate", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function() {
+            return /hello/;
+        });
+        expect(result.test("hello there")).toBe(true);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("can return a nested regex from evaluate", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function() {
+            return {myRegex: /hello/};
+        });
+        expect(result.myRegex.test("hello there")).toBe(true);
+        await ayakashiInstance.__connection.release();
+    });
+
     test("can pass regexes to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluate<boolean>(function(param) {
+        const result = await ayakashiInstance.evaluate(function(param) {
             return param.test("hello there");
         }, /hello/);
         expect(result).toBe(true);
@@ -157,10 +328,30 @@ describe("evaluate expressions", function() {
     test("can pass nested regexes to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
-        const result = await ayakashiInstance.evaluate<boolean>(function(param) {
+        const result = await ayakashiInstance.evaluate(function(param) {
             return param.myRegex.test("hello there");
         }, {myRegex: /hello/});
         expect(result).toBe(true);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("can pass a regex back and forth", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(param) {
+            return param;
+        }, /hello/);
+        expect(result.test("hello there")).toBe(true);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("can pass a nested regex back and forth", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(param) {
+            return param;
+        }, {myRegex: /hello/});
+        expect(result.myRegex.test("hello there")).toBe(true);
         await ayakashiInstance.__connection.release();
     });
 
