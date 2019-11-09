@@ -1,6 +1,6 @@
 name: Node CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node_version: ['8', '10', '12']
+        node_version: ['8', '10', '12', '13']
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
