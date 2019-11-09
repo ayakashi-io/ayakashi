@@ -15,7 +15,10 @@ export function createStaticServer(port: number, html: string) {
         } else if (req.url && req.url.match("/500error")) {
             res.statusCode = 500;
             res.end("internal server error");
-        }    else {
+        } else if (req.url && req.url.match("/cookies")) {
+            res.setHeader("Set-Cookie", "my_server_cookie=test");
+            res.end(html);
+        }  else {
             res.end(html);
         }
     });

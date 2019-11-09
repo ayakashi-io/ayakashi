@@ -12,6 +12,10 @@ export async function getCookieJar(
         const bridgeClient = getBridgeClient(port);
         //create a new memory jar and add any cookies we have on the persistent store to it
         const memJar = jar();
+        //@ts-ignore
+        memJar._jar.rejectPublicSuffixes = false;
+        //@ts-ignore
+        memJar._jar.looseMode = true;
         const cookies = await bridgeClient.getCookieJar();
         return new Promise(function(resolve, reject) {
             try {
