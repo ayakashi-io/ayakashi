@@ -6,6 +6,7 @@ import {startResultServer, ResultServer} from "../../../utils/resultServer";
 import http from "http";
 import {createStaticServer} from "../../../utils/startServer";
 import {Config} from "../../../../src/runner/parseConfig";
+import {stringifyConfig} from "../../../utils/stringifyConfig";
 import {exec} from "child_process";
 
 let staticServerPort: number;
@@ -79,12 +80,7 @@ describe("browserContext", function() {
                 }
             }]
         };
-        let strConfig: string;
-        if (process.platform === "win32") {
-            strConfig = JSON.stringify(config).replace(/"/g, `\\"`);
-        } else {
-            strConfig = JSON.stringify(config);
-        }
+        const strConfig = stringifyConfig(config);
         exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/browserContext/test_files --clean --jsonConfig '${strConfig}'`,
         function(err) {
             if (err) {
@@ -121,12 +117,7 @@ describe("browserContext", function() {
                 }
             }]
         };
-        let strConfig: string;
-        if (process.platform === "win32") {
-            strConfig = JSON.stringify(config).replace(/"/g, `\\"`);
-        } else {
-            strConfig = JSON.stringify(config);
-        }
+        const strConfig = stringifyConfig(config);
         exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/browserContext/test_files --clean --jsonConfig '${strConfig}'`,
         function(err) {
             if (err) {
