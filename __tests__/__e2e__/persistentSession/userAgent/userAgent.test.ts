@@ -119,7 +119,7 @@ describe("userAgent", function() {
             }]
         };
         const strConfig = stringifyConfig(config);
-        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/userAgent/test_files --clean --jsonConfig '${strConfig}' --sessionKey=ua_1`,
+        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/userAgent/test_files --clean --jsonConfig '${strConfig}' --sessionKey 'ua_1'`,
         function(err) {
             if (err) {
                 return done.fail(err);
@@ -198,7 +198,7 @@ describe("userAgent", function() {
             }]
         };
         const strConfig = stringifyConfig(config);
-        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/userAgent/test_files --clean --jsonConfig '${strConfig}' --sessionKey=ua_2`,
+        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/userAgent/test_files --clean --jsonConfig '${strConfig}' --sessionKey 'ua_2'`,
         function(err) {
             if (err) {
                 return done.fail(err);
@@ -276,7 +276,7 @@ describe("userAgent", function() {
             }]
         };
         const strConfig = stringifyConfig(config);
-        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/userAgent/test_files --clean --jsonConfig '${strConfig}' --sessionKey=ua_3`,
+        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/userAgent/test_files --clean --jsonConfig '${strConfig}' --sessionKey 'ua_3'`,
         function(err) {
             if (err) {
                 return done.fail(err);
@@ -357,7 +357,7 @@ describe("userAgent", function() {
             }]
         };
         const strConfig = stringifyConfig(config);
-        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/userAgent/test_files --clean --jsonConfig '${strConfig}' --sessionKey=ua_4`,
+        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/persistentSession/userAgent/test_files --clean --jsonConfig '${strConfig}' --sessionKey 'ua_4'`,
         function(err) {
             if (err) {
                 return done.fail(err);
