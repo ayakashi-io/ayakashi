@@ -20,11 +20,7 @@ describe("test tagName", function() {
         }, {
             env: dom.window
         });
-        if (process.platform === "linux") {
-            expect(results).toBeArrayOfSize(2);
-        } else {
-            expect(results).toBeArrayOfSize(1);
-        }
+        expect(results).toBeArrayOfSize(1);
         expect(results[0]).toBe(dom.window.document.getElementById("theDiv"));
     });
 
