@@ -1,7 +1,5 @@
-const {post} = require("@ayakashi/request");
+const deliverResults = require("../../../../utils/deliverResults");
 
 module.exports = async function(input, params) {
-    await post(`http://localhost:${params.port}/results`, {
-        json: input
-    });
+    await deliverResults(params.port, input);
 };

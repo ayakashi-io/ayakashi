@@ -13,16 +13,16 @@ export type EmulatorOptions = {
     /**
      * Sets the available width.
      */
-    width: number,
+    width?: number,
     /**
      * Sets the available height.
      */
-    height: number,
+    height?: number,
     /**
      * Set it to true to emulate a mobile device.
      */
-    mobile: boolean,
-    deviceScaleFactor: 0,
+    mobile?: boolean,
+    deviceScaleFactor?: 0,
     /**
      * Configures the userAgent for this scraper.
      * By default a random chrome-desktop userAgent is used.

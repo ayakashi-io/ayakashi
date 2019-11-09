@@ -236,6 +236,19 @@ export default async function scraperWrapper(log: PassedLog) {
             waitForDOM: false
         });
 
+        //load the marshalling helpers
+        const marshalling = await compile(
+            log.body.appRoot,
+            "./lib/utils/marshalling",
+            "ayakashi",
+            `${log.body.storeProjectFolder}/.cache/preloaders/`
+        );
+        await connection.injectPreloader({
+            compiled: marshalling,
+            as: "marshalling",
+            waitForDOM: false
+        });
+
         //load external actions/extractors/preloaders
         await loadExternals(connection, ayakashiInstance, log);
 

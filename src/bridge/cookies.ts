@@ -18,7 +18,10 @@ export function addCookiesRoutes(app: Express, sessionDb: Sequelize, CookieModel
     router.post("/get_jar", async function(_req, res) {
         d("restoring jar");
         try {
-            const storeJar = new CookieJar(new DbCookieStore(sessionDb, CookieModel));
+            const storeJar = new CookieJar(new DbCookieStore(sessionDb, CookieModel), {
+                rejectPublicSuffixes: false,
+                looseMode: true
+            });
             storeJar.serialize(function(err, serialized) {
                 if (err) {
                     d(err);
@@ -41,7 +44,10 @@ export function addCookiesRoutes(app: Express, sessionDb: Sequelize, CookieModel
         d("updating jar");
         try {
             const cookies: Cookie.Serialized[] = req.body.cookies;
-            const storeJar = new CookieJar(new DbCookieStore(sessionDb, CookieModel));
+            const storeJar = new CookieJar(new DbCookieStore(sessionDb, CookieModel), {
+                rejectPublicSuffixes: false,
+                looseMode: true
+            });
             asyncEach(cookies, function(cookieObject, next) {
                 const cookie = Cookie.fromJSON(cookieObject);
                 if (!cookie) {

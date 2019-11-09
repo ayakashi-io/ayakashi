@@ -1,12 +1,12 @@
 const CDP = require("chrome-remote-interface");
 import debug from "debug";
 import {Target} from "./createTarget";
-import {isRegExp} from "util";
 //@ts-ignore
 import {Mouse, Keyboard, Touchscreen} from "@ayakashi/input";
 import {EmulatorOptions} from "../runner/parseConfig";
 import {retryOnErrorOrTimeOut} from "../utils/retryOnErrorOrTimeout";
 import {getBridgeClient} from "../bridge/client";
+import {replacer, getReviver} from "../utils/marshalling";
 
 const d = debug("ayakashi:engine:connection");
 
@@ -382,35 +382,31 @@ async function evaluate<T>(
         let exp: string;
         const namespace = connection.namespace ? `window['${connection.namespace}']` : null;
         if (args && args.length > 0) {
-            args.forEach(function(arg, i) {
-                if (typeof arg === "function") {
-                    args[i] = arg.toString();
-                } else if (isRegExp(arg)) {
-                    args[i] = {isRegex: true, source: arg.source, flags: arg.flags};
-                }
-            });
-            //tslint:disable
             exp = `(function() {
-                "use strict";
-                const args = ${JSON.stringify(args)};
-                const ns = ${namespace};\n` +
-                "args.forEach(function(arg, i) {\
-                    if (arg && typeof arg.indexOf === 'function' && (arg.indexOf('function') === 0 || arg.indexOf('=>') > -1)) {\
-                        const func = args[i];\
-                        args[i] = function(results) {\
-                            let exec = new Function('results', `return (${func}).call(this, results);`);\
-                            return exec.call(ns, results);\
-                        };\
-                    }\
-                    if (arg && arg.isRegex) {\
-                        args[i] = new RegExp(arg.source, arg.flags);\
-                    }\
-                });" +
-                `return (${String(fn)}).apply(${namespace}, args)
+                "use strict";\n
+                const serializedArgs = '${JSON.stringify(args, replacer)}';\n
+                const args = JSON.parse(serializedArgs, ${namespace}.preloaders.marshalling.getReviver("${namespace}"));\n
+                let result = (${String(fn)}).apply(${namespace}, args);
+                if (result instanceof Promise) {
+                    return result.then(function(resolved) {
+                        return JSON.stringify(resolved, ${namespace}.preloaders.marshalling.replacer);
+                    });
+                } else {
+                    return JSON.stringify(result, ${namespace}.preloaders.marshalling.replacer);
+                }
             })()`;
-            //tslint:enable
         } else {
-            exp = `(${String(fn)}).apply(${namespace})`;
+            exp = `
+                (function() {
+                    let result = (${String(fn)}).apply(${namespace});
+                    if (result instanceof Promise) {
+                        return result.then(function(resolved) {
+                            return JSON.stringify(resolved, ${namespace}.preloaders.marshalling.replacer);
+                        });
+                    } else {
+                        return JSON.stringify(result, ${namespace}.preloaders.marshalling.replacer);
+                    }
+                })()`;
         }
         const evaled = await connection.client.Runtime.evaluate({
             expression: exp,
@@ -421,7 +417,12 @@ async function evaluate<T>(
             //@ts-ignore
             throw new EvalError(evaled.exceptionDetails.exception.description || evaled.exceptionDetails.text);
         } else {
-            return evaled.result.value;
+            if (typeof evaled.result.value === "string") {
+                const reviver = getReviver("{ayakashi: {}}");
+                return JSON.parse(evaled.result.value, reviver);
+            } else {
+                return evaled.result.value;
+            }
         }
     } catch (err) {
         d(err);

@@ -339,4 +339,31 @@ describe("select tests", function() {
         expect(result).toBe(false);
         await ayakashiInstance.__connection.release();
     });
+
+    test("select like with regex", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({id: {like: /link/}});
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link1", "link2"]);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("select like with regex object", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({id: {like: new RegExp("link")}});
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link1", "link2"]);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("select like with regex and flags", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        ayakashiInstance.select("links").where({id: {like: /LINK/i}});
+        const result = await ayakashiInstance.extract("links", "id");
+        expect(result).toEqual(["link1", "link2"]);
+        await ayakashiInstance.__connection.release();
+    });
 });

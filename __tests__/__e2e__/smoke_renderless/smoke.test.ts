@@ -4,6 +4,7 @@ import "jest-extended";
 import {getRandomPort} from "../../../src/utils/getRandomPort";
 import {startResultServer, ResultServer} from "../../utils/resultServer";
 import {Config} from "../../../src/runner/parseConfig";
+import {stringifyConfig} from "../../utils/stringifyConfig";
 import {exec} from "child_process";
 
 let resultServer: ResultServer;
@@ -42,12 +43,7 @@ describe("smoke test renderless", function() {
                 }
             }]
         };
-        let strConfig: string;
-        if (process.platform === "win32") {
-            strConfig = JSON.stringify(config).replace(/"/g, `\\"`);
-        } else {
-            strConfig = JSON.stringify(config);
-        }
+        const strConfig = stringifyConfig(config);
         exec(`node lib/cli/cli.js run ./__tests__/__e2e__/smoke_renderless/test_files --clean --jsonConfig '${strConfig}'`, function() {
             const results: {
                 name: string
