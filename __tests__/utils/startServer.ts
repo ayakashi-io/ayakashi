@@ -18,7 +18,15 @@ export function createStaticServer(port: number, html: string) {
         } else if (req.url && req.url.match("/cookies")) {
             res.setHeader("Set-Cookie", "my_server_cookie=test");
             res.end(html);
-        }  else {
+        } else if (req.url && req.url.match("/user_agent_html")) {
+            const ua = req.headers["user-agent"];
+            res.setHeader("content-type", "text/html");
+            res.end(`<html><head></head><body><div id="ua">${ua}</div></body></html>`);
+        } else if (req.url && req.url.match("/user_agent")) {
+            const ua = req.headers["user-agent"];
+            res.setHeader("content-type", "application/json");
+            res.end(JSON.stringify({ua: ua}));
+        } else {
             res.end(html);
         }
     });
