@@ -6,9 +6,7 @@
   <a href="https://www.npmjs.com/package/ayakashi"><img src="https://img.shields.io/npm/v/ayakashi.svg?label=version" alt="npm"></a>
   <a href="https://github.com/ayakashi-io/ayakashi/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/ayakashi.svg" alt="license"></a>
   <br/>
-  <a href="https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=12"><img src="https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/12/master.svg?label=Windows" alt="windows build"></a>
-  <a href="https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=11"><img src="https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/11/master.svg?label=macOS" alt="macOs build"></a>
-  <a href="https://dev.azure.com/zisismaras/Ayakashi.io/_build?definitionId=10"><img src="https://img.shields.io/azure-devops/build/zisismaras/1566a1eb-ef19-4a56-b3f9-0b8cf919dfcb/10/master.svg?label=Linux" alt="linux build"></a>
+  <a href="https://github.com/ayakashi-io/ayakashi/actions"><img src="https://github.com/ayakashi-io/ayakashi/workflows/Test%20Suite/badge.svg" alt="test suite"></a>
 </p>
 
 <hr/>
