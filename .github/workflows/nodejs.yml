@@ -12,8 +12,8 @@ jobs:
         node_version: ['8', '10', '12', '13']
         os: [ubuntu-latest, windows-latest, macOS-latest]
         exclude:
-          - os: windows-latest
-            node: 13
+          os: windows-latest
+          node: 13
 
     steps:
     - uses: actions/checkout@v1
