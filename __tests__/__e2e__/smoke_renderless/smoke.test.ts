@@ -31,15 +31,24 @@ describe("smoke test renderless", function() {
             },
             waterfall: [{
                 type: "script",
-                module: "getPage"
+                module: "getPage",
+                config: {
+                    retries: 5
+                }
             }, {
                 type: "renderlessScraper",
-                module: "githubInfo"
+                module: "githubInfo",
+                config: {
+                    retries: 5
+                }
             }, {
                 type: "script",
                 module: "deliverResults",
                 params: {
                     port: port
+                },
+                config: {
+                    retries: 5
                 }
             }]
         };

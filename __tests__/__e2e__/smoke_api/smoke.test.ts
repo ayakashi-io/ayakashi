@@ -31,15 +31,24 @@ describe("smoke test api", function() {
             },
             waterfall: [{
                 type: "script",
-                module: "getPage"
+                module: "getPage",
+                config: {
+                    retries: 5
+                }
             }, {
                 type: "apiScraper",
-                module: "getManifest"
+                module: "getManifest",
+                config: {
+                    retries: 5
+                }
             }, {
                 type: "script",
                 module: "deliverResults",
                 params: {
                     port: port
+                },
+                config: {
+                    retries: 5
                 }
             }]
         };

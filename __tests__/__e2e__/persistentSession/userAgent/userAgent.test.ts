@@ -75,7 +75,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "chrome-desktop",
                         platform: "Win32"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "scraper",
@@ -88,7 +89,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "mobile",
                         platform: "iPhone"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "renderlessScraper",
@@ -101,7 +103,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "chrome-mobile",
                         platform: "Linux armv7l"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "apiScraper",
@@ -114,7 +117,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "desktop",
                         platform: "MacIntel"
-                    }
+                    },
+                    retries: 5
                 }
             }]
         };
@@ -154,7 +158,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "chrome-desktop",
                         platform: "Win32"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "scraper",
@@ -167,7 +172,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "mobile",
                         platform: "iPhone"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "renderlessScraper",
@@ -180,7 +186,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "chrome-mobile",
                         platform: "Linux armv7l"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "apiScraper",
@@ -193,7 +200,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "desktop",
                         platform: "MacIntel"
-                    }
+                    },
+                    retries: 5
                 }
             }]
         };
@@ -232,7 +240,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "chrome-desktop",
                         platform: "Win32"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "scraper",
@@ -245,7 +254,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "mobile",
                         platform: "iPhone"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "renderlessScraper",
@@ -258,7 +268,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "chrome-mobile",
                         platform: "Linux armv7l"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "apiScraper",
@@ -271,7 +282,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "desktop",
                         platform: "MacIntel"
-                    }
+                    },
+                    retries: 5
                 }
             }]
         };
@@ -313,7 +325,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "chrome-desktop",
                         platform: "Win32"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "scraper",
@@ -326,7 +339,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "mobile",
                         platform: "iPhone"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "renderlessScraper",
@@ -339,7 +353,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "chrome-mobile",
                         platform: "Linux armv7l"
-                    }
+                    },
+                    retries: 5
                 }
             }, {
                 type: "apiScraper",
@@ -352,7 +367,8 @@ describe("userAgent", function() {
                     emulatorOptions: {
                         userAgent: "desktop",
                         platform: "MacIntel"
-                    }
+                    },
+                    retries: 5
                 }
             }]
         };

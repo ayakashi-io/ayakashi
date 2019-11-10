@@ -34,6 +34,9 @@ describe("ignoreCertificateErrors", function() {
                 module: "loadInvalidPage",
                 params: {
                     port: port
+                },
+                config: {
+                    retries: 5
                 }
             }]
         };
@@ -64,6 +67,9 @@ describe("ignoreCertificateErrors", function() {
                 module: "loadInvalidPage",
                 params: {
                     port: port
+                },
+                config: {
+                    retries: 5
                 }
             }]
         };
