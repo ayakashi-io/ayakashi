@@ -70,6 +70,9 @@ describe("browserContext", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }, {
                 type: "scraper",
@@ -77,6 +80,9 @@ describe("browserContext", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }]
         };
@@ -107,6 +113,9 @@ describe("browserContext", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }, {
                 type: "scraper",
@@ -114,6 +123,9 @@ describe("browserContext", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }]
         };

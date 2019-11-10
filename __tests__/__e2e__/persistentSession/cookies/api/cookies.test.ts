@@ -70,6 +70,9 @@ describe("cookies apiScraper", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }, {
                 type: "scraper",
@@ -77,6 +80,9 @@ describe("cookies apiScraper", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }, {
                 type: "renderlessScraper",
@@ -84,6 +90,9 @@ describe("cookies apiScraper", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }]
         };
@@ -123,6 +132,9 @@ describe("cookies apiScraper", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }, {
                 type: "scraper",
@@ -130,6 +142,9 @@ describe("cookies apiScraper", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }, {
                 type: "renderlessScraper",
@@ -137,6 +152,9 @@ describe("cookies apiScraper", function() {
                 params: {
                     port: port,
                     staticServerPort: staticServerPort
+                },
+                config: {
+                    retries: 5
                 }
             }]
         };
