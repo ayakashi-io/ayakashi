@@ -21,9 +21,9 @@ module.exports = {
     "testURL": "http://localhost",
     "globals": {
         "ts-jest": {
-            "diagnostics": {
-                "warnOnly": true
-            }
+            // "diagnostics": {
+            //     "warnOnly": true
+            // }
         }
     }
 };

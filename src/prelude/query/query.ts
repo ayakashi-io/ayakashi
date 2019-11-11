@@ -321,7 +321,7 @@ export function createQuery(
         trigger: async function(triggerOptions) {
             if (!triggerOptions || triggerOptions.force !== true) {
                 if (triggered) {
-                    const propMatches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
+                    const propMatches = await ayakashiInstance.evaluate(function(scopedPropId: string) {
                         if (this.propTable[scopedPropId] &&
                             this.propTable[scopedPropId].matches) {
                                 return this.propTable[scopedPropId].matches.length;
@@ -352,7 +352,7 @@ export function createQuery(
                 }
                 return propMatches;
             } else {
-                const propMatches = await ayakashiInstance.evaluate<number>(function(
+                const propMatches = await ayakashiInstance.evaluate(function(
                     scopedQuery: Query,
                     scopedId: string,
                     scopedParentIds: {parentId: string, trackMissingChildren: boolean}[]
@@ -399,7 +399,7 @@ export function createQuery(
         },
         hasMatches: async function() {
             await this.trigger({force: true, showNoMatchesWarning: false});
-            const matches = await ayakashiInstance.evaluate<number>(function(scopedPropId: string) {
+            const matches = await ayakashiInstance.evaluate(function(scopedPropId: string) {
                 return (
                     this.propTable[scopedPropId] &&
                     this.propTable[scopedPropId].matches &&

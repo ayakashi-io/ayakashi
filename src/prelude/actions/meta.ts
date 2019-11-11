@@ -28,7 +28,13 @@ const title = await ayakashi.evaluate(function() {
 });
 ```
 */
-    evaluate: <T>(fn: (this: Window["ayakashi"], ...args: any[]) => T, ...args: any[]) => Promise<T>;
+    evaluate: <T, U extends any[]>(
+        fn: (
+            this: Window["ayakashi"],
+            ...params: U
+        ) => T,
+        ...args: U
+    ) => Promise<T>;
 /**
  * Evaluates an asynchronous javascript function in the current page.
  * Learn more here: https://ayakashi.io/docs/going_deeper/evaluating-javascript-expressions.html
@@ -42,8 +48,14 @@ await ayakashi.evaluateAsync(function() {
 });
 ```
 */
-    evaluateAsync: <T>(fn: (this: Window["ayakashi"], ...args: any[]) => Promise<T>, ...args: any[]) => Promise<T>;
-    //tslint:enable no-any
+    evaluateAsync: <T, U extends any[]>(
+        fn: (
+            this: Window["ayakashi"],
+            ...params: U
+        ) => Promise<T>,
+        ...args: U
+    ) => Promise<T>;
+//tslint:enable no-any
 /**
  * Defines a new prop without using the domQL syntax.
  * Learn more here: https://ayakashi.io/docs/going_deeper/defining-props-without-domql.html
@@ -130,17 +142,17 @@ export function attachMetaActions(
         const query = createQuery(ayakashiInstance, {
             propId: propId,
             triggerFn: function() {
-                return ayakashiInstance.evaluate<number>(function(
-                    propConstructor: (this: Window["ayakashi"]) => HTMLElement[] | NodeList,
-                    id: string
+                return ayakashiInstance.evaluate(function(
+                    propConstructor,
+                    id
                 ) {
                     const elements = propConstructor.call(this);
-                    let matches: HTMLElement[];
+                    let matches;
                     //@ts-ignore
                     if (Array.isArray(elements) || elements instanceof this.window.NodeList) {
-                        matches = <HTMLElement[]>Array.from(elements);
-                    } else {
                         //@ts-ignore
+                        matches = Array.from(elements);
+                    } else {
                         matches = [elements];
                     }
                     this.propTable[id] = {
@@ -161,8 +173,8 @@ export function attachMetaActions(
                 this.paused = true;
             });
             opLog.warn("scraper execution is paused, run ayakashi.resume() in devtools to resume");
-            await (<IAyakashiInstance>ayakashiInstance).waitUntil<boolean>(function() {
-                return ayakashiInstance.evaluate<boolean>(function() {
+            await (<IAyakashiInstance>ayakashiInstance).waitUntil(function() {
+                return ayakashiInstance.evaluate(function() {
                     return this.paused === false;
                 });
             }, 100, 0);

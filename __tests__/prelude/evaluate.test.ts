@@ -94,6 +94,17 @@ describe("evaluate expressions", function() {
         await ayakashiInstance.__connection.release();
     });
 
+    test("can pass multiple arguments to evaluate", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluate(function(a, b) {
+            return [a, b];
+        }, 1, "hello");
+        expect(result[0]).toBe(1);
+        expect(result[1]).toBe("hello");
+        await ayakashiInstance.__connection.release();
+    });
+
     test("can pass string arguments to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
@@ -224,7 +235,10 @@ describe("evaluate expressions", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         const result = await ayakashiInstance.evaluate(function(fn) {
             return fn() === window.ayakashi;
-        }, function() { return this; });
+        }, function() {
+            //@ts-ignore
+            return this;
+        });
         expect(result).toBe(true);
         await ayakashiInstance.__connection.release();
     });
@@ -244,6 +258,7 @@ describe("evaluate expressions", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         const result = await ayakashiInstance.evaluate(function() {
             return function() {
+                //@ts-ignore
                 return Object.keys(this);
             };
         });
@@ -258,6 +273,7 @@ describe("evaluate expressions", function() {
         const result = await ayakashiInstance.evaluate(function() {
             return {
                 myFn: function() {
+                    //@ts-ignore
                     return Object.keys(this);
                 }
             };
@@ -273,6 +289,7 @@ describe("evaluate expressions", function() {
         const result = await ayakashiInstance.evaluate(function(fn) {
             return fn;
         }, function() {
+            //@ts-ignore
             return Object.keys(this);
         });
         expect(result()).toBeArrayOfSize(1);
@@ -287,6 +304,7 @@ describe("evaluate expressions", function() {
             return param;
         }, {
             fn: function() {
+                //@ts-ignore
                 return Object.keys(this);
             }
         });

@@ -74,7 +74,7 @@ describe("focusing tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myInput").where({id: {eq: "myInput"}});
         await ayakashiInstance.focus("myInput");
-        const result = await ayakashiInstance.evaluate<number>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return window.counter;
         });

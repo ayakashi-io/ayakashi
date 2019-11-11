@@ -114,8 +114,8 @@ describe("extraction tests", function() {
         const ayakashiInstance = await getAyakashiInstance();
         await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
-        const result = await ayakashiInstance.extract("myLink", function(el: HTMLAnchorElement) {
-            return el.href;
+        const result = await ayakashiInstance.extract("myLink", function(el) {
+            return (<HTMLAnchorElement>el).href;
         });
         expect(result).toEqual(["http://example.com/"]);
         await ayakashiInstance.__connection.release();

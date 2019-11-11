@@ -56,7 +56,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         if (rootNode.nodeName === "IFRAME" && rootNode.contentDocument) {
             rootNode = rootNode.contentDocument;
         }
-        const selector = await this.evaluate<string>(function(scopedPropId: string) {
+        const selector = await this.evaluate(function(scopedPropId) {
             const node = this.propTable[scopedPropId].matches[0];
             return this.preloaders.getNodeSelector(node);
         }, myProp.id);

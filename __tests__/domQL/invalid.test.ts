@@ -147,7 +147,9 @@ describe("test invalid input", function() {
     });
 
     it("should raise an error if the expected value is an object", function() {
+        //@ts-ignore
         expect(() => domQuery({
+            //@ts-ignore
             where: {
                 //@ts-ignore
                 id: {
