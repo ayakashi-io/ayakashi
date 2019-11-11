@@ -19,6 +19,7 @@ let protocolPort: number;
 let closeBridge: () => Promise<void>;
 
 jest.setTimeout(600000);
+process.setMaxListeners(100);
 
 describe("select tests", function() {
     let chromePath: string;

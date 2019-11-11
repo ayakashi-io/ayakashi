@@ -9,6 +9,7 @@ import {getRandomPort} from "../../src/utils/getRandomPort";
 let headlessChrome: IHeadlessChrome;
 
 jest.setTimeout(600000);
+process.setMaxListeners(100);
 
 describe("launcher tests", function() {
     let chromePath: string;
