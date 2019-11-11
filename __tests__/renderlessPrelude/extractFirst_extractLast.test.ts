@@ -147,8 +147,8 @@ describe("extraction tests for extractFirst/extractLast", function() {
         const ayakashiInstance = await getAyakashiInstance();
         await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
-        const result = await ayakashiInstance.extractFirst("myLink", function(el: HTMLAnchorElement) {
-            return el.href;
+        const result = await ayakashiInstance.extractFirst("myLink", function(el) {
+            return (<HTMLAnchorElement>el).href;
         });
         expect(result).toEqual("http://example.com/");
         await ayakashiInstance.__connection.release();
@@ -158,8 +158,8 @@ describe("extraction tests for extractFirst/extractLast", function() {
         const ayakashiInstance = await getAyakashiInstance();
         await ayakashiInstance.load(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
-        const result = await ayakashiInstance.extractLast("myLink", function(el: HTMLAnchorElement) {
-            return el.href;
+        const result = await ayakashiInstance.extractLast("myLink", function(el) {
+            return (<HTMLAnchorElement>el).href;
         });
         expect(result).toEqual("http://example.com/");
         await ayakashiInstance.__connection.release();

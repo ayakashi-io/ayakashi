@@ -29,6 +29,7 @@ describe("test optional where", function() {
     });
 
     it("with a scope", function() {
+        //@ts-ignore
         const results = domQuery({}, {
             env: dom.window,
             scope: dom.window.document.querySelector("#myList")

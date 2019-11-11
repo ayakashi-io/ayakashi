@@ -235,7 +235,10 @@ describe("evaluate expressions", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         const result = await ayakashiInstance.evaluate(function(fn) {
             return fn() === window.ayakashi;
-        }, function() { return this; });
+        }, function() {
+            //@ts-ignore
+            return this;
+        });
         expect(result).toBe(true);
         await ayakashiInstance.__connection.release();
     });
@@ -255,6 +258,7 @@ describe("evaluate expressions", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         const result = await ayakashiInstance.evaluate(function() {
             return function() {
+                //@ts-ignore
                 return Object.keys(this);
             };
         });
@@ -269,6 +273,7 @@ describe("evaluate expressions", function() {
         const result = await ayakashiInstance.evaluate(function() {
             return {
                 myFn: function() {
+                    //@ts-ignore
                     return Object.keys(this);
                 }
             };
@@ -284,6 +289,7 @@ describe("evaluate expressions", function() {
         const result = await ayakashiInstance.evaluate(function(fn) {
             return fn;
         }, function() {
+            //@ts-ignore
             return Object.keys(this);
         });
         expect(result()).toBeArrayOfSize(1);
@@ -298,6 +304,7 @@ describe("evaluate expressions", function() {
             return param;
         }, {
             fn: function() {
+                //@ts-ignore
                 return Object.keys(this);
             }
         });

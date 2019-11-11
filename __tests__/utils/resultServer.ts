@@ -11,7 +11,7 @@ export function startResultServer(
     const app = Express();
     app.use(json());
 
-    const results = [];
+    const results: unknown[] = [];
 
     app.post("/results", function(req, res) {
         results.push(req.body);
