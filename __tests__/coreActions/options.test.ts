@@ -68,7 +68,7 @@ describe("options tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myCheckBox").where({id: {eq: "myCheckBox"}});
         await ayakashiInstance.check("myCheckBox");
-        const result = await ayakashiInstance.evaluate<boolean>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return document.getElementById("myCheckBox").checked;
         });
@@ -81,7 +81,7 @@ describe("options tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myCheckedCheckBox").where({id: {eq: "myCheckedCheckBox"}});
         await ayakashiInstance.check("myCheckedCheckBox");
-        const result = await ayakashiInstance.evaluate<boolean>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return document.getElementById("myCheckedCheckBox").checked;
         });
@@ -94,7 +94,7 @@ describe("options tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myCheckedCheckBox").where({id: {eq: "myCheckedCheckBox"}});
         await ayakashiInstance.uncheck("myCheckedCheckBox");
-        const result = await ayakashiInstance.evaluate<boolean>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return document.getElementById("myCheckedCheckBox").checked;
         });
@@ -107,7 +107,7 @@ describe("options tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myCheckBox").where({id: {eq: "myCheckBox"}});
         await ayakashiInstance.uncheck("myCheckBox");
-        const result = await ayakashiInstance.evaluate<boolean>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return document.getElementById("myCheckBox").checked;
         });

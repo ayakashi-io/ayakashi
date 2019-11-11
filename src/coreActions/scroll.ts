@@ -99,7 +99,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         const matchCount = await myProp.trigger();
         if (matchCount === 0) throw new Error("<scrollIn> needs a prop with at least 1 match");
         await this.scrollIntoView(myProp);
-        return this.evaluate<number>(function(scopedPropId: string, scopedpixelsToScroll?: number) {
+        return this.evaluate(function(scopedPropId: string, scopedpixelsToScroll?: number) {
             const node = this.propTable[scopedPropId].matches[0];
             if (scopedpixelsToScroll) {
                 node.scrollTop += scopedpixelsToScroll;

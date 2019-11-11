@@ -78,7 +78,7 @@ describe("target/connection tests", function() {
         await connection.client.Page.loadEventFired();
         await connection.release();
         expect((async function() {
-            await connection.evaluate<string>(function() {
+            await connection.evaluate(function() {
                 return document.title;
             });
         })()).rejects.toThrowError("connection_not_active");

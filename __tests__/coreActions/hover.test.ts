@@ -74,7 +74,7 @@ describe("hovering tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myDiv").where({id: {eq: "myDiv"}});
         await ayakashiInstance.hover("myDiv");
-        const result = await ayakashiInstance.evaluate<number>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return window.counter;
         });

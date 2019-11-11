@@ -82,7 +82,7 @@ describe("clicking tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myButton").where({id: {eq: "myButton"}});
         await ayakashiInstance.click("myButton");
-        const result = await ayakashiInstance.evaluate<number>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return window.counter;
         });
@@ -95,7 +95,7 @@ describe("clicking tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myButton").where({id: {eq: "myButton"}});
         await ayakashiInstance.doubleClick("myButton");
-        const result = await ayakashiInstance.evaluate<number>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return window.counter;
         });
@@ -108,7 +108,7 @@ describe("clicking tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myButton").where({id: {eq: "myButton"}});
         await ayakashiInstance.rightClick("myButton");
-        const result = await ayakashiInstance.evaluate<number>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return window.counter;
         });

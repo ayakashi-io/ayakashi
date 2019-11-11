@@ -208,7 +208,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         }
         await this.waitUntilExists(myProp, timeout);
         return ayakashiInstance.waitUntil<boolean>(async function() {
-            return ayakashiInstance.evaluate<boolean>(function(scopedPropId) {
+            return ayakashiInstance.evaluate(function(scopedPropId) {
                 const node = this.propTable[scopedPropId].matches[0];
                 return !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length);
             }, myProp.id);

@@ -85,7 +85,7 @@ describe("navigation tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${anotherStaticServerPort}`);
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLink"}});
         await ayakashiInstance.navigationClick("myLink");
-        const result = await ayakashiInstance.evaluate<string>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             return document.title;
         });
         expect(result).toBe("test page");
@@ -97,7 +97,7 @@ describe("navigation tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${anotherStaticServerPort}`);
         ayakashiInstance.selectOne("myLink").where({id: {eq: "myLinkWithBlank"}});
         await ayakashiInstance.navigationClick("myLink");
-        const result = await ayakashiInstance.evaluate<string>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             return document.title;
         });
         expect(result).toBe("test page");

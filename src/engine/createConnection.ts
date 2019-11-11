@@ -120,8 +120,20 @@ export interface IConnection {
     activate: () => Promise<void>;
     release: () => Promise<void>;
     //tslint:disable no-any
-    evaluate: <T>(fn: (...args: any[]) => T, ...args: any[]) => Promise<T>;
-    evaluateAsync: <T>(fn: (...args: any[]) => Promise<T>, ...args: any[]) => Promise<T>;
+    evaluate: <T, U extends any[]>(
+        fn: (
+            this: Window["ayakashi"],
+            ...params: U
+        ) => T,
+        ...args: U
+    ) => Promise<T>;
+    evaluateAsync: <T, U extends any[]>(
+        fn: (
+            this: Window["ayakashi"],
+            ...params: U
+        ) => Promise<T>,
+        ...args: U
+    ) => Promise<T>;
     //tslint:enable no-any
     injectPreloader: (options: {
         compiled: {
@@ -291,11 +303,11 @@ export async function createConnection(
             },
             evaluate: async function(fn, ...args) {
                 d(`evaluating expression on connection`);
-                return evaluate(this, false, fn, args);
+                return evaluate(this, false, fn, ...args);
             },
             evaluateAsync: async function(fn, ...args) {
                 d(`evaluating async expression on connection`);
-                return evaluate(this, true, fn, args);
+                return evaluate(this, true, fn, ...args);
             },
             injectPreloader: async function({compiled: {wrapper, source}, as, waitForDOM}) {
                 if (connection.active) throw new Error("cannot_inject_preloader_into_active_connection");
@@ -369,12 +381,15 @@ export async function createConnection(
     }
 }
 
-async function evaluate<T>(
+//tslint:disable no-any
+async function evaluate<T, U extends any[]>(
     connection: IConnection,
     awaitPromise: boolean,
-    //tslint:disable no-any
-    fn: (...args: any[]) => T,
-    args: any[]
+    fn: (
+        this: Window["ayakashi"],
+        ...params: U
+    ) => T,
+    ...args: U
     //tslint:enable no-any
 ): Promise<T> {
     if (!connection.active) throw new Error("connection_not_active");

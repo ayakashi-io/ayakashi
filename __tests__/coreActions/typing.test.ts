@@ -67,7 +67,7 @@ describe("typing tests", function() {
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
         ayakashiInstance.selectOne("myInput").where({id: {eq: "myInput"}});
         await ayakashiInstance.typeIn("myInput", "hey there");
-        const result = await ayakashiInstance.evaluate<string>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return document.getElementById("myInput").value;
         });
@@ -81,7 +81,7 @@ describe("typing tests", function() {
         ayakashiInstance.selectOne("myInput").where({id: {eq: "myInput"}});
         await ayakashiInstance.typeIn("myInput", "hey there");
         await ayakashiInstance.clearInput("myInput");
-        const result = await ayakashiInstance.evaluate<string>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return document.getElementById("myInput").value;
         });
@@ -95,7 +95,7 @@ describe("typing tests", function() {
         ayakashiInstance.selectOne("myInput").where({id: {eq: "myInput"}});
         await ayakashiInstance.typeIn("myInput", "hey there");
         await ayakashiInstance.clearInput("myInput", 6);
-        const result = await ayakashiInstance.evaluate<string>(function() {
+        const result = await ayakashiInstance.evaluate(function() {
             //@ts-ignore
             return document.getElementById("myInput").value;
         });
