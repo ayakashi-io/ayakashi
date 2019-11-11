@@ -1,3 +1,3 @@
-module.exports = async function() {
-    return {page: "https://ayakashi.io/manifest.json"};
+module.exports = async function(_input, params) {
+    return {page: `http://localhost:${params.staticServerPort}/json`};
 };
