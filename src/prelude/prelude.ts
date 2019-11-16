@@ -29,6 +29,13 @@ export interface IAyakashiInstance extends IRetryActions, IRequestActions, IYiel
     extractors: {[key: string]: () => Promise<void>};
 }
 
+export interface IPreloaders {
+    domQL: {
+        domQuery: (q: Query, opts?: QueryOptions) => HTMLElement[];
+    };
+    getNodeSelector: (el: HTMLElement) => string;
+}
+
 export type AyakashiPage = {
     propTable: {
         [key: string]: {
@@ -38,12 +45,7 @@ export type AyakashiPage = {
     extractors: {
         [key: string]: ExtractorFn
     },
-    preloaders: {
-        domQL: {
-            domQuery: (q: Query, opts?: QueryOptions) => HTMLElement[]
-        },
-        getNodeSelector: (el: HTMLElement) => string;
-    },
+    preloaders: IPreloaders,
     paused: boolean,
     resume: () => void;
     document: Document;
