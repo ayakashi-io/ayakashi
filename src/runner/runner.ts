@@ -53,6 +53,7 @@ export async function run(projectFolder: string, config: Config, options: {
     let initializers: string[];
     const pipeprocClient = PipeProc();
     let headlessChrome = null;
+    let hasPrevious: boolean;
     let storeProjectFolder =
         await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder, options.sessionKey);
     if (process.platform === "win32") {
@@ -81,6 +82,30 @@ export async function run(projectFolder: string, config: Config, options: {
             opLog.error("You can configure the userAgent in the emulatorOptions of each pipeline step");
             opLog.error("Read more here: https://ayakashi.io/docs/reference/ayakashi-config-file.html#emulator-options");
             throw new Error("Deprecated configuration option");
+        }
+        if (options.resume && options.clean) {
+            opLog.error("Cannot use both --resume and --clean");
+            throw new Error("Invalid run parameters");
+        }
+        hasPrevious = await hasPreviousRun(storeProjectFolder);
+        if (!options.resume && options.clean && hasPrevious) {
+            opLog.warn("cleaning previous run");
+            await clearPreviousRun(storeProjectFolder);
+            //re-create the project folder after clean
+            await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder, options.sessionKey);
+        } else if (!options.resume && !options.clean && hasPrevious) {
+            opLog.error("Cannot start a new run while a previous unfinished run exists.");
+            opLog.error("Use --resume to resume the previous run or --clean to clear it and start a new one.");
+            throw new Error("Invalid run parameters");
+        } else if (options.resume && hasPrevious) {
+            opLog.warn("resuming previous run");
+            const [changed, lastConfig] = await configChanged(config, storeProjectFolder);
+            if (changed) {
+                opLog.warn("restoring old config");
+                //tslint:disable no-parameter-reassignment
+                config = lastConfig;
+                //tslint:enable no-parameter-reassignment
+            }
         }
         config.config = config.config || {};
         if (config.config.bridgePort === 0) {
@@ -152,28 +177,6 @@ export async function run(projectFolder: string, config: Config, options: {
             };
         });
 
-        if (options.resume && options.clean) {
-            opLog.error("Cannot use both --resume and --clean");
-            throw new Error("Invalid run parameters");
-        }
-        const hasPrevious = await hasPreviousRun(storeProjectFolder);
-        if (!options.resume && options.clean && hasPrevious) {
-            opLog.info("cleaning previous run");
-            await clearPreviousRun(storeProjectFolder);
-            //re-create the project folder after clean
-            await getOrCreateStoreProjectFolder(options.simpleScraper ? `${projectFolder}/${options.simpleScraper}` : projectFolder, options.sessionKey);
-        } else if (!options.resume && !options.clean && hasPrevious) {
-            opLog.error("Cannot start a new run while a previous unfinished run exists.");
-            opLog.error("Use --resume to resume the previous run or --clean to clear it and start a new one.");
-            throw new Error("Invalid run parameters");
-        } else if (options.resume && hasPrevious) {
-            if (await configChanged(config, storeProjectFolder)) {
-                opLog.error("Cannot resume a project if its config has changed");
-                opLog.error("Either revert your config to its previous state or use --clean to start a new run");
-                throw new Error("Config modified");
-            }
-        }
-
         //initialize sessionDb
         const {sessionDb, UserAgentDataModel, CookieModel} = await sessionDbInit(storeProjectFolder, {create: true});
         //add bridge userAgent routes
@@ -199,7 +202,7 @@ export async function run(projectFolder: string, config: Config, options: {
         }
         const waiter = opLog.waiter("initializing");
         await pipeprocClient.spawn({
-            socket: `ipc://${pathResolve(storeProjectFolder, "run.sock")}`,
+            socket: `ipc://${pathResolve(storeProjectFolder, "ipc")}`,
             location: getPipeprocFolder(storeProjectFolder),
             workers: workers,
             workerConcurrency: workerConcurrency,
@@ -213,7 +216,6 @@ export async function run(projectFolder: string, config: Config, options: {
         process.on(SIGINT, sigintListener);
 
         if (options.resume && hasPrevious) {
-            opLog.info("resuming previous run");
             await Promise.all(procs.map(async function(proc) {
                 try {
                     await pipeprocClient.reclaimProc(proc.name);

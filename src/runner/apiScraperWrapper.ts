@@ -91,7 +91,7 @@ export default async function apiScraperWrapper(log: PassedLog) {
 
         //connect to pipeproc
         const pipeprocClient = PipeProc();
-        await pipeprocClient.connect({socket: `ipc://${pathResolve(log.body.storeProjectFolder, "run.sock")}`});
+        await pipeprocClient.connect({socket: `ipc://${pathResolve(log.body.storeProjectFolder, "ipc")}`});
 
         //attach the yield methods
         const yieldWatcher = {yieldedAtLeastOnce: false};

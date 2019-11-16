@@ -50,7 +50,7 @@ export default async function scriptWrapper(log: PassedLog) {
     }
     //connect to pipeproc
     const pipeprocClient = PipeProc();
-    await pipeprocClient.connect({socket: `ipc://${pathResolve(log.body.storeProjectFolder, "run.sock")}`});
+    await pipeprocClient.connect({socket: `ipc://${pathResolve(log.body.storeProjectFolder, "ipc")}`});
     opLog.info("running script", log.body.module);
     try {
         //@ts-ignore
