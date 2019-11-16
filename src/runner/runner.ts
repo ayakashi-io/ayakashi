@@ -202,7 +202,7 @@ export async function run(projectFolder: string, config: Config, options: {
         }
         const waiter = opLog.waiter("initializing");
         await pipeprocClient.spawn({
-            socket: `ipc://${pathResolve(storeProjectFolder, "run.sock")}`,
+            socket: `ipc://${pathResolve(storeProjectFolder, "ipc")}`,
             location: getPipeprocFolder(storeProjectFolder),
             workers: workers,
             workerConcurrency: workerConcurrency,
