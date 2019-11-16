@@ -6,7 +6,7 @@
   <a href="https://www.npmjs.com/package/ayakashi"><img src="https://img.shields.io/npm/v/ayakashi.svg?label=version" alt="npm"></a>
   <a href="https://github.com/ayakashi-io/ayakashi/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/ayakashi.svg" alt="license"></a>
   <br/>
-  <a href="https://github.com/ayakashi-io/ayakashi/actions"><img src="https://github.com/ayakashi-io/ayakashi/workflows/Test%20Suite/badge.svg" alt="test suite"></a>
+  <img src="https://github.com/ayakashi-io/ayakashi/workflows/Test%20Suite/badge.svg" alt="test suite">
 </p>
 
 <hr/>
