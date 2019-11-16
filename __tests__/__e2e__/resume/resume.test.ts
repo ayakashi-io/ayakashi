@@ -55,7 +55,63 @@ describe("resume", function() {
         });
     });
 
-    test("should be able to resume after a failure", function(done) {
+    test("should be able to resume after a failure", async function(done) {
+        const config: Config = {
+            config: {
+                protocolPort: await getRandomPort(),
+                bridgePort: await getRandomPort(),
+                workers: 1
+            },
+            waterfall: [{
+                type: "script",
+                module: "getPage",
+                config: {
+                    retries: 5
+                },
+                params: {
+                    staticServerPort: staticServerPort
+                }
+            }, {
+                type: "scraper",
+                module: "githubInfo",
+                config: {
+                    //we still add some retries to make sure we fail for the right reasons
+                    retries: 5
+                }
+            }, {
+                type: "script",
+                module: "deliverResults",
+                params: {
+                    port: port
+                },
+                config: {
+                    retries: 5
+                }
+            }]
+        };
+        const strConfig = stringifyConfig(config);
+        //create an empty file as a signal to the scraper
+        writeFileSync(`${tmpdir()}/ayakashi_resume_test`, "");
+        exec(`node lib/cli/cli.js run ./__tests__/__e2e__/resume/test_files --clean --jsonConfig '${strConfig}'`, function() {
+            const results: {
+                name: string
+            }[] = resultServer.getResults();
+            expect(results).toBeEmpty();
+            //remove the file so the scraper won't throw again
+            unlinkSync(`${tmpdir()}/ayakashi_resume_test`);
+            //re-run with the --resume and --restartDisabledSteps flags
+            exec(`node lib/cli/cli.js run ./__tests__/__e2e__/resume/test_files --resume --restartDisabledSteps --jsonConfig '${strConfig}'`, function() {
+                const results2: {
+                    name: string
+                }[] = resultServer.getResults();
+                expect(results2[0]).toBeObject();
+                expect(results2[0].name).toBe("ayakashi");
+                done();
+            });
+        });
+    });
+
+    test("should be able to resume after a failure (with random ports)", function(done) {
         const config: Config = {
             config: {
                 protocolPort: 0,

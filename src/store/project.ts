@@ -67,7 +67,16 @@ export async function getLastConfig(storeProjectFolder: string): Promise<string>
     });
 }
 
-export async function configChanged(config: Config, storeProjectFolder: string): Promise<boolean> {
-    const lastConfig = JSON.parse(await getLastConfig(storeProjectFolder));
-    return !isEqual(lastConfig, JSON.parse(JSON.stringify(config)));
+export async function configChanged(
+    config: Config,
+    storeProjectFolder: string
+): Promise<[
+    boolean,
+    Config
+]> {
+    const lastConfig: Config = JSON.parse(await getLastConfig(storeProjectFolder));
+    return [
+        !isEqual(lastConfig, JSON.parse(JSON.stringify(config))),
+        lastConfig
+    ];
 }
