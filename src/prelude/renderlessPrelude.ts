@@ -1,6 +1,7 @@
 import {IAyakashiInstance, AyakashiPage} from "./prelude";
 import {IConnection} from "../engine/createConnection";
 import {attachMetaActions, IMetaActions} from "./actions/meta";
+import {attachJoinActions, IJoinActions} from "./actions/join";
 import {attachQuery, ISelectActions} from "./actions/select";
 import {attachExtract, IExtractActions} from "./actions/extract";
 import {domQuery} from "../domQL/domQL";
@@ -15,7 +16,7 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 type MetaActionsNoPause = Omit<IMetaActions, "pause">;
 type MetaActionsNoRegisterAction = Omit<MetaActionsNoPause, "registerAction">;
-export interface IRenderlessAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, MetaActionsNoRegisterAction, ICookieActions {
+export interface IRenderlessAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, MetaActionsNoRegisterAction, ICookieActions, IJoinActions {
     propRefs: IAyakashiInstance["propRefs"];
     extractors: IAyakashiInstance["extractors"];
     page: JSDOM;
@@ -61,8 +62,9 @@ export async function renderlessPrelude() {
     };
     //@ts-ignore
     const connection: IConnection = {};
-    await attachMetaActions(<IRenderlessAyakashiInstance>ayakashiInstance, connection);
-    await attachExtract(<IRenderlessAyakashiInstance>ayakashiInstance);
+    attachMetaActions(<IRenderlessAyakashiInstance>ayakashiInstance, connection);
+    attachJoinActions(<IRenderlessAyakashiInstance>ayakashiInstance);
+    attachExtract(<IRenderlessAyakashiInstance>ayakashiInstance);
     attachCoreExtractors(<IRenderlessAyakashiInstance>ayakashiInstance);
     attachRetry(<IRenderlessAyakashiInstance>ayakashiInstance);
 

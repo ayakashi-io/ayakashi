@@ -1,5 +1,6 @@
 import {IConnection} from "../engine/createConnection";
 import {attachMetaActions, IMetaActions} from "./actions/meta";
+import {attachJoinActions, IJoinActions} from "./actions/join";
 import {attachQuery, ISelectActions} from "./actions/select";
 import {attachExtract, ExtractorFn, IExtractActions} from "./actions/extract";
 import {IYieldActions} from "./actions/yield";
@@ -20,7 +21,7 @@ import scrollingActions from "../coreActions/scroll";
 import typingActions from "../coreActions/typing";
 import waitingActions from "../coreActions/waiting";
 
-export interface IAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, IMetaActions, ICookieActions {
+export interface IAyakashiInstance extends IRetryActions, IRequestActions, IYieldActions, IExtractActions, ISelectActions, IMetaActions, ICookieActions, IJoinActions {
     propRefs: {
         [key: string]: IDomProp
     };
@@ -65,9 +66,10 @@ export async function prelude(connection: IConnection): Promise<IAyakashiInstanc
     };
     try {
         await connection.useNameSpace("ayakashi");
-        await attachMetaActions(<IAyakashiInstance>ayakashiInstance, connection);
-        await attachQuery(<IAyakashiInstance>ayakashiInstance);
-        await attachExtract(<IAyakashiInstance>ayakashiInstance);
+        attachMetaActions(<IAyakashiInstance>ayakashiInstance, connection);
+        attachJoinActions(<IAyakashiInstance>ayakashiInstance);
+        attachQuery(<IAyakashiInstance>ayakashiInstance);
+        attachExtract(<IAyakashiInstance>ayakashiInstance);
         attachCoreExtractors(<IAyakashiInstance>ayakashiInstance);
         attachCoreActions(<IAyakashiInstance>ayakashiInstance);
         attachRetry(<IAyakashiInstance>ayakashiInstance);
