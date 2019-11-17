@@ -26,6 +26,8 @@ export function createStaticServer(port: number, html: string) {
             const ua = req.headers["user-agent"];
             res.setHeader("content-type", "application/json");
             res.end(JSON.stringify({ua: ua}));
+        } else if (req.url && req.url.match("/unresolved")) {
+            //nothing
         } else {
             res.end(html);
         }

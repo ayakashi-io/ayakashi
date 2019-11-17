@@ -105,4 +105,14 @@ describe("navigation tests", function() {
         await ayakashiInstance.__connection.release();
     });
 
+    test("can release the connection after navigating to a timed-out page", async function() {
+        expect.assertions(1);
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        try {
+            await ayakashiInstance.goTo(`http://localhost:${anotherStaticServerPort}/unresolved`, 1000);
+        } catch (_e) {}
+        await ayakashiInstance.__connection.release();
+        expect(ayakashiInstance.__connection.active).toBe(false);
+    });
+
 });

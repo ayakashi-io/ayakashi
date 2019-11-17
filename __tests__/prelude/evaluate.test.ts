@@ -377,6 +377,7 @@ describe("evaluate expressions", function() {
     test("throws an error if evaluate throws an error", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        console.error = function() {};
         await expect((async function() {
             await ayakashiInstance.evaluate(function() {
                 throw new Error("test error!");

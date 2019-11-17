@@ -253,6 +253,7 @@ export async function createConnection(
                 if (!connection.active) throw new Error("connection_not_active");
                 try {
                     await retryOnErrorOrTimeOut<void>(async function() {
+                        await client.Page.stopLoading();
                         connection.unsubscribers.forEach(unsubscriber => unsubscriber());
                         connection.unsubscribers = [];
                         if (client && client._ws && client._ws.readyState !== 3) {
