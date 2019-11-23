@@ -90,7 +90,7 @@
     "node-dir": "~0.1.17",
     "ora": "~3.2.0",
     "pg": "~7.9.0",
-    "pipeproc": "^0.3.4",
+    "pipeproc": "^0.4.0",
     "require-all": "~3.0.0",
     "resolve-from": "~4.0.0",
     "rimraf": "~2.6.3",
