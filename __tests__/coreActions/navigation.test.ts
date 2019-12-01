@@ -115,4 +115,14 @@ describe("navigation tests", function() {
         expect(ayakashiInstance.__connection.active).toBe(false);
     });
 
+    test("can release the connection after navigating to an unresponsive page", async function() {
+        expect.assertions(1);
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        try {
+            await ayakashiInstance.goTo(`http://localhost:${anotherStaticServerPort}/unresponsive`, 1000);
+        } catch (_e) {}
+        await ayakashiInstance.__connection.release();
+        expect(ayakashiInstance.__connection.active).toBe(false);
+    });
+
 });

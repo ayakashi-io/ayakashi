@@ -254,34 +254,18 @@ export async function createConnection(
                 try {
                     await retryOnErrorOrTimeOut<void>(async function() {
                         await client.Page.stopLoading();
-                        connection.unsubscribers.forEach(unsubscriber => unsubscriber());
-                        connection.unsubscribers = [];
-                        if (client && client._ws && client._ws.readyState !== 3) {
-                            await Promise.all(
-                                connection.preloaderIds
-                                .map(preloaderId => client.Page.removeScriptToEvaluateOnNewDocument(preloaderId))
-                            );
-                        }
-                        connection.preloaderIds = [];
-                        connection.timeouts.forEach(function(id) {
-                            clearTimeout(id);
-                        });
-                        connection.intervals.forEach(function(id) {
-                            clearInterval(id);
-                        });
-                        connection.timeouts = [];
-                        connection.intervals = [];
-                        if (client && client._ws && client._ws.readyState !== 3) {
-                            d("closing client");
-                            await client.close();
-                        }
+                        await removePreloaders(connection);
+                        await cleanup(connection);
                         await bridgeClient.connectionReleased(target);
                         connection.active = false;
-                    });
+                    }, 2);
                     d(`connection released`);
                 } catch (err) {
                     d(err);
-                    throw new Error("could_not_release_connection");
+                    d("force-releasing connection");
+                    await cleanup(connection);
+                    await bridgeClient.connectionReleased(target);
+                    connection.active = false;
                 }
             },
             useNameSpace: async function(ns: string) {
@@ -466,4 +450,29 @@ function pipeEvent(
     connection.unsubscribers.push(function() {
         connection.client.removeListener(`${domain}.${eventName}`, listener);
     });
+}
+
+async function removePreloaders(connection: IConnection) {
+    if (connection.client && connection.client._ws && connection.client._ws.readyState !== 3) {
+        await Promise.all(
+            connection.preloaderIds
+            .map(preloaderId => connection.client.Page.removeScriptToEvaluateOnNewDocument(preloaderId))
+        );
+    }
+    connection.preloaderIds = [];
+}
+async function cleanup(connection: IConnection) {
+    connection.unsubscribers.forEach(unsubscriber => unsubscriber());
+    connection.unsubscribers = [];
+    connection.timeouts.forEach(function(id) {
+        clearTimeout(id);
+    });
+    connection.intervals.forEach(function(id) {
+        clearInterval(id);
+    });
+    connection.timeouts = [];
+    connection.intervals = [];
+    if (connection.client && connection.client._ws && connection.client._ws.readyState !== 3) {
+        await connection.client.close();
+    }
 }

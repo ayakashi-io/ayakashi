@@ -28,6 +28,9 @@ export function createStaticServer(port: number, html: string) {
             res.end(JSON.stringify({ua: ua}));
         } else if (req.url && req.url.match("/unresolved")) {
             //nothing
+        } else if (req.url && req.url.match("/unresponsive")) {
+            res.setHeader("content-type", "text/html");
+            res.end(`<html><head></head><body><script>var i=0;while(true){i++}</script></body></html>`);
         } else {
             res.end(html);
         }

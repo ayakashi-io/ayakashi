@@ -1,7 +1,7 @@
 import {retry as asyncRetry} from "async";
 import {ExponentialStrategy} from "backoff";
 
-export async function retryOnErrorOrTimeOut<T>(task: () => Promise<T>): Promise<T> {
+export async function retryOnErrorOrTimeOut<T>(task: () => Promise<T>, retries = 20): Promise<T> {
     const strategy = new ExponentialStrategy({
         randomisationFactor: 0.5,
         initialDelay: 100,
@@ -10,7 +10,7 @@ export async function retryOnErrorOrTimeOut<T>(task: () => Promise<T>): Promise<
     });
     return new Promise(function(resolve, reject) {
         asyncRetry({
-            times: 20,
+            times: retries,
             interval: function() {
                 return strategy.next();
             }
