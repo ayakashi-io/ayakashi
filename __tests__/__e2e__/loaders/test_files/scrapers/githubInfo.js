@@ -14,7 +14,12 @@ module.exports = async function(ayakashi, input) {
     return {
         name: await ayakashi.extractFirst("name"),
         author: await ayakashi.extractFirst("author"),
-        actions: [ayakashi.action1(), ayakashi.action2()],
+        actions: [
+            ayakashi.action1(),
+            ayakashi.action2(),
+            ayakashi.external_action1(),
+            ayakashi.external_action2()
+        ],
         extractors: [
             await ayakashi.extractFirst("name", "extractor1"),
             await ayakashi.extractFirst("name", "extractor2")

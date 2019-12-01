@@ -306,7 +306,7 @@ async function loadExternals(
     ayakashiInstance: IAyakashiInstance,
     log: PassedLog
 ) {
-    loadExternalActions(ayakashiInstance, log.body.load.actions);
+    loadExternalActions(ayakashiInstance, log.body.projectFolder, log.body.load.actions);
     loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
     await loadExternalPreloaders(
         connection,

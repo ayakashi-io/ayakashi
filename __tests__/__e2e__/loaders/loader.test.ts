@@ -53,7 +53,7 @@ describe("loaders test", function() {
         });
     });
 
-    test("returns correct results", function(done) {
+    test("loads all the files correctly", function(done) {
         const config: Config = {
             config: {
                 protocolPort: 0,
@@ -74,6 +74,9 @@ describe("loaders test", function() {
                 module: "githubInfo",
                 config: {
                     retries: 5
+                },
+                load: {
+                    actions: ["external_action1", "external_action2"]
                 }
             }, {
                 type: "script",
@@ -100,6 +103,8 @@ describe("loaders test", function() {
 
             expect(results[0].actions[0]).toBe("action1");
             expect(results[0].actions[1]).toBe("action2");
+            expect(results[0].actions[2]).toBe("external_action1");
+            expect(results[0].actions[3]).toBe("external_action2");
 
             expect(results[0].extractors[0]).toBe("extractor1");
             expect(results[0].extractors[1]).toBe("extractor2");

@@ -4,6 +4,7 @@ import {IConnection} from "../engine/createConnection";
 import {resolve as pathResolve} from "path";
 //@ts-ignore
 import requireAll from "require-all";
+import resolveFrom from "resolve-from";
 import dir from "node-dir";
 import {existsSync} from "fs";
 import {getOpLog} from "../opLog/opLog";
@@ -140,12 +141,19 @@ export async function loadLocalPreloaders(connection: IConnection, projectFolder
     }
 }
 
-export function loadExternalActions(ayakashiInstance: IAyakashiInstance, actions?: string[]) {
+export function loadExternalActions(
+    ayakashiInstance: IAyakashiInstance,
+    projectFolder: string,
+    actions?: string[]
+) {
     const opLog = getOpLog();
     if (actions && Array.isArray(actions)) {
         actions.forEach(function(actionModule) {
             try {
-                const action = require(actionModule);
+                let action = require(resolveFrom(projectFolder, actionModule));
+                if (typeof action !== "function" && action.default) {
+                    action = action.default;
+                }
                 if (typeof action === "function") {
                     d(`loading external action: ${actionModule}`);
                     action(ayakashiInstance);
