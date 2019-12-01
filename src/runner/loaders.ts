@@ -170,16 +170,20 @@ export function loadExternalActions(
 
 export function loadExternalExtractors(
     ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
+    projectFolder: string,
     extractors?: string[]
 ) {
     const opLog = getOpLog();
     if (extractors && Array.isArray(extractors)) {
         extractors.forEach(function(extractorModule) {
             try {
-                const registerExtractor = require(extractorModule);
-                if (typeof extractorModule === "function") {
+                let extractor = require(resolveFrom(projectFolder, extractorModule));
+                if (typeof extractor !== "function" && extractor.default) {
+                    extractor = extractor.default;
+                }
+                if (typeof extractor === "function") {
                     d(`loading external extractor: ${extractorModule}`);
-                    registerExtractor(ayakashiInstance);
+                    extractor(ayakashiInstance);
                 } else {
                     throw new Error("invalid_extractor");
                 }

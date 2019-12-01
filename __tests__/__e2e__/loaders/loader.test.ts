@@ -76,7 +76,8 @@ describe("loaders test", function() {
                     retries: 5
                 },
                 load: {
-                    actions: ["external_action1", "external_action2"]
+                    actions: ["external_action1", "external_action2"],
+                    extractors: ["external_extractor1", "external_extractor2"]
                 }
             }, {
                 type: "script",
@@ -108,6 +109,8 @@ describe("loaders test", function() {
 
             expect(results[0].extractors[0]).toBe("extractor1");
             expect(results[0].extractors[1]).toBe("extractor2");
+            expect(results[0].extractors[2]).toBe("external_extractor1");
+            expect(results[0].extractors[3]).toBe("external_extractor2");
 
             expect(results[0].preloaders[0]).toBe("preloader1");
             expect(results[0].preloaders[1]).toBe("preloader2");

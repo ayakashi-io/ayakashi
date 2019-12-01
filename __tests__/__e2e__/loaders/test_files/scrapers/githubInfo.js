@@ -22,7 +22,9 @@ module.exports = async function(ayakashi, input) {
         ],
         extractors: [
             await ayakashi.extractFirst("name", "extractor1"),
-            await ayakashi.extractFirst("name", "extractor2")
+            await ayakashi.extractFirst("name", "extractor2"),
+            await ayakashi.extractFirst("name", "external_extractor1"),
+            await ayakashi.extractFirst("name", "external_extractor2")
         ],
         preloaders: [preloader1, preloader2, preloader3]
     };
