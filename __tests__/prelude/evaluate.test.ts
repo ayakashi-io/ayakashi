@@ -85,6 +85,16 @@ describe("evaluate expressions", function() {
         await ayakashiInstance.__connection.release();
     });
 
+    test("can pass async function to evaluateAsync", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const result = await ayakashiInstance.evaluateAsync(async function(num) {
+            return num;
+        }, 1);
+        expect(result).toBe(1);
+        await ayakashiInstance.__connection.release();
+    });
+
     test("can pass arguments to evaluate", async function() {
         const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
         await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
