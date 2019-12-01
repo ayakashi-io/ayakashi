@@ -22,7 +22,16 @@ export function loadLocalProps(
     const opLog = getOpLog();
     const localPropsDir = pathResolve(projectFolder, "props");
     if (existsSync(localPropsDir)) {
-        const props = requireAll(localPropsDir);
+        const props = requireAll({
+            dirname: localPropsDir,
+            filter: function(fileName: string) {
+                if (fileName.includes(".js") && !fileName.includes(".map")) {
+                    return fileName;
+                } else {
+                    return false;
+                }
+            }
+        });
         Object.keys(props).forEach(function(propName) {
             try {
                 if (typeof props[propName] !== "function" && props[propName].default) {
@@ -46,7 +55,16 @@ export function loadLocalActions(ayakashiInstance: IAyakashiInstance, projectFol
     const opLog = getOpLog();
     const localActionsDir = pathResolve(projectFolder, "actions");
     if (existsSync(localActionsDir)) {
-        const actions = requireAll(localActionsDir);
+        const actions = requireAll({
+            dirname: localActionsDir,
+            filter: function(fileName: string) {
+                if (fileName.includes(".js") && !fileName.includes(".map")) {
+                    return fileName;
+                } else {
+                    return false;
+                }
+            }
+        });
         Object.keys(actions).forEach(function(actionName) {
             try {
                 if (typeof actions[actionName] !== "function" && actions[actionName].default) {
@@ -73,7 +91,16 @@ export function loadLocalExtractors(
     const opLog = getOpLog();
     const localExtractorsDir = pathResolve(projectFolder, "extractors");
     if (existsSync(localExtractorsDir)) {
-        const extractors = requireAll(localExtractorsDir);
+        const extractors = requireAll({
+            dirname: localExtractorsDir,
+            filter: function(fileName: string) {
+                if (fileName.includes(".js") && !fileName.includes(".map")) {
+                    return fileName;
+                } else {
+                    return false;
+                }
+            }
+        });
         Object.keys(extractors).forEach(function(extractor) {
             try {
                 if (typeof extractors[extractor] !== "function" && extractors[extractor].default) {
