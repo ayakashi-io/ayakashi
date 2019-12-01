@@ -145,7 +145,7 @@ export default async function renderlessScraperWrapper(log: PassedLog) {
         const yieldWatcher = {yieldedAtLeastOnce: false};
         attachYields(ayakashiInstance, pipeprocClient, log.body.saveTopic, log.body.selfTopic, yieldWatcher);
 
-        loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
+        loadExternalExtractors(ayakashiInstance, log.body.projectFolder, log.body.load.extractors);
         loadLocalExtractors(ayakashiInstance, log.body.projectFolder);
 
         let scraperModule;
