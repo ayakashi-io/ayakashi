@@ -25,6 +25,9 @@ export function loadLocalProps(
         const props = requireAll(localPropsDir);
         Object.keys(props).forEach(function(propName) {
             try {
+                if (typeof props[propName] !== "function" && props[propName].default) {
+                    props[propName] = props[propName].default;
+                }
                 if (typeof props[propName] === "function") {
                     d(`autoloading prop: ${propName}`);
                     props[propName](ayakashiInstance);
@@ -46,6 +49,9 @@ export function loadLocalActions(ayakashiInstance: IAyakashiInstance, projectFol
         const actions = requireAll(localActionsDir);
         Object.keys(actions).forEach(function(actionName) {
             try {
+                if (typeof actions[actionName] !== "function" && actions[actionName].default) {
+                    actions[actionName] = actions[actionName].default;
+                }
                 if (typeof actions[actionName] === "function") {
                     d(`autoloading action: ${actionName}`);
                     actions[actionName](ayakashiInstance);
@@ -70,6 +76,9 @@ export function loadLocalExtractors(
         const extractors = requireAll(localExtractorsDir);
         Object.keys(extractors).forEach(function(extractor) {
             try {
+                if (typeof extractors[extractor] !== "function" && extractors[extractor].default) {
+                    extractors[extractor] = extractors[extractor].default;
+                }
                 if (typeof extractors[extractor] === "function") {
                     d(`autoloading extractor: ${extractor}`);
                     extractors[extractor](ayakashiInstance);

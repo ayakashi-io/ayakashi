@@ -306,6 +306,9 @@ export async function createConnection(
                             (function() {
                                 document.addEventListener("DOMContentLoaded", function() {
                                     ${source}
+                                    if (typeof ${connection.namespace}__${wrapper} !== "function" && ${connection.namespace}__${wrapper}.default) {
+                                        ${connection.namespace}__${wrapper} = ${connection.namespace}__${wrapper}.default;
+                                    }
                                     if (${hasAlias}) {
                                         window['${connection.namespace}'].preloaders["${as}"] = ${connection.namespace}__${wrapper};
                                     } else {
@@ -321,6 +324,9 @@ export async function createConnection(
                         source: `
                             (function() {
                                 ${source}
+                                if (typeof ${connection.namespace}__${wrapper} !== "function" && ${connection.namespace}__${wrapper}.default) {
+                                    ${connection.namespace}__${wrapper} = ${connection.namespace}__${wrapper}.default;
+                                }
                                 if (${hasAlias}) {
                                     window['${connection.namespace}'].preloaders["${as}"] = ${connection.namespace}__${wrapper};
                                 } else {
