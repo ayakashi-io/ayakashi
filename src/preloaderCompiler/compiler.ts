@@ -14,6 +14,7 @@ export function compile(
     entry: string,
     namespace: string,
     cacheFolder: string,
+    useFileName: boolean,
     noCache?: boolean
 ): Promise<{wrapper: string, source: string}> {
     if (!entry || (typeof entry !== "string" && typeof entry !== "function")) {
@@ -25,9 +26,13 @@ export function compile(
     const input = resolveFrom.silent(workingDir, entry);
     if (!input) return Promise.reject(`Could not resolve module ${entry}`);
     const cacheFileName = createHash("sha1").update(input).digest("hex");
-    let wrapperName = "";
-    wrapperName = input.split(sep)[input.split(sep).length - 1];
-    wrapperName = wrapperName.split(".")[0];
+    let wrapperName: string;
+    if (useFileName) {
+        wrapperName = input.split(sep)[input.split(sep).length - 1];
+        wrapperName = wrapperName.split(".")[0];
+    } else {
+        wrapperName = entry;
+    }
     return new Promise(function(res, rej) {
         const b = browserify(
             Object.assign(

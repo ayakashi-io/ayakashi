@@ -60,6 +60,7 @@ describe("loaders test", function() {
                 bridgePort: 0,
                 workers: 1
             },
+            //@ts-ignore
             waterfall: [{
                 type: "script",
                 module: "getPage",
@@ -77,7 +78,16 @@ describe("loaders test", function() {
                 },
                 load: {
                     actions: ["external_action1", "external_action2"],
-                    extractors: ["external_extractor1", "external_extractor2"]
+                    extractors: ["external_extractor1", "external_extractor2"],
+                    //@ts-ignore
+                    preloaders: [
+                        "external_preloader1",
+                        "external_preloader2",
+                        {
+                            module: "external_preloader3",
+                            as: "my_external_preloader"
+                        }
+                    ]
                 }
             }, {
                 type: "script",
@@ -115,6 +125,9 @@ describe("loaders test", function() {
             expect(results[0].preloaders[0]).toBe("preloader1");
             expect(results[0].preloaders[1]).toBe("preloader2");
             expect(results[0].preloaders[2]).toBe("preloader3");
+            expect(results[0].preloaders[3]).toBe("external_preloader1");
+            expect(results[0].preloaders[4]).toBe("external_preloader2");
+            expect(results[0].preloaders[5]).toBe("external_preloader3");
             done();
         });
     });

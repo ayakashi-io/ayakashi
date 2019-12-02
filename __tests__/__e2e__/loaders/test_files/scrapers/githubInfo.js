@@ -11,6 +11,16 @@ module.exports = async function(ayakashi, input) {
         return window.ayakashi.preloaders.preloader3();
     });
 
+    const external_preloader1 = await ayakashi.evaluate(function() {
+        return window.external_preloader1;
+    });
+    const external_preloader2 = await ayakashi.evaluate(function() {
+        return window.ayakashi.preloaders.external_preloader2();
+    });
+    const external_preloader3 = await ayakashi.evaluate(function() {
+        return window.ayakashi.preloaders.my_external_preloader();
+    });
+
     return {
         name: await ayakashi.extractFirst("name"),
         author: await ayakashi.extractFirst("author"),
@@ -26,6 +36,13 @@ module.exports = async function(ayakashi, input) {
             await ayakashi.extractFirst("name", "external_extractor1"),
             await ayakashi.extractFirst("name", "external_extractor2")
         ],
-        preloaders: [preloader1, preloader2, preloader3]
+        preloaders: [
+            preloader1,
+            preloader2,
+            preloader3,
+            external_preloader1,
+            external_preloader2,
+            external_preloader3
+        ]
     };
 };

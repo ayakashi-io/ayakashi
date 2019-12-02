@@ -125,7 +125,11 @@ export async function loadLocalPreloaders(connection: IConnection, projectFolder
     const localPreloadersDir = pathResolve(projectFolder, "preloaders");
     if (existsSync(localPreloadersDir)) {
         const localPreloaders: string[] = await dir.promiseFiles(localPreloadersDir);
-        const localPreloaderDefinitions = localPreloaders.map(function(preloader: string) {
+        const localPreloaderDefinitions = localPreloaders
+        .filter(function(preloader) {
+            return preloader.includes(".js") && !preloader.includes(".map");
+        })
+        .map(function(preloader) {
             return {
                 module: preloader,
                 as: null,
@@ -136,7 +140,9 @@ export async function loadLocalPreloaders(connection: IConnection, projectFolder
             connection,
             localPreloaderDefinitions,
             projectFolder,
-            storeProjectFolder
+            storeProjectFolder,
+            //for local preloader we use the fileName as its name
+            true
         );
     }
 }
@@ -210,8 +216,8 @@ export async function loadExternalPreloaders(
             module: string,
             as: string | null,
             waitForDOM: boolean
-            //@ts-ignore
-        }[] = log.body.load.preloaders.map(function(preloader) {
+        //@ts-ignore
+        }[] = preloaders.map(function(preloader) {
             if (typeof preloader === "string") {
                 return {
                     module: preloader,
@@ -229,7 +235,15 @@ export async function loadExternalPreloaders(
             }
             //@ts-ignore
         }).filter(preloader => !!preloader);
-        await loadPreloaders(connection, preloaderDefinitions, projectFolder, storeProjectFolder);
+        await loadPreloaders(
+            connection,
+            preloaderDefinitions,
+            projectFolder,
+            storeProjectFolder,
+            //for external preloaders we don't use the fileName as its name
+            //we use the name provided
+            false
+        );
     }
 }
 
@@ -241,7 +255,8 @@ async function loadPreloaders(
         waitForDOM: boolean
     }[],
     projectFolder: string,
-    storeProjectFolder: string
+    storeProjectFolder: string,
+    useFileName: boolean
 ) {
     const opLog = getOpLog();
     const preloaders = await Promise.all(preloaderDefinitions.map(function(preloaderDefinition) {
@@ -250,7 +265,8 @@ async function loadPreloaders(
                 projectFolder,
                 preloaderDefinition.module,
                 "ayakashi",
-                `${storeProjectFolder}/.cache/preloaders/`
+                `${storeProjectFolder}/.cache/preloaders/`,
+                useFileName
             ).then(function(compiled) {
                 resolve({
                     compiled: compiled,
