@@ -207,7 +207,8 @@ export default async function scraperWrapper(log: PassedLog) {
             log.body.appRoot,
             `./lib/domQL/domQL`,
             "ayakashi",
-            `${log.body.storeProjectFolder}/.cache/preloaders/`
+            `${log.body.storeProjectFolder}/.cache/preloaders/`,
+            true
         );
         await connection.injectPreloader({compiled: domqlPreloader, as: "domQL", waitForDOM: false});
 
@@ -216,7 +217,8 @@ export default async function scraperWrapper(log: PassedLog) {
             log.body.appRoot,
             `@ayakashi/get-node-selector`,
             "ayakashi",
-            `${log.body.storeProjectFolder}/.cache/preloaders/`
+            `${log.body.storeProjectFolder}/.cache/preloaders/`,
+            true
         );
         await connection.injectPreloader({
             compiled: findCssSelectorPreloader,
@@ -228,7 +230,8 @@ export default async function scraperWrapper(log: PassedLog) {
             log.body.appRoot,
             "./lib/detection/patch",
             "ayakashi",
-            `${log.body.storeProjectFolder}/.cache/preloaders/`
+            `${log.body.storeProjectFolder}/.cache/preloaders/`,
+            true
         );
         await connection.injectPreloader({
             compiled: detectionPatches,
@@ -241,7 +244,8 @@ export default async function scraperWrapper(log: PassedLog) {
             log.body.appRoot,
             "./lib/utils/marshalling",
             "ayakashi",
-            `${log.body.storeProjectFolder}/.cache/preloaders/`
+            `${log.body.storeProjectFolder}/.cache/preloaders/`,
+            true
         );
         await connection.injectPreloader({
             compiled: marshalling,
@@ -306,8 +310,8 @@ async function loadExternals(
     ayakashiInstance: IAyakashiInstance,
     log: PassedLog
 ) {
-    loadExternalActions(ayakashiInstance, log.body.load.actions);
-    loadExternalExtractors(ayakashiInstance, log.body.load.extractors);
+    loadExternalActions(ayakashiInstance, log.body.projectFolder, log.body.load.actions);
+    loadExternalExtractors(ayakashiInstance, log.body.projectFolder, log.body.load.extractors);
     await loadExternalPreloaders(
         connection,
         log.body.projectFolder,

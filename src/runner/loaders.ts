@@ -4,6 +4,7 @@ import {IConnection} from "../engine/createConnection";
 import {resolve as pathResolve} from "path";
 //@ts-ignore
 import requireAll from "require-all";
+import resolveFrom from "resolve-from";
 import dir from "node-dir";
 import {existsSync} from "fs";
 import {getOpLog} from "../opLog/opLog";
@@ -22,9 +23,21 @@ export function loadLocalProps(
     const opLog = getOpLog();
     const localPropsDir = pathResolve(projectFolder, "props");
     if (existsSync(localPropsDir)) {
-        const props = requireAll(localPropsDir);
+        const props = requireAll({
+            dirname: localPropsDir,
+            filter: function(fileName: string) {
+                if (fileName.includes(".js") && !fileName.includes(".map")) {
+                    return fileName;
+                } else {
+                    return false;
+                }
+            }
+        });
         Object.keys(props).forEach(function(propName) {
             try {
+                if (typeof props[propName] !== "function" && props[propName].default) {
+                    props[propName] = props[propName].default;
+                }
                 if (typeof props[propName] === "function") {
                     d(`autoloading prop: ${propName}`);
                     props[propName](ayakashiInstance);
@@ -43,9 +56,21 @@ export function loadLocalActions(ayakashiInstance: IAyakashiInstance, projectFol
     const opLog = getOpLog();
     const localActionsDir = pathResolve(projectFolder, "actions");
     if (existsSync(localActionsDir)) {
-        const actions = requireAll(localActionsDir);
+        const actions = requireAll({
+            dirname: localActionsDir,
+            filter: function(fileName: string) {
+                if (fileName.includes(".js") && !fileName.includes(".map")) {
+                    return fileName;
+                } else {
+                    return false;
+                }
+            }
+        });
         Object.keys(actions).forEach(function(actionName) {
             try {
+                if (typeof actions[actionName] !== "function" && actions[actionName].default) {
+                    actions[actionName] = actions[actionName].default;
+                }
                 if (typeof actions[actionName] === "function") {
                     d(`autoloading action: ${actionName}`);
                     actions[actionName](ayakashiInstance);
@@ -67,9 +92,21 @@ export function loadLocalExtractors(
     const opLog = getOpLog();
     const localExtractorsDir = pathResolve(projectFolder, "extractors");
     if (existsSync(localExtractorsDir)) {
-        const extractors = requireAll(localExtractorsDir);
+        const extractors = requireAll({
+            dirname: localExtractorsDir,
+            filter: function(fileName: string) {
+                if (fileName.includes(".js") && !fileName.includes(".map")) {
+                    return fileName;
+                } else {
+                    return false;
+                }
+            }
+        });
         Object.keys(extractors).forEach(function(extractor) {
             try {
+                if (typeof extractors[extractor] !== "function" && extractors[extractor].default) {
+                    extractors[extractor] = extractors[extractor].default;
+                }
                 if (typeof extractors[extractor] === "function") {
                     d(`autoloading extractor: ${extractor}`);
                     extractors[extractor](ayakashiInstance);
@@ -88,7 +125,11 @@ export async function loadLocalPreloaders(connection: IConnection, projectFolder
     const localPreloadersDir = pathResolve(projectFolder, "preloaders");
     if (existsSync(localPreloadersDir)) {
         const localPreloaders: string[] = await dir.promiseFiles(localPreloadersDir);
-        const localPreloaderDefinitions = localPreloaders.map(function(preloader: string) {
+        const localPreloaderDefinitions = localPreloaders
+        .filter(function(preloader) {
+            return preloader.includes(".js") && !preloader.includes(".map");
+        })
+        .map(function(preloader) {
             return {
                 module: preloader,
                 as: null,
@@ -99,17 +140,26 @@ export async function loadLocalPreloaders(connection: IConnection, projectFolder
             connection,
             localPreloaderDefinitions,
             projectFolder,
-            storeProjectFolder
+            storeProjectFolder,
+            //for local preloader we use the fileName as its name
+            true
         );
     }
 }
 
-export function loadExternalActions(ayakashiInstance: IAyakashiInstance, actions?: string[]) {
+export function loadExternalActions(
+    ayakashiInstance: IAyakashiInstance,
+    projectFolder: string,
+    actions?: string[]
+) {
     const opLog = getOpLog();
     if (actions && Array.isArray(actions)) {
         actions.forEach(function(actionModule) {
             try {
-                const action = require(actionModule);
+                let action = require(resolveFrom(projectFolder, actionModule));
+                if (typeof action !== "function" && action.default) {
+                    action = action.default;
+                }
                 if (typeof action === "function") {
                     d(`loading external action: ${actionModule}`);
                     action(ayakashiInstance);
@@ -126,16 +176,20 @@ export function loadExternalActions(ayakashiInstance: IAyakashiInstance, actions
 
 export function loadExternalExtractors(
     ayakashiInstance: IAyakashiInstance | IRenderlessAyakashiInstance,
+    projectFolder: string,
     extractors?: string[]
 ) {
     const opLog = getOpLog();
     if (extractors && Array.isArray(extractors)) {
         extractors.forEach(function(extractorModule) {
             try {
-                const registerExtractor = require(extractorModule);
-                if (typeof extractorModule === "function") {
+                let extractor = require(resolveFrom(projectFolder, extractorModule));
+                if (typeof extractor !== "function" && extractor.default) {
+                    extractor = extractor.default;
+                }
+                if (typeof extractor === "function") {
                     d(`loading external extractor: ${extractorModule}`);
-                    registerExtractor(ayakashiInstance);
+                    extractor(ayakashiInstance);
                 } else {
                     throw new Error("invalid_extractor");
                 }
@@ -162,8 +216,8 @@ export async function loadExternalPreloaders(
             module: string,
             as: string | null,
             waitForDOM: boolean
-            //@ts-ignore
-        }[] = log.body.load.preloaders.map(function(preloader) {
+        //@ts-ignore
+        }[] = preloaders.map(function(preloader) {
             if (typeof preloader === "string") {
                 return {
                     module: preloader,
@@ -181,7 +235,15 @@ export async function loadExternalPreloaders(
             }
             //@ts-ignore
         }).filter(preloader => !!preloader);
-        await loadPreloaders(connection, preloaderDefinitions, projectFolder, storeProjectFolder);
+        await loadPreloaders(
+            connection,
+            preloaderDefinitions,
+            projectFolder,
+            storeProjectFolder,
+            //for external preloaders we don't use the fileName as its name
+            //we use the name provided
+            false
+        );
     }
 }
 
@@ -193,7 +255,8 @@ async function loadPreloaders(
         waitForDOM: boolean
     }[],
     projectFolder: string,
-    storeProjectFolder: string
+    storeProjectFolder: string,
+    useFileName: boolean
 ) {
     const opLog = getOpLog();
     const preloaders = await Promise.all(preloaderDefinitions.map(function(preloaderDefinition) {
@@ -202,7 +265,8 @@ async function loadPreloaders(
                 projectFolder,
                 preloaderDefinition.module,
                 "ayakashi",
-                `${storeProjectFolder}/.cache/preloaders/`
+                `${storeProjectFolder}/.cache/preloaders/`,
+                useFileName
             ).then(function(compiled) {
                 resolve({
                     compiled: compiled,

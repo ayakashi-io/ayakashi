@@ -18,6 +18,7 @@ export async function getAyakashiInstance(
         `./domQL/domQL`,
         "ayakashi",
         "",
+        true,
         true
     );
     await connection.injectPreloader({compiled: domqlPreloader, as: "domQL", waitForDOM: false});
@@ -26,6 +27,7 @@ export async function getAyakashiInstance(
         `@ayakashi/get-node-selector`,
         "ayakashi",
         "",
+        true,
         true
     );
     await connection.injectPreloader({
@@ -38,6 +40,7 @@ export async function getAyakashiInstance(
         "./detection/patch",
         "ayakashi",
         "",
+        true,
         true
     );
     await connection.injectPreloader({
@@ -50,6 +53,7 @@ export async function getAyakashiInstance(
         "./utils/marshalling",
         "ayakashi",
         "",
+        true,
         true
     );
     await connection.injectPreloader({
