@@ -83,7 +83,7 @@ type StepLoadingOptions = {
     /**
      * An array of external preloader modules.
      */
-    preloaders?: string[] | {
+    preloaders?: (string | {
         /**
          * The preloader's module name
          */
@@ -96,7 +96,7 @@ type StepLoadingOptions = {
          * Set it to `true` to wait for the DOM to be ready before loading the preloader.
          */
         waitForDom?: boolean
-    }[]
+    })[]
 };
 
 export type Config = {

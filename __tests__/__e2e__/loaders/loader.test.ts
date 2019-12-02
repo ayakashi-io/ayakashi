@@ -60,7 +60,6 @@ describe("loaders test", function() {
                 bridgePort: 0,
                 workers: 1
             },
-            //@ts-ignore
             waterfall: [{
                 type: "script",
                 module: "getPage",
@@ -79,7 +78,6 @@ describe("loaders test", function() {
                 load: {
                     actions: ["external_action1", "external_action2"],
                     extractors: ["external_extractor1", "external_extractor2"],
-                    //@ts-ignore
                     preloaders: [
                         "external_preloader1",
                         "external_preloader2",
