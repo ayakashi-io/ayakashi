@@ -35,6 +35,12 @@ export function attachJoinActions(
                 throw new Error(`Property <${key}> does not have the correct length`);
             }
         }
+        //if we have empty values return an empty array
+        for (const val of Object.values(obj)) {
+            if (Array.isArray(val) && val.length === 0) {
+                return [];
+            }
+        }
         //save all non-arrays
         const nonArrays = [];
         for (const [key, val] of Object.entries(obj)) {

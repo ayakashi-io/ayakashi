@@ -331,4 +331,26 @@ describe("join() tests", function() {
         }]);
         await ayakashiInstance.__connection.release();
     });
+
+    test("join with empty values", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const joined = ayakashiInstance.join({
+            value1: [],
+            value2: []
+        });
+        expect(joined).toBeArrayOfSize(0);
+        await ayakashiInstance.__connection.release();
+    });
+
+    test("join with empty value and a non-array", async function() {
+        const ayakashiInstance = await getAyakashiInstance(headlessChrome, bridgePort);
+        await ayakashiInstance.goTo(`http://localhost:${staticServerPort}`);
+        const joined = ayakashiInstance.join({
+            value1: "hello",
+            value2: []
+        });
+        expect(joined).toBeArrayOfSize(0);
+        await ayakashiInstance.__connection.release();
+    });
 });
