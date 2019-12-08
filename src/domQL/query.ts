@@ -152,8 +152,18 @@ function throwIfInvalidExpected(expected: unknown) {
 function formatExpected(attribute: string, expected: unknown) {
     if (attribute.indexOf("style-") > -1 && attribute.indexOf("color") > -1) {
         return handleStyleColors(<string>expected);
-    } else if (attribute === "tagName" && typeof expected === "string") {
-        return expected.toUpperCase();
+    } else if (attribute === "tagName") {
+        if (typeof expected === "string") {
+            return expected.toUpperCase();
+        } else if (Array.isArray(expected)) {
+            return expected.map(function(ex) {
+                if (typeof ex === "string") {
+                    return ex.toUpperCase();
+                } else {
+                    return ex;
+                }
+            });
+        }
     }
 
     return expected;

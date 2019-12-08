@@ -93,4 +93,18 @@ describe("test tagName", function() {
         expect(results).toBeArrayOfSize(0);
     });
 
+    test("with in", function() {
+        const results = domQuery({
+            where: {
+                tagName: {
+                    in: ["div"]
+                }
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(1);
+        expect(results[0]).toBe(dom.window.document.getElementById("theDiv"));
+    });
+
 });
