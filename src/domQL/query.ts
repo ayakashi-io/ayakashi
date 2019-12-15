@@ -111,11 +111,12 @@ function expandQuery(
                 `Invalid operator: ${newTop}. Learn more at https://ayakashi.io/docs/guide/querying-with-domql.html`
             );
         }
+        const container = {[key]: []};
         (<[]>member[key]).forEach(submember => {
             const subkey = Object.keys(submember)[0];
             //@ts-ignore
-            if (!reductionTree[top].find(obj => Object.keys(obj)[0] === key)) {
-                reductionTree[top].push({[key]: []});
+            if (!reductionTree[top].includes(container)) {
+                reductionTree[top].push(container);
             }
             expandQuery(env, submember, subkey, reductionTree[top][reductionTree[top].length - 1], el, newTop);
         });

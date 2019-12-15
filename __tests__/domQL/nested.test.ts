@@ -22,6 +22,8 @@ const dom = new JSDOM(`
         </ul>
     </div>
     <div id="justADiv" style="display:none"></div>
+    <span class="mySpanClass1"></span>
+    <span class="mySpanClass2"></span>
 `);
 
 describe("nested queries", function() {
@@ -278,6 +280,33 @@ describe("nested queries", function() {
         expect(results[1]).toBe(dom.window.document.getElementById("element2"));
     });
 
+    it("nested OR inside an AND when OR is second", function() {
+        const results = domQuery({
+            where: {
+                and: [{
+                    tagName: {
+                        eq: "li"
+                    }
+                }, {
+                    or: [{
+                        id: {
+                            eq: "element1"
+                        }
+                    }, {
+                        id: {
+                            eq: "element2"
+                        }
+                    }]
+                }]
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(2);
+        expect(results[0]).toBe(dom.window.document.getElementById("element1"));
+        expect(results[1]).toBe(dom.window.document.getElementById("element2"));
+    });
+
     it("nested AND inside an OR when AND is first", function() {
         const results = domQuery({
             where: {
@@ -304,5 +333,64 @@ describe("nested queries", function() {
         expect(results[0]).toBe(dom.window.document.getElementById("a_div"));
         expect(results[1]).toBe(dom.window.document.getElementById("element1"));
         expect(results[2]).toBe(dom.window.document.getElementById("justADiv"));
+    });
+
+    it("nested AND inside an OR when AND is second", function() {
+        const results = domQuery({
+            where: {
+                or: [{
+                    tagName: {
+                        eq: "div"
+                    }
+                }, {
+                    and: [{
+                        tagName: {
+                            eq: "li"
+                        }
+                    }, {
+                        dataValue: {
+                            eq: "test"
+                        }
+                    }]
+                }]
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(3);
+        expect(results[0]).toBe(dom.window.document.getElementById("a_div"));
+        expect(results[1]).toBe(dom.window.document.getElementById("element1"));
+        expect(results[2]).toBe(dom.window.document.getElementById("justADiv"));
+    });
+
+    test("same operators in a single level", function() {
+        const results = domQuery({
+            where: {
+                or: [{
+                    and: [{
+                        tagName: {
+                            eq: "span"
+                        }
+                    }, {
+                        class: {
+                            eq: "mySpanClass1"
+                        }
+                    }]
+                }, {
+                    and: [{
+                        tagName: {
+                            eq: "span"
+                        }
+                    }, {
+                        class: {
+                            eq: "mySpanClass2"
+                        }
+                    }]
+                }]
+            }
+        }, {
+            env: dom.window
+        });
+        expect(results).toBeArrayOfSize(2);
     });
 });
