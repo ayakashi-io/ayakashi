@@ -301,8 +301,7 @@ export function createQuery(
         },
         from: function(fromPropId) {
             if (Array.isArray(fromPropId)) {
-                //@ts-ignore
-                fromPropId.forEach(id => {
+                fromPropId.forEach((id: string | IDomProp) => {
                     const p = ayakashiInstance.prop(id);
                     if (!p) {
                         throw new Error(`Uknown parent prop : ${id}`);
@@ -319,6 +318,7 @@ export function createQuery(
             return this;
         },
         trigger: async function(triggerOptions) {
+            //if it's not a force-trigger and prop not already triggered, just return the match count
             if (!triggerOptions || triggerOptions.force !== true) {
                 if (triggered) {
                     const propMatches = await ayakashiInstance.evaluate(function(scopedPropId: string) {
@@ -337,12 +337,17 @@ export function createQuery(
                 }
             }
             triggered = true;
+            //trigger the parents first
             if (this.parent && this.parent.length > 0) {
                 const parentsWithMatch = (await Promise.all(this.parent.map(p => p.trigger()))).filter(c => c > 0);
                 if (parentsWithMatch.length === 0) {
                     opLog.warn(`prop: ${this.id} has no parent matches`);
                     return 0;
                 }
+            }
+            //cascade trackMissingChildren on child props
+            if (this.parent && this.parent.length > 0 && this.parent.find(p => p.__trackMissingChildren === true)) {
+                this.trackMissingChildren();
             }
             d(`triggering prop: ${this.id}`);
             if (opts && opts.triggerFn) {
