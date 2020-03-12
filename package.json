@@ -96,7 +96,7 @@
     "rimraf": "~2.6.3",
     "semver": "~6.1.1",
     "sequelize": "~5.19.0",
-    "sqlite3": "~4.0.6",
+    "sqlite3": "~4.1.1",
     "tedious": "~5.0.3",
     "tough-cookie": "~3.0.1",
     "user-agents": "~1.0.471",
