@@ -2617,12 +2617,19 @@
       "integrity": "sha512-GkfeAQh+QNy3wquu9oIZr6SS5x7wGdSgNQvD10X3r+AZr1Oys22HW8kAmDMvNg2+Dm0TeGaEuO8gFwdBXxwO8A=="
     },
     "chrome-remote-interface": {
-      "version": "0.27.2",
-      "resolved": "https://registry.npmjs.org/chrome-remote-interface/-/chrome-remote-interface-0.27.2.tgz",
-      "integrity": "sha512-pVLljQ29SAx8KIv5tSa9sIf8GrEsAZdPJoeWOmY3/nrIzFmE+EryNNHvDkddGod0cmAFTv+GmPG0uvzxi2NWsA==",
+      "version": "0.28.1",
+      "resolved": "https://registry.npmjs.org/chrome-remote-interface/-/chrome-remote-interface-0.28.1.tgz",
+      "integrity": "sha512-OnVjEOuZtPDImShaWSQPKPZMNnUnoZfLKhayeXUWOyqir3MT1OTqMzUDEnIVx1itPnsW7CiKgyNLLgvgdniJgQ==",
       "requires": {
         "commander": "2.11.x",
-        "ws": "^6.1.0"
+        "ws": "^7.2.0"
+      },
+      "dependencies": {
+        "ws": {
+          "version": "7.2.3",
+          "resolved": "https://registry.npmjs.org/ws/-/ws-7.2.3.tgz",
+          "integrity": "sha512-HTDl9G9hbkNDk98naoR/cHDws7+EyYMOdL1BmjsZXRUjf7d+MficC4B7HLUPlSiho0vg+CWKrGIt/VJBd1xunQ=="
+        }
       }
     },
     "ci-info": {

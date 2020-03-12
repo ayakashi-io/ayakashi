@@ -75,7 +75,7 @@
     "browserify": "~16.2.3",
     "browserify-incremental": "~3.1.1",
     "chalk": "~2.4.2",
-    "chrome-remote-interface": "~0.27.0",
+    "chrome-remote-interface": "~0.28.1",
     "cli-table": "~0.3.1",
     "dayjs": "~1.8.8",
     "debug": "~4.1.1",
