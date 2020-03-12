@@ -32,6 +32,7 @@ describe("test optional where", function() {
         //@ts-ignore
         const results = domQuery({}, {
             env: dom.window,
+            //@ts-ignore
             scope: dom.window.document.querySelector("#myList")
         });
         expect(results).toBeArrayOfSize(3);

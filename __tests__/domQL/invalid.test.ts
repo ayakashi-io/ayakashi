@@ -70,6 +70,7 @@ describe("test invalid input", function() {
             //@ts-ignore
             where: {
                 id: {
+                    //@ts-ignore
                     eq: null
                 }
             }
