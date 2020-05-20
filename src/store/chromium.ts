@@ -15,7 +15,7 @@ export async function getStoredRevision() {
 
 export async function updateStoredRevision(newRevision: number) {
     const storeDir = await getStoreDir();
-    writeFileSync(pathResolve(storeDir, "chromium", "revision"), newRevision);
+    writeFileSync(pathResolve(storeDir, "chromium", "revision"), String(newRevision));
 }
 
 export async function getChromePath() {
