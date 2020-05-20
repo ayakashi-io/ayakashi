@@ -107,6 +107,7 @@
     "clean": "tsc --build --clean",
     "build": "tsc --build --clean && tsc --build",
     "watch": "tsc --build --clean && tsc --watch",
+    "lint": "tslint -p ./",
     "test": "npm run build && node lib/cli/cli.js get-chrome && node scripts/checkTypo.js && jest",
     "build-types": "rm -rf ./lib && tsc --build --clean && tsc -d --emitDeclarationOnly --allowJs false && node scripts/formatTypes.js",
     "generate-core-action-docs": "typedoc --mode file --json ./doc.json && node ./scripts/generateCoreActionDocs.js && rm ./doc.json",

@@ -1,5 +1,7 @@
 import {isRegExp} from "util";
 
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+
 export function replacer(_key: string, value: unknown) {
     if (value && typeof value === "function") {
         return {
@@ -51,5 +53,3 @@ export function getReviver(ns: unknown) {
         }
     };
 }
-
-const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
