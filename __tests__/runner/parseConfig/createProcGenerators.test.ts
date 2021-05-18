@@ -22,8 +22,11 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
+            //@ts-ignore
             delete p.config;
             return p;
         });
@@ -59,8 +62,11 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
+            //@ts-ignore
             delete p.config;
             return p;
         });
@@ -99,8 +105,11 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
+            //@ts-ignore
             delete p.config;
             return p;
         });
@@ -136,8 +145,11 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
+            //@ts-ignore
             delete p.config;
             return p;
         });
@@ -189,8 +201,11 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
+            //@ts-ignore
             delete p.config;
             return p;
         });
@@ -258,8 +273,11 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
+            //@ts-ignore
             delete p.config;
             return p;
         });
@@ -333,8 +351,11 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
+            //@ts-ignore
             delete p.config;
             return p;
         });
@@ -405,8 +426,11 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
+            //@ts-ignore
             delete p.config;
             return p;
         });
@@ -475,7 +499,9 @@ describe("createProcGenerators", function() {
             operationId: "",
             startDate: ""
         }).procGenerators.map((p) => {
+            //@ts-ignore
             delete p.processor;
+            //@ts-ignore
             delete p.name;
             return p;
         });

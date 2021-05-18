@@ -104,7 +104,7 @@ function getGitIgnore() {
 function runNpmInstall(npm: string) {
     const opLog = getOpLog();
     const waiter = opLog.waiter("installing dependencies");
-    return new Promise(function(resolve) {
+    return new Promise<void>(function(resolve) {
         exec(`${npm} install`, function(err) {
             if (err) {
                 waiter.fail("failed to run npm install, please run it manually");

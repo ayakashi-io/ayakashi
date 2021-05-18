@@ -119,7 +119,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         await this.scrollIntoView(myProp);
         let previousHeight = -1;
         let currentHeight = 0;
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             ayakashiInstance.waitUntil(async function() {
                 try {
                     if (previousHeight !== currentHeight) {
@@ -162,7 +162,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         if (options && options.scrollInterval) scrollInterval = options.scrollInterval;
         let stopScrollingAfter = 0;
         if (options && options.stopScrollingAfter) stopScrollingAfter = options.stopScrollingAfter;
-        return new Promise(function(resolve, reject) {
+        return new Promise<void>(function(resolve, reject) {
             ayakashiInstance.waitUntil(async function() {
                 try {
                     if (options && typeof options.cb === "function") {

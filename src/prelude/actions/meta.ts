@@ -149,6 +149,7 @@ export function attachMetaActions(
                         matches = [elements];
                     }
                     this.propTable[id] = {
+                        //@ts-ignore
                         matches: matches
                     };
                     return matches.length;

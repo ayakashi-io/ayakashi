@@ -52,7 +52,7 @@ export async function isChromiumAlreadyInstalled() {
 
 export async function cleanChromiumDirectory() {
     const storeDir = await getStoreDir();
-    return new Promise(async function(resolve, reject) {
+    return new Promise<void>(async function(resolve, reject) {
         if (await isChromiumAlreadyInstalled()) {
             rimraf(`${storeDir}/chromium`, function(err) {
                 if (err) {

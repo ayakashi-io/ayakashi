@@ -113,7 +113,7 @@ export default function(ayakashiInstance: IAyakashiInstance) {
         });
     });
 
-    ayakashiInstance.registerAction("waitForInPageNavigation", async function(timeout = 10000): Promise<string> {
+    ayakashiInstance.registerAction("waitForInPageNavigation", async function(timeout = 10000): Promise<void> {
         return new Promise(function(resolve, reject) {
             let resolved = false;
             let aborted = false;

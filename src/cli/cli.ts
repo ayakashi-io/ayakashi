@@ -184,7 +184,7 @@ yargs
             if (argv.dir === ".") {
                 await generateProject(getDirectory(argv.dir), true);
             } else {
-                await generateProject(getDirectory(argv.dir, false), false);
+                await generateProject(getDirectory(<string>argv.dir, false), false);
             }
         } else if (argv.prop) {
             const name = await getName(argv.name, "prop");
@@ -192,56 +192,56 @@ yargs
                 opLog.error("Invalid prop name");
                 process.exit(1);
             }
-            await generateProp(getDirectory(argv.dir), name);
+            await generateProp(getDirectory(<string>argv.dir), name);
         } else if (argv.action) {
             const name = await getName(argv.name, "action");
             if (!name) {
                 opLog.error("Invalid action name");
                 process.exit(1);
             }
-            await generateAction(getDirectory(argv.dir), name);
+            await generateAction(getDirectory(<string>argv.dir), name);
         } else if (argv.extractor) {
             const name = await getName(argv.name, "extractor");
             if (!name) {
                 opLog.error("Invalid extractor name");
                 process.exit(1);
             }
-            await generateExtractor(getDirectory(argv.dir), name);
+            await generateExtractor(getDirectory(<string>argv.dir), name);
         } else if (argv.preloader) {
             const name = await getName(argv.name, "preloader");
             if (!name) {
                 opLog.error("Invalid preloader name");
                 process.exit(1);
             }
-            await generatePreloader(getDirectory(argv.dir), name);
+            await generatePreloader(getDirectory(<string>argv.dir), name);
         } else if (argv.scraper) {
             const name = await getName(argv.name, "scraper");
             if (!name) {
                 opLog.error("Invalid scraper name");
                 process.exit(1);
             }
-            await generateScraper(getDirectory(argv.dir), name);
+            await generateScraper(getDirectory(<string>argv.dir), name);
         } else if (argv.renderlessScraper) {
             const name = await getName(argv.name, "renderlessScraper");
             if (!name) {
                 opLog.error("Invalid renderlessScraper name");
                 process.exit(1);
             }
-            await generateRenderlessScraper(getDirectory(argv.dir), name);
+            await generateRenderlessScraper(getDirectory(<string>argv.dir), name);
         } else if (argv.apiScraper) {
             const name = await getName(argv.name, "apiScraper");
             if (!name) {
                 opLog.error("Invalid apiScraper name");
                 process.exit(1);
             }
-            await generateApiScraper(getDirectory(argv.dir), name);
+            await generateApiScraper(getDirectory(<string>argv.dir), name);
         }  else if (argv.script) {
             const name = await getName(argv.name, "script");
             if (!name) {
                 opLog.error("Invalid script name");
                 process.exit(1);
             }
-            await generateScript(getDirectory(argv.dir), name);
+            await generateScript(getDirectory(<string>argv.dir), name);
         }
 
         await showBoxUpdate();

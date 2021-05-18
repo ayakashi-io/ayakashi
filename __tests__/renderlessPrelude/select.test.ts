@@ -343,7 +343,7 @@ describe("select tests", function() {
         const result2 = await ayakashiInstance.extract("links", "id");
         expect(result2).toEqual(["link3", "link4"]);
         await ayakashiInstance.__connection.release();
-        await new Promise(function(resolve) {
+        await new Promise<void>(function(resolve) {
             anotherStaticServer.close(function() {
                 resolve();
             });

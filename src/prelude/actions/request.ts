@@ -63,7 +63,7 @@ export function attachRequest(
                             resolve(body);
                         }
                     } else {
-                        resolve();
+                        resolve(undefined);
                     }
                 });
             });
