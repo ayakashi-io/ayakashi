@@ -83,7 +83,7 @@
     "extract-zip": "~1.6.7",
     "jsdom": "~13.1.0",
     "json2csv": "~4.3.5",
-    "lodash": "~4.17.15",
+    "lodash": "^4.17.21",
     "mariadb": "~2.0.3",
     "mkdirp": "~0.5.1",
     "mysql2": "~1.6.5",
