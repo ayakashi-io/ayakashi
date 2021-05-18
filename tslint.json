@@ -85,7 +85,8 @@
         "prefer-template": false,
         "jsdoc-format": false,
         "no-non-null-assertion": false,
-        "prefer-type-cast": false
+        "prefer-type-cast": false,
+        "completed-docs": false
     },
     "jsRules": {
         "max-line-length": {

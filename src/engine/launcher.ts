@@ -91,7 +91,7 @@ export async function launch(
 }
 
 function isDebuggerReady(port: number) {
-    return new Promise(function(resolve, reject)  {
+    return new Promise<void>(function(resolve, reject)  {
         const client = net.createConnection(port);
         client.once("error", err => {
             cleanup(client);
@@ -157,7 +157,7 @@ function cleanup(client: net.Socket) {
 function forceKill(
     chrome: ChildProcess
 ) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
         chrome.on("exit", () => {
             resolve();
         });

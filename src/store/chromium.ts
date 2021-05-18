@@ -15,7 +15,7 @@ export async function getStoredRevision() {
 
 export async function updateStoredRevision(newRevision: number) {
     const storeDir = await getStoreDir();
-    writeFileSync(pathResolve(storeDir, "chromium", "revision"), newRevision);
+    writeFileSync(pathResolve(storeDir, "chromium", "revision"), String(newRevision));
 }
 
 export async function getChromePath() {
@@ -52,7 +52,7 @@ export async function isChromiumAlreadyInstalled() {
 
 export async function cleanChromiumDirectory() {
     const storeDir = await getStoreDir();
-    return new Promise(async function(resolve, reject) {
+    return new Promise<void>(async function(resolve, reject) {
         if (await isChromiumAlreadyInstalled()) {
             rimraf(`${storeDir}/chromium`, function(err) {
                 if (err) {

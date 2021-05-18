@@ -1,8 +1,8 @@
 import {createInterface} from "readline";
 
-export function getName(name: string | undefined, typeForQuestion: string): Promise<string> {
+export function getName(name: unknown, typeForQuestion: string): Promise<string> {
     return new Promise(function(resolve) {
-        if (name) {
+        if (name && typeof name === "string") {
             resolve(name);
         } else {
             const rl = createInterface({

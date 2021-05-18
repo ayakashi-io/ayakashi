@@ -212,6 +212,7 @@ export async function loadExternalPreloaders(
     }[]
 ) {
     if (preloaders && Array.isArray(preloaders)) {
+        //@ts-ignore
         const preloaderDefinitions: {
             module: string,
             as: string | null,

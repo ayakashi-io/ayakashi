@@ -35,7 +35,7 @@ export async function downloadChromium(revision: number) {
     }
     opLog.info("downloading latest chromium for", chromiumArch);
     const storeDir = await getStoreDir();
-    return new Promise(function(resolve, reject) {
+    return new Promise<void>(function(resolve, reject) {
         const downloadStream = request
         .get(`https://storage.googleapis.com/chromium-browser-snapshots/${chromiumArch}/${revision}/${filename}.zip`);
         let total = "0mb";
@@ -82,7 +82,7 @@ function toMb(bytes: number) {
 }
 
 function cleanZipFile(zipPath: string) {
-    return new Promise(function(resolve) {
+    return new Promise<void>(function(resolve) {
         unlink(zipPath, function(_err) {
             resolve();
         });
