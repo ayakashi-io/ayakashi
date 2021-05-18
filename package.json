@@ -30,7 +30,6 @@
   ],
   "preferGlobal": true,
   "devDependencies": {
-    "@gerrit0/typedoc": "~0.15.3",
     "@types/async": "~2.4.1",
     "@types/backoff": "~2.5.1",
     "@types/bluebird": "~3.5.27",
@@ -57,11 +56,13 @@
     "eslint-config-google": "~0.11.0",
     "jest": "~26.6.3",
     "jest-extended": "~0.11.5",
+    "js-beautify": "~1.13.13",
     "prettier": "~1.15.3",
     "ts-jest": "~26.5.6",
     "tslint": "~5.12.1",
     "tslint-eslint-rules": "~5.4.0",
     "tslint-microsoft-contrib": "~6.0.0",
+    "typedoc": "~0.20.36",
     "typescript": "~4.2.4"
   },
   "dependencies": {
@@ -110,7 +111,7 @@
     "lint": "tslint -p ./",
     "test": "npm run build && node lib/cli/cli.js get-chrome && node scripts/checkTypo.js && jest",
     "build-types": "rm -rf ./lib && tsc --build --clean && tsc -d --emitDeclarationOnly --allowJs false && node scripts/formatTypes.js",
-    "generate-core-action-docs": "typedoc --mode file --json ./doc.json && node ./scripts/generateCoreActionDocs.js && rm ./doc.json",
+    "generate-core-action-docs": "typedoc src/prelude/prelude.ts --json ./doc.json && node ./scripts/generateCoreActionDocs.js && rm ./doc.json",
     "postinstall": "node scripts/postInstall.js",
     "prepublishOnly": "rm -rf ./lib && tsc --build --clean && tsc --build && npm shrinkwrap"
   }

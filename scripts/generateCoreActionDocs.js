@@ -1,11 +1,10 @@
 const jsonDoc = require("../doc.json");
 const fs = require("fs");
+const beautify = require("js-beautify").js;
 
 console.log("building core actions...");
-const coreActions = jsonDoc.children
-    .filter(ch => ch.name === "\"../prelude/prelude\"")[0]
-    .children[0]
-    .children
+const coreActions = jsonDoc.children[0].children
+    .filter(ch => ch.sources[0].fileName.includes("coreActions/"))
     .map(ch => {
         return {
             name: ch.name,
@@ -85,6 +84,13 @@ function buildText(text) {
             });
         }
     });
+
+    //add proper indentation to code blocks
+    for (const entry of finalText) {
+        if (entry.type === "code") {
+            entry.text = beautify(entry.text);
+        }
+    }
 
     return finalText;
 }
