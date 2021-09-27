@@ -32,6 +32,10 @@ export async function generateProject(projectDir: string, useCurrentFolder: bool
     await writeFile("ayakashi.config.js", getConfig());
     opLog.info("generating package.json");
     await writeFile("package.json", getpackageJson());
+    opLog.info("generating Dockerfile");
+    await writeFile("Dockerfile", getDockerfile())
+    await writeFile("chromium-wrapper.sh", getChromiumWrapper())
+    await writeFile(".dockerignore", getDockerIgnore())
     await generateScraper(projectDir, "githubAbout");
     await generateScript(projectDir, "getPage");
     await writeFile(".gitignore", getGitIgnore());
@@ -98,6 +102,57 @@ function getpackageJson() {
 function getGitIgnore() {
     return (
 `node_modules
+`);
+}
+
+function getDockerfile() {
+    return (
+`FROM node:14-slim
+
+# install dependencies
+RUN apt-get update --fix-missing && \\
+    apt-get -y upgrade \\
+    wget \\
+    gnupg2 \\
+    procps \\
+    chromium
+
+# configure user
+RUN groupadd --system ayakashi && \\
+    useradd --system --create-home --gid ayakashi --groups audio,video ayakashi && \\
+    chown --recursive ayakashi:ayakashi /home/ayakashi
+USER ayakashi
+WORKDIR /home/ayakashi/project
+
+# copy project and install dependencies
+COPY . .
+RUN npm install
+
+# configure chromium container compatibility wrapper 
+COPY --chown=ayakashi:ayakashi chromium-wrapper.sh /home/ayakashi/.ayakashi/chromium/chrome-linux/chrome
+RUN chmod +x /home/ayakashi/.ayakashi/chromium/chrome-linux/chrome
+
+CMD ["npx", "ayakashi", "run"]
+`);
+}
+
+function getDockerIgnore() {
+    return (
+`**/node_modules
+`);
+}
+
+function getChromiumWrapper() {
+    return (
+`#!/bin/bash
+
+chromium \\
+  --headless \\
+  --disable-gpu \\
+  --remote-debugging-port=9730 \\
+  --remote-debugging-address=0.0.0.0 \\
+  --no-sandbox \\
+  --disable-software-rasterizer
 `);
 }
 
