@@ -12,7 +12,7 @@
         "@ayakashi/get-node-selector": "^1.0.0",
         "@ayakashi/input": "^1.0.0",
         "@ayakashi/request": "^2.88.6",
-        "async": "~2.6.2",
+        "async": "~3.2.2",
         "backoff": "~2.5.0",
         "body-parser": "~1.18.3",
         "boxen": "~3.1.0",
@@ -2025,12 +2025,9 @@
       "dev": true
     },
     "node_modules/async": {
-      "version": "2.6.2",
-      "resolved": "https://registry.npmjs.org/async/-/async-2.6.2.tgz",
-      "integrity": "sha512-H1qVYh1MYhEEFLsP97cVKqCGo7KfCyTt6uEWqsTBr9SO84oK9Uwbyd/yCW+6rKJLHksBNUVWZDAjfS+Ccx0Bbg==",
-      "dependencies": {
-        "lodash": "^4.17.11"
-      }
+      "version": "3.2.2",
+      "resolved": "https://registry.npmjs.org/async/-/async-3.2.2.tgz",
+      "integrity": "sha512-H0E+qZaDEfx/FY4t7iLRv1W2fFI6+pyCeTw1uN20AQPiwqwM6ojPxHxdLv4z8hi2DtnW9BOckSspLucW7pIE5g=="
     },
     "node_modules/async-each": {
       "version": "1.0.3",
@@ -14056,12 +14053,9 @@
       "dev": true
     },
     "async": {
-      "version": "2.6.2",
-      "resolved": "https://registry.npmjs.org/async/-/async-2.6.2.tgz",
-      "integrity": "sha512-H1qVYh1MYhEEFLsP97cVKqCGo7KfCyTt6uEWqsTBr9SO84oK9Uwbyd/yCW+6rKJLHksBNUVWZDAjfS+Ccx0Bbg==",
-      "requires": {
-        "lodash": "^4.17.11"
-      }
+      "version": "3.2.2",
+      "resolved": "https://registry.npmjs.org/async/-/async-3.2.2.tgz",
+      "integrity": "sha512-H0E+qZaDEfx/FY4t7iLRv1W2fFI6+pyCeTw1uN20AQPiwqwM6ojPxHxdLv4z8hi2DtnW9BOckSspLucW7pIE5g=="
     },
     "async-each": {
       "version": "1.0.3",
