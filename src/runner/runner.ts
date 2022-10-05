@@ -25,7 +25,6 @@ import {
 
 import {downloadChromium} from "../chromeDownloader/downloader";
 import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
-import {getManifest} from "../store/manifest";
 import {
     getOrCreateStoreProjectFolder,
     hasPreviousRun,
@@ -147,8 +146,7 @@ export async function run(projectFolder: string, config: Config, options: {
         chromePath = config.config.chromePath;
     } else {
         if (!(await isChromiumAlreadyInstalled())) {
-            const manifest = await getManifest();
-            await downloadChromium(manifest.chromium.revision);
+            await downloadChromium(0, 0);
         }
         chromePath = await getChromePath();
     }

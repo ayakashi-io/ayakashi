@@ -1,11 +1,12 @@
 import request from "@ayakashi/request/core";
+import requestPromise from "@ayakashi/request";
 import {getOpLog} from "../opLog/opLog";
 import {createWriteStream, unlink, chmodSync} from "fs";
 import extractZip from "extract-zip";
 import {getStoreDir} from "../store/store";
 import {getChromePath, cleanChromiumDirectory, updateStoredRevision} from "../store/chromium";
 
-export async function downloadChromium(revision: number) {
+export async function downloadChromium(revision: number, storedRevision: number) {
     const opLog = getOpLog();
     let chromiumArch = "";
     let filename = "";
@@ -33,11 +34,26 @@ export async function downloadChromium(revision: number) {
         opLog.error("unsupported architecture:", process.platform, "-", process.arch);
         throw new Error("unsupported_architecture");
     }
-    opLog.info("downloading latest chromium for", chromiumArch);
+    if (!revision) {
+        try {
+            revision = await requestPromise
+            .get(`https://commondatastorage.googleapis.com/chromium-browser-snapshots/${chromiumArch}/LAST_CHANGE`);
+            //@ts-ignore
+            revision = parseInt(revision);
+        } catch (_e) {
+            throw new Error("invalid_chromium_revision");
+        }
+    }
+    opLog.info("downloading chromium", `${revision}`, "for", chromiumArch);
+    if (storedRevision === revision) {
+        opLog.info(`downloaded chromium is already at revision ${revision}`);
+        return;
+    }
+    await cleanChromiumDirectory();
     const storeDir = await getStoreDir();
     return new Promise<void>(function(resolve, reject) {
         const downloadStream = request
-        .get(`https://storage.googleapis.com/chromium-browser-snapshots/${chromiumArch}/${revision}/${filename}.zip`);
+        .get(`https://commondatastorage.googleapis.com/chromium-browser-snapshots/${chromiumArch}/${revision}/${filename}.zip`);
         let total = "0mb";
         let downloaded = 0;
         const waiter = opLog.waiter("0.0MB/0.0MB");

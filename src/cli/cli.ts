@@ -2,8 +2,7 @@ import yargs from "yargs";
 import {run} from "../runner/runner";
 import {getOpLog} from "../opLog/opLog";
 import {downloadChromium} from "../chromeDownloader/downloader";
-import {isChromiumAlreadyInstalled, cleanChromiumDirectory, getStoredRevision} from "../store/chromium";
-import {getManifest} from "../store/manifest";
+import {isChromiumAlreadyInstalled, getStoredRevision} from "../store/chromium";
 import {Config} from "../runner/parseConfig";
 import {getDirectory} from "./getDirectory";
 import {prepareStandard} from "./prepareStandard";
@@ -19,7 +18,6 @@ import {generateRenderlessScraper} from "./scaffold/generateRenderlessScraper";
 import {generateApiScraper} from "./scaffold/generateApiScraper";
 import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
-import {showBoxUpdate, showLineUpdate} from "./update/showUpdate";
 const packageJson = require("../../package.json");
 
 yargs
@@ -79,7 +77,6 @@ yargs
     }, async function(argv) {
         const opLog = getOpLog();
         opLog.info("Ayakashi version:", packageJson.version);
-        await showLineUpdate();
         const resume = <boolean>argv.resume || false;
         const restartDisabledSteps = <boolean>argv.restartDisabledSteps || false;
         const clean = <boolean>argv.clean || false;
@@ -120,7 +117,6 @@ yargs
             sessionKey: <string>argv.sessionKey
         }).then(async function() {
             opLog.info("Nothing more to do!");
-            await showBoxUpdate();
         }).catch(function(err) {
             opLog.error("Something went wrong", err);
             process.exit(1);
@@ -243,39 +239,20 @@ yargs
             }
             await generateScript(getDirectory(<string>argv.dir), name);
         }
-
-        await showBoxUpdate();
     })
     //@ts-ignore
-    .command("update-chrome", "Updates/Downloads the latest chromium revision", (_argv) => {
+    .command("get-chrome", "Downloads the specified chromium revision or the latest one", (_argv) => {
         yargs
-            .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#update-chrome");
+        .option("revision", {
+            describe: "Download a specific revision",
+            type: "number",
+            alias: "r"
+        })
+        .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#get-chrome");
         //@ts-ignore
     }, async function(argv) {
-        const opLog = getOpLog();
         const storedRevision = await getStoredRevision();
-        const manifest = await getManifest();
-        if (storedRevision < manifest.chromium.revision || !(await isChromiumAlreadyInstalled())) {
-            await cleanChromiumDirectory();
-            await downloadChromium(manifest.chromium.revision);
-        } else {
-            opLog.info("Chromium is already at the latest recommended revision");
-        }
-    })
-    //@ts-ignore
-    .command("get-chrome", "Downloads the latest chromium revision if one is not already installed", (_argv) => {
-        yargs
-            .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#get-chrome");
-        //@ts-ignore
-    }, async function(argv) {
-        const opLog = getOpLog();
-        if (await isChromiumAlreadyInstalled()) {
-            opLog.info("chromium is already installed, use update-chrome to update");
-        } else {
-            const manifest = await getManifest();
-            await cleanChromiumDirectory();
-            await downloadChromium(manifest.chromium.revision);
-        }
+        await downloadChromium(<number>argv.revision || 0, storedRevision);
     })
     //@ts-ignore
     .command("info", "System information", (_argv) => {
@@ -289,7 +266,6 @@ yargs
         } else {
             opLog.info(`Chromium revision: none`);
         }
-        await showBoxUpdate();
     })
     .demandCommand().recommendCommands().strict()
     .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html")
