@@ -6,7 +6,7 @@ import extractZip from "extract-zip";
 import {getStoreDir} from "../store/store";
 import {getChromePath, cleanChromiumDirectory, updateStoredRevision} from "../store/chromium";
 
-export async function downloadChromium(revision: number, storedRevision: number) {
+export async function downloadChromium(newRevision: number, storedRevision: number) {
     const opLog = getOpLog();
     let chromiumArch = "";
     let filename = "";
@@ -34,6 +34,7 @@ export async function downloadChromium(revision: number, storedRevision: number)
         opLog.error("unsupported architecture:", process.platform, "-", process.arch);
         throw new Error("unsupported_architecture");
     }
+    let revision = newRevision;
     if (!revision) {
         try {
             revision = await requestPromise

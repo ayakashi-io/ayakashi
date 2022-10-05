@@ -24,12 +24,12 @@ export function startResultServer(
                 close: function() {
                     return new Promise((res, rej) => {
                         if (server) {
-                            server.close()
-                            .on("close", () => {
-                                res();
-                            })
-                            .on("error", (err) => {
-                                rej(err);
+                            server.close(function(err) {
+                                if (err) {
+                                    rej(err);
+                                } else {
+                                    res();
+                                }
                             });
                         } else {
                             res();

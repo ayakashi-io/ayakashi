@@ -13,13 +13,14 @@ export function startBridge(port: number): Promise<{bridge: App, closeBridge: ()
             resolve({bridge: app, closeBridge: function() {
                 return new Promise((res, rej) => {
                     if (bridge) {
-                        bridge.close()
-                        .on("close", () => {
-                            res();
-                        })
-                        .on("error", (err) => {
-                            d(err);
-                            rej(new Error("could not close bridge"));
+                        bridge.close(function(err) {
+                            if (err) {
+                                d(err);
+                                rej(new Error("could not close bridge"));
+                            } else {
+                                d(`bridge on port ${port} closed`);
+                                res();
+                            }
                         });
                     } else {
                         res();
