@@ -17116,8 +17116,7 @@
     "acorn-dynamic-import": {
       "version": "4.0.0",
       "resolved": "https://registry.npmjs.org/acorn-dynamic-import/-/acorn-dynamic-import-4.0.0.tgz",
-      "integrity": "sha512-d3OEjQV4ROpoflsnUA8HozoIR504TFxNivYEUi6uwz0IYhBkTDXGuWlNdMtybRt3nqVx/L6XqMt0FxkXuWKZhw==",
-      "requires": {}
+      "integrity": "sha512-d3OEjQV4ROpoflsnUA8HozoIR504TFxNivYEUi6uwz0IYhBkTDXGuWlNdMtybRt3nqVx/L6XqMt0FxkXuWKZhw=="
     },
     "acorn-globals": {
       "version": "4.3.2",
@@ -17132,8 +17131,7 @@
       "version": "5.0.2",
       "resolved": "https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-5.0.2.tgz",
       "integrity": "sha512-tiNTrP1MP0QrChmD2DdupCr6HWSFeKVw5d/dHTu4Y7rkAkRhU/Dt7dphAfIUyxtHpl/eBVip5uTNSpQJHylpAw==",
-      "dev": true,
-      "requires": {}
+      "dev": true
     },
     "acorn-node": {
       "version": "1.7.0",
@@ -18291,8 +18289,7 @@
         "ws": {
           "version": "7.2.3",
           "resolved": "https://registry.npmjs.org/ws/-/ws-7.2.3.tgz",
-          "integrity": "sha512-HTDl9G9hbkNDk98naoR/cHDws7+EyYMOdL1BmjsZXRUjf7d+MficC4B7HLUPlSiho0vg+CWKrGIt/VJBd1xunQ==",
-          "requires": {}
+          "integrity": "sha512-HTDl9G9hbkNDk98naoR/cHDws7+EyYMOdL1BmjsZXRUjf7d+MficC4B7HLUPlSiho0vg+CWKrGIt/VJBd1xunQ=="
         }
       }
     },
@@ -19285,8 +19282,7 @@
       "version": "0.11.0",
       "resolved": "https://registry.npmjs.org/eslint-config-google/-/eslint-config-google-0.11.0.tgz",
       "integrity": "sha512-z541Fs5TFaY7/35v/z100InQ2f3V2J7e3u/0yKrnImgsHjh6JWgSRngfC/mZepn/+XN16jUydt64k//kxXc1fw==",
-      "dev": true,
-      "requires": {}
+      "dev": true
     },
     "eslint-scope": {
       "version": "4.0.3",
@@ -21837,8 +21833,7 @@
           "version": "7.4.5",
           "resolved": "https://registry.npmjs.org/ws/-/ws-7.4.5.tgz",
           "integrity": "sha512-xzyu3hFvomRfXKH8vOFMU3OguG6oOvhXMo3xsGy3xWExqaM2dxBbVxuD99O7m3ZUFMvvscsZDqxfgMaRr/Nr1g==",
-          "dev": true,
-          "requires": {}
+          "dev": true
         },
         "xmlchars": {
           "version": "2.2.0",
@@ -22457,8 +22452,7 @@
       "version": "1.2.2",
       "resolved": "https://registry.npmjs.org/jest-pnp-resolver/-/jest-pnp-resolver-1.2.2.tgz",
       "integrity": "sha512-olV41bKSMm8BdnuMsewT4jqlZ8+3TCARAXjZGT9jcoSnrfUnRCqnMoF9XEeoWjbzObpqF9dRhHQj0Xb9QdF6/w==",
-      "dev": true,
-      "requires": {}
+      "dev": true
     },
     "jest-regex-util": {
       "version": "26.0.0",
@@ -24871,8 +24865,7 @@
     "pg-pool": {
       "version": "2.0.6",
       "resolved": "https://registry.npmjs.org/pg-pool/-/pg-pool-2.0.6.tgz",
-      "integrity": "sha512-hod2zYQxM8Gt482q+qONGTYcg/qVcV32VHVPtktbBJs0us3Dj7xibISw0BAAXVMCzt8A/jhfJvpZaxUlqtqs0g==",
-      "requires": {}
+      "integrity": "sha512-hod2zYQxM8Gt482q+qONGTYcg/qVcV32VHVPtktbBJs0us3Dj7xibISw0BAAXVMCzt8A/jhfJvpZaxUlqtqs0g=="
     },
     "pg-types": {
       "version": "2.0.1",

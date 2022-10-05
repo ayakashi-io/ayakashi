@@ -21,7 +21,7 @@ jobs:
 
     - name: npm install, build and test
       run: |
-        npm install
+        npm install --legacy-peer-deps
         npm run lint
         npm run test
       env:

@@ -20,6 +20,8 @@ import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
 const packageJson = require("../../package.json");
 
+const RECOMMENDED_CHROMIUM_REVISION = 1045629;
+
 yargs
     //@ts-ignore
     .command("run [dir]", "Runs a project", (_argv) => {
@@ -241,18 +243,28 @@ yargs
         }
     })
     //@ts-ignore
-    .command("get-chrome", "Downloads the specified chromium revision or the latest one", (_argv) => {
+    .command("get-chrome", "Downloads the recommended, latest or specified chromium revision", (_argv) => {
         yargs
         .option("revision", {
             describe: "Download a specific revision",
             type: "number",
             alias: "r"
         })
+        .option("latest", {
+            describe: "Download the latest revision",
+            type: "boolean"
+        })
         .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#get-chrome");
         //@ts-ignore
     }, async function(argv) {
         const storedRevision = await getStoredRevision();
-        await downloadChromium(<number>argv.revision || 0, storedRevision);
+        let revision = RECOMMENDED_CHROMIUM_REVISION;
+        if (argv.revision) {
+            revision = <number>argv.revision;
+        } else if (argv.latest) {
+            revision = 0;
+        }
+        await downloadChromium(revision, storedRevision);
     })
     //@ts-ignore
     .command("info", "System information", (_argv) => {
