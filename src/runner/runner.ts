@@ -23,7 +23,7 @@ import {
     hasTypo
 } from "./parseConfig";
 
-import {downloadChromium} from "../chromeDownloader/downloader";
+import {downloadChromium, getRecommendedChromiumRevision} from "../chromeDownloader/downloader";
 import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
 import {
     getOrCreateStoreProjectFolder,
@@ -146,7 +146,7 @@ export async function run(projectFolder: string, config: Config, options: {
         chromePath = config.config.chromePath;
     } else {
         if (!(await isChromiumAlreadyInstalled())) {
-            await downloadChromium(0, 0);
+            await downloadChromium(await getRecommendedChromiumRevision(), 0);
         }
         chromePath = await getChromePath();
     }

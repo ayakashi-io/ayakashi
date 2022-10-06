@@ -42,7 +42,9 @@ const DEFAULT_FLAGS = [
     // isolate
     // "--site-per-process",
     // other
-    "--disable-gpu"
+    "--disable-gpu",
+    //disable password wallet popups on linux
+    "--password-store=basic"
     // "--disable-setuid-sandbox",
     // "--no-sandbox"
 ];

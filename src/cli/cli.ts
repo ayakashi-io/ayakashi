@@ -1,7 +1,7 @@
 import yargs from "yargs";
 import {run} from "../runner/runner";
 import {getOpLog} from "../opLog/opLog";
-import {downloadChromium} from "../chromeDownloader/downloader";
+import {downloadChromium, getRecommendedChromiumRevision} from "../chromeDownloader/downloader";
 import {isChromiumAlreadyInstalled, getStoredRevision} from "../store/chromium";
 import {Config} from "../runner/parseConfig";
 import {getDirectory} from "./getDirectory";
@@ -19,8 +19,6 @@ import {generateApiScraper} from "./scaffold/generateApiScraper";
 import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
 const packageJson = require("../../package.json");
-
-const RECOMMENDED_CHROMIUM_REVISION = 1045629;
 
 yargs
     //@ts-ignore
@@ -258,11 +256,13 @@ yargs
         //@ts-ignore
     }, async function(argv) {
         const storedRevision = await getStoredRevision();
-        let revision = RECOMMENDED_CHROMIUM_REVISION;
+        let revision = 0;
         if (argv.revision) {
             revision = <number>argv.revision;
         } else if (argv.latest) {
             revision = 0;
+        } else {
+            revision = await getRecommendedChromiumRevision();
         }
         await downloadChromium(revision, storedRevision);
     })

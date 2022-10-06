@@ -93,6 +93,22 @@ export async function downloadChromium(newRevision: number, storedRevision: numb
     });
 }
 
+const RECOMMENDED_CHROMIUM_REVISION_FALLBACK = 1045629;
+export async function getRecommendedChromiumRevision(): Promise<number> {
+    try {
+        let text: string = await requestPromise
+            .get("https://raw.githubusercontent.com/puppeteer/puppeteer/main/packages/puppeteer-core/src/revisions.ts");
+        text = text.replace(/\s+/g, "");
+        let match = text.match(/{.*}/);
+        if (!match) return RECOMMENDED_CHROMIUM_REVISION_FALLBACK;
+        match = match[0].match(/[0-9]+/);
+        if (!match) return RECOMMENDED_CHROMIUM_REVISION_FALLBACK;
+        return parseInt(match[0]);
+    } catch (_e) {
+        return RECOMMENDED_CHROMIUM_REVISION_FALLBACK;
+    }
+}
+
 function toMb(bytes: number) {
     const mb = (bytes / 1000 / 1000).toFixed(3);
     return `${mb}MB`;
