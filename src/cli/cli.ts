@@ -18,6 +18,7 @@ import {generateRenderlessScraper} from "./scaffold/generateRenderlessScraper";
 import {generateApiScraper} from "./scaffold/generateApiScraper";
 import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
+import {refreshUA} from "./refreshUA";
 const packageJson = require("../../package.json");
 
 yargs
@@ -265,6 +266,14 @@ yargs
             revision = await getRecommendedChromiumRevision();
         }
         await downloadChromium(revision, storedRevision);
+    })
+    //@ts-ignore
+    .command("refresh-ua", "Updates the builtin database of user agent strings", (_argv) => {
+        yargs
+        .epilogue("Learn more at TODO");
+        //@ts-ignore
+    }, async function(argv) {
+        await refreshUA();
     })
     //@ts-ignore
     .command("info", "System information", (_argv) => {

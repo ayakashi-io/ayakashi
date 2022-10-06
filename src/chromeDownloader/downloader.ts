@@ -96,8 +96,10 @@ export async function downloadChromium(newRevision: number, storedRevision: numb
 const RECOMMENDED_CHROMIUM_REVISION_FALLBACK = 1045629;
 export async function getRecommendedChromiumRevision(): Promise<number> {
     try {
+        //tslint:disable
         let text: string = await requestPromise
             .get("https://raw.githubusercontent.com/puppeteer/puppeteer/main/packages/puppeteer-core/src/revisions.ts");
+        //tslint:enable
         text = text.replace(/\s+/g, "");
         let match = text.match(/{.*}/);
         if (!match) return RECOMMENDED_CHROMIUM_REVISION_FALLBACK;

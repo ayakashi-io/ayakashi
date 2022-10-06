@@ -44,7 +44,7 @@
         "sqlite3": "~5.0.2",
         "tedious": "~5.0.3",
         "tough-cookie": "~3.0.1",
-        "user-agents": "~1.0.656",
+        "user-agents": "~1.0.1160",
         "uuid": "~3.3.2",
         "yargs": "~13.2.2"
       },
@@ -14832,9 +14832,9 @@
       }
     },
     "node_modules/user-agents": {
-      "version": "1.0.656",
-      "resolved": "https://registry.npmjs.org/user-agents/-/user-agents-1.0.656.tgz",
-      "integrity": "sha512-HiKiGgIXEwmPZol8aElIfLdq5XCWypIi16BM5Hv2qdPr+NIRD/OGOqUpnX9htqbIfKiJYuh8vmDHv41+7KIY4Q==",
+      "version": "1.0.1160",
+      "resolved": "https://registry.npmjs.org/user-agents/-/user-agents-1.0.1160.tgz",
+      "integrity": "sha512-epOzpk8LgswKqZwf49v68yTNPRljJeEXUaKdgYFRpilMH8TtOzKmlBIY4x2uz39O37+ATt1ZoILher5itUFRww==",
       "dependencies": {
         "dot-json": "^1.2.2",
         "lodash.clonedeep": "^4.5.0"
@@ -27205,9 +27205,9 @@
       "integrity": "sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ=="
     },
     "user-agents": {
-      "version": "1.0.656",
-      "resolved": "https://registry.npmjs.org/user-agents/-/user-agents-1.0.656.tgz",
-      "integrity": "sha512-HiKiGgIXEwmPZol8aElIfLdq5XCWypIi16BM5Hv2qdPr+NIRD/OGOqUpnX9htqbIfKiJYuh8vmDHv41+7KIY4Q==",
+      "version": "1.0.1160",
+      "resolved": "https://registry.npmjs.org/user-agents/-/user-agents-1.0.1160.tgz",
+      "integrity": "sha512-epOzpk8LgswKqZwf49v68yTNPRljJeEXUaKdgYFRpilMH8TtOzKmlBIY4x2uz39O37+ATt1ZoILher5itUFRww==",
       "requires": {
         "dot-json": "^1.2.2",
         "lodash.clonedeep": "^4.5.0"
