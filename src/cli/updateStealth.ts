@@ -13,7 +13,7 @@ export async function updateStealthPatches() {
     const stealthPath = pathResolve(__dirname, "../..", "lib", "detection");
     try {
         process.chdir(stealthPath);
-        const waiter = opLog.waiter("Building detection patches, this might take a while");
+        const waiter = opLog.waiter("Downloading and building detection patches, this might take a while");
         await exec("npx extract-stealth-evasions");
         await rename(pathResolve(stealthPath, "stealth.min.js"), pathResolve(stealthPath, "stealth.js"));
         waiter.succeed("done!");

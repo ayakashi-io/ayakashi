@@ -243,7 +243,7 @@ yargs
         }
     })
     //@ts-ignore
-    .command("get-chrome", "Downloads the recommended, latest or specified chromium revision", (_argv) => {
+    .command("update-chrome", "Downloads the recommended, latest or specified chromium revision", (_argv) => {
         yargs
         .option("revision", {
             describe: "Download a specific revision",
@@ -269,7 +269,7 @@ yargs
         await downloadChromium(revision, storedRevision);
     })
     //@ts-ignore
-    .command("refresh-ua", "Updates the builtin database of user agent strings", (_argv) => {
+    .command("update-ua", "Updates the builtin database of user agent strings", (_argv) => {
         yargs
         .epilogue("Learn more at TODO");
         //@ts-ignore

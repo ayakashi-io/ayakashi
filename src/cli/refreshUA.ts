@@ -21,7 +21,7 @@ export async function refreshUA() {
             return;
         }
 
-        const waiter = opLog.waiter("Refreshing user-agents");
+        const waiter = opLog.waiter("Updating user-agents");
         await exec("npm update user-agents --legacy-peer-deps");
         delete require.cache[pkg];
         const newVersion = require(pkg).version;
@@ -29,5 +29,6 @@ export async function refreshUA() {
         process.chdir(localPath);
     } catch (_e) {
         process.chdir(localPath);
+        opLog.error("Failed to update user agents. Builtin database will be used");
     }
 }
