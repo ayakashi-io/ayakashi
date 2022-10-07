@@ -19,6 +19,7 @@ import {generateApiScraper} from "./scaffold/generateApiScraper";
 import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
 import {refreshUA} from "./refreshUA";
+import {updateStealthPatches} from "./updateStealth";
 const packageJson = require("../../package.json");
 
 yargs
@@ -274,6 +275,14 @@ yargs
         //@ts-ignore
     }, async function(argv) {
         await refreshUA();
+    })
+    //@ts-ignore
+    .command("update-stealth", "Updates the headless chromium stealth patches", (_argv) => {
+        yargs
+        .epilogue("Learn more at TODO");
+        //@ts-ignore
+    }, async function(argv) {
+        await updateStealthPatches();
     })
     //@ts-ignore
     .command("info", "System information", (_argv) => {

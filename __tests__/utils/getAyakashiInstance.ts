@@ -6,7 +6,8 @@ import {resolve as pathResolve} from "path";
 
 export async function getAyakashiInstance(
     headlessChrome: IHeadlessChrome,
-    bridgePort: number
+    bridgePort: number,
+    pipe = true
 ) {
     const target = await headlessChrome.createTarget();
     if (!target) throw new Error("no_target");
@@ -48,6 +49,19 @@ export async function getAyakashiInstance(
         as: "detectionPatches",
         waitForDOM: false
     });
+    const stealthPatches = await compile(
+        pathResolve(".", "lib"),
+        "./detection/stealth.js",
+        "ayakashi",
+        "",
+        true,
+        true
+    );
+    await connection.injectPreloader({
+        compiled: stealthPatches,
+        as: "stealthPatches",
+        waitForDOM: false
+    });
     const marshalling = await compile(
         pathResolve(".", "lib"),
         "./utils/marshalling",
@@ -61,8 +75,12 @@ export async function getAyakashiInstance(
         as: "marshalling",
         waitForDOM: false
     });
-    connection.pipe.console(console.log);
-    connection.pipe.uncaughtException(console.error);
+    
+    if (pipe) {
+        connection.pipe.console(console.log);
+        connection.pipe.uncaughtException(console.error);
+    }
+
     await connection.activate();
 
     return ayakashiInstance;

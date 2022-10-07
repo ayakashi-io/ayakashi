@@ -225,7 +225,7 @@ export default async function scraperWrapper(log: PassedLog) {
             as: "getNodeSelector",
             waitForDOM: false
         });
-        //load detection patches
+        //load the old detection patches
         const detectionPatches = await compile(
             log.body.appRoot,
             "./lib/detection/patch",
@@ -236,6 +236,19 @@ export default async function scraperWrapper(log: PassedLog) {
         await connection.injectPreloader({
             compiled: detectionPatches,
             as: "detectionPatches",
+            waitForDOM: false
+        });
+        // load stealth patches
+        const stealthPatches = await compile(
+            log.body.appRoot,
+            "./lib/detection/stealth.js",
+            "ayakashi",
+            `${log.body.storeProjectFolder}/.cache/preloaders/`,
+            true
+        );
+        await connection.injectPreloader({
+            compiled: stealthPatches,
+            as: "stealthPatches",
             waitForDOM: false
         });
 
