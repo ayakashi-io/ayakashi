@@ -96,4 +96,4 @@ Autocomplete any method, check signatures and examples or follow links to more d
 ![editor support](https://ayakashi-io.github.io/assets/img/editor.png)
 
 Sounds cool?  
-Just head over to the [getting started guide](https://ayakashi-io.github.io/docs)!
+Just head over to the [getting started guide](https://ayakashi-io.github.io)!

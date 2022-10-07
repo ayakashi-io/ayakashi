@@ -254,7 +254,7 @@ yargs
             describe: "Download the latest revision",
             type: "boolean"
         })
-        .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#get-chrome");
+        .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#update-chrome");
         //@ts-ignore
     }, async function(argv) {
         const storedRevision = await getStoredRevision();
@@ -271,7 +271,7 @@ yargs
     //@ts-ignore
     .command("update-ua", "Updates the builtin database of user agent strings", (_argv) => {
         yargs
-        .epilogue("Learn more at TODO");
+        .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#update-ua");
         //@ts-ignore
     }, async function(argv) {
         await refreshUA();
@@ -279,7 +279,7 @@ yargs
     //@ts-ignore
     .command("update-stealth", "Updates the headless chromium stealth patches", (_argv) => {
         yargs
-        .epilogue("Learn more at TODO");
+        .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#update-stealth");
         //@ts-ignore
     }, async function(argv) {
         await updateStealthPatches();

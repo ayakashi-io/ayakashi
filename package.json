@@ -3,8 +3,9 @@
   "version": "1.0.0-beta8",
   "description": "The next generation web scraping framework",
   "author": {
-    "name": "ayakashi.io",
-    "email": "hello@ayakashi.io"
+    "name": "Zisis Maras",
+    "email": "contact@zisismaras.me",
+    "url": "https://github.com/ayakashi-io/ayakashi"
   },
   "repository": {
     "url": "https://github.com/ayakashi-io/ayakashi"
