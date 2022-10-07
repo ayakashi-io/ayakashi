@@ -75,7 +75,7 @@ yargs
                 default: "stdout",
                 choices: ["sqlite", "csv", "json", "stdout"]
             })
-            .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#run");
+            .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#run");
     }, async function(argv) {
         const opLog = getOpLog();
         opLog.info("Ayakashi version:", packageJson.version);
@@ -171,7 +171,7 @@ yargs
                 type: "string",
                 describe: "The name of the new scraper|renderlessScraper|script|prop|action|extractor|preloader"
             })
-            .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#new");
+            .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#new");
         //@ts-ignore
     }, async function(argv) {
         //tslint:disable cyclomatic-complexity
@@ -254,7 +254,7 @@ yargs
             describe: "Download the latest revision",
             type: "boolean"
         })
-        .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html#get-chrome");
+        .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#get-chrome");
         //@ts-ignore
     }, async function(argv) {
         const storedRevision = await getStoredRevision();
@@ -298,5 +298,5 @@ yargs
         }
     })
     .demandCommand().recommendCommands().strict()
-    .epilogue("Learn more at https://ayakashi.io/docs/reference/cli-commands.html")
+    .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html")
     .argv;

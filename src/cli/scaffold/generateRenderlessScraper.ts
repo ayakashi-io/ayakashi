@@ -44,14 +44,10 @@ module.exports = async function(ayakashi, input, params) {
     ayakashi
         .select("author")
         .where({itemprop: {eq: "author"}});
-    ayakashi
-        .select("about")
-        .where({itemprop: {eq: "about"}});
 
     return {
         name: await ayakashi.extractFirst("name"),
-        author: await ayakashi.extractFirst("author"),
-        about: await ayakashi.extractFirst("about")
+        author: await ayakashi.extractFirst("author")
     };
 };
 `);

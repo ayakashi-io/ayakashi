@@ -179,7 +179,7 @@ async function launchChrome(options: {
     if (!instance) {
         if (process.platform === "linux") {
             opLog.warn("If you are running this on a headless linux server, you might be missing some dependencies.");
-            opLog.warn("Learn how to fix it here: https://ayakashi.io/docs/installation#installing-missing-chromium-dependencies-on-a-linux-server");
+            opLog.warn("Learn how to fix it here: https://ayakashi-io.github.io/docs/installation#installing-missing-chromium-dependencies-on-a-linux-server");
         }
         throw new Error(`Can't launch Chrome! (attempts: ${attempt - 1}/${options.launchAttempts})`);
     }

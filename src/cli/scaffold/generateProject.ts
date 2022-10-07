@@ -43,7 +43,7 @@ export async function generateProject(projectDir: string, useCurrentFolder: bool
     opLog.messageBox([
         "Your project is ready!",
         "Get started:",
-        "https://ayakashi.io/docs/getting_started",
+        "https://ayakashi-io.github.io",
         "",
         "You may run your new project with:",
         "ayakashi run"
@@ -78,7 +78,7 @@ function getpackageJson() {
     "name": "my-project",
     "version": "1.0.0",
     "description": "An ayakashi project",
-    "homepage": "https://ayakashi.io",
+    "homepage": "https://ayakashi-io.github.io",
     "main": "ayakashi.config.js",
     "keywords": [
       "ayakashi"

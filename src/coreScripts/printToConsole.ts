@@ -25,12 +25,12 @@ export default async function(
     }
     if (!extraction || extraction.length === 0) {
         opLog.warn("printToConsole: nothing to print");
-        opLog.warn("Learn more here: https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
+        opLog.warn("Learn more here: https://ayakashi-io.github.io/docs/guide/builtin-saving-scripts.html");
         return;
     }
     if (extraction.some(ext => typeof ext !== "object")) {
         opLog.warn("printToConsole: invalid extraction format. Extracted data must be wrapped in an object");
-        opLog.warn("Learn more here: https://ayakashi.io/docs/guide/builtin-saving-scripts.html");
+        opLog.warn("Learn more here: https://ayakashi-io.github.io/docs/guide/builtin-saving-scripts.html");
         return;
     }
     const table = new Table();

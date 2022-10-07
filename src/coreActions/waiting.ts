@@ -25,17 +25,17 @@ await ayakashi.waitUntil(function() {
         waitUntil: <T>(cb: () => Promise<T>, interval?: number, timeout?: number) => Promise<T>;
 /**
  * Waits for the load event of a new page.
- * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#using-the-raw-events
+ * Learn more at https://ayakashi-io.github.io/docs/going_deeper/page-navigation.html#using-the-raw-events
 */
         waitForLoadEvent: (timeout?: number) => Promise<void>;
 /**
  * Waits for the domContentLoaded event of a new page.
- * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#using-the-raw-events
+ * Learn more at https://ayakashi-io.github.io/docs/going_deeper/page-navigation.html#using-the-raw-events
 */
         waitForDomContentLoadedEvent: (timeout?: number) => Promise<void>;
 /**
  * Waits for an in-page navigation to occur in a dynamic page or single page application.
- * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#using-the-raw-events
+ * Learn more at https://ayakashi-io.github.io/docs/going_deeper/page-navigation.html#using-the-raw-events
 */
         waitForInPageNavigation: (timeout?: number) => Promise<void>;
 /**

@@ -7,9 +7,9 @@ declare module "../prelude/prelude" {
  * Navigates to a new page and waits for the document to load.
  * A timeout can be specified (in ms) for slow pages (default 10s).
  * Use a timeout of 0 to disable the timeout.
- * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#standard-navigation
+ * Learn more at https://ayakashi-io.github.io/docs/going_deeper/page-navigation.html#standard-navigation
  * ```js
-await ayakashi.goTo("https://ayakashi.io");
+await ayakashi.goTo("https://ayakashi-io.github.io");
 ```
 */
         goTo: (url: string, timeout?: number) => Promise<void>;
@@ -18,7 +18,7 @@ await ayakashi.goTo("https://ayakashi.io");
  * It should be used instead of click() so the new page can properly load.
  * A timeout can be specified (in ms) for slow pages (default 10s).
  * Use a timeout of 0 to disable the timeout.
- * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#click-to-navigate
+ * Learn more at https://ayakashi-io.github.io/docs/going_deeper/page-navigation.html#click-to-navigate
  * ```js
 ayakashi
     .select("myLink")
@@ -33,7 +33,7 @@ await ayakashi.navigationClick("myLink");
  * It will not reload the page like navigationClick().
  * A timeout can be specified (in ms) for slow pages (default 10s).
  * Use a timeout of 0 to disable the timeout.
- * Learn more at https://ayakashi.io/docs/going_deeper/page-navigation.html#single-page-application-spa-navigation
+ * Learn more at https://ayakashi-io.github.io/docs/going_deeper/page-navigation.html#single-page-application-spa-navigation
  * ```js
 ayakashi
     .select("inPageLink")

@@ -13,7 +13,7 @@ export interface IRetryActions {
  * Retry an async operation.
  * Default is 10 retries.
  * If the operation returns a result, that result will also be returned by retry.
- * Learn more about retries at: https://ayakashi.io/docs/going_deeper/automatic_retries.html
+ * Learn more about retries at: https://ayakashi-io.github.io/docs/going_deeper/automatic_retries.html
  * ```js
 await ayakashi.retry(async function() {
     await ayakashi.goTo("https://github.com/ayakashi-io/ayakashi");

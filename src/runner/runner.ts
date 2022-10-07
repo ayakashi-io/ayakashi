@@ -79,7 +79,7 @@ export async function run(projectFolder: string, config: Config, options: {
         if (config.config && config.config.userAgent) {
             opLog.error("The global userAgent option has been deprecated.");
             opLog.error("You can configure the userAgent in the emulatorOptions of each pipeline step");
-            opLog.error("Read more here: https://ayakashi.io/docs/reference/ayakashi-config-file.html#emulator-options");
+            opLog.error("Read more here: https://ayakashi-io.github.io/docs/reference/ayakashi-config-file.html#emulator-options");
             throw new Error("Deprecated configuration option");
         }
         if (options.resume && options.clean) {

@@ -46,7 +46,7 @@ type NewCookie = {
 export interface ICookieActions {
 /**
  * Get a single cookie that passes the filter.
- * Learn more here: https://ayakashi.io/docs/going_deeper/manipulating-cookies.html#manual-cookie-manipulation
+ * Learn more here: https://ayakashi-io.github.io/docs/going_deeper/manipulating-cookies.html#manual-cookie-manipulation
  * ```js
 const cookie = await ayakashi.getCookie({ //filter object
     key: "myKey" //optional,
@@ -59,7 +59,7 @@ const cookie = await ayakashi.getCookie({ //filter object
     getCookie: (filter?: CookieFilter) => Promise<SerializedCookie | null>;
 /**
  * Get multiple cookies that pass the filter.
- * Learn more here: https://ayakashi.io/docs/going_deeper/manipulating-cookies.html#manual-cookie-manipulation
+ * Learn more here: https://ayakashi-io.github.io/docs/going_deeper/manipulating-cookies.html#manual-cookie-manipulation
  * ```js
 const cookies = await ayakashi.getCookies({ //filter object
     key: "myKey" //optional,
@@ -72,7 +72,7 @@ const cookies = await ayakashi.getCookies({ //filter object
     getCookies: (filter?: CookieFilter) => Promise<SerializedCookie[]>;
 /**
  * Set a single cookie.
- * Learn more here: https://ayakashi.io/docs/going_deeper/manipulating-cookies.html#manual-cookie-manipulation
+ * Learn more here: https://ayakashi-io.github.io/docs/going_deeper/manipulating-cookies.html#manual-cookie-manipulation
  * ```js
 await ayakashi.setCookie({
     key: "myCookie",
@@ -89,7 +89,7 @@ await ayakashi.setCookie({
     setCookie: (cookie: NewCookie) => Promise<void>;
 /**
  * Set multiple cookies.
- * Learn more here: https://ayakashi.io/docs/going_deeper/manipulating-cookies.html#manual-cookie-manipulation
+ * Learn more here: https://ayakashi-io.github.io/docs/going_deeper/manipulating-cookies.html#manual-cookie-manipulation
  * ```js
 await ayakashi.setCookies([{
     key: "myCookie",

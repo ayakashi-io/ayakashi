@@ -14,7 +14,7 @@ export function runQuery(env: Window, query: Query, el: El): boolean {
         reductionTree[top] = [];
         if (top !== "and" && top !== "or") {
             throw new Error(
-                `Invalid operator: ${top}. Learn more at https://ayakashi.io/docs/guide/querying-with-domql.html`
+                `Invalid operator: ${top}. Learn more at https://ayakashi-io.github.io/docs/guide/querying-with-domql.html`
             );
         }
         (<[]>query.where[top]).forEach(member => {
@@ -30,7 +30,7 @@ export function runQuery(env: Window, query: Query, el: El): boolean {
         throwIfInvalidExpected(expected);
         if (!operators[op]) {
             throw new Error(
-                `Invalid operator: ${op}. Learn more at https://ayakashi.io/docs/guide/querying-with-domql.html`
+                `Invalid operator: ${op}. Learn more at https://ayakashi-io.github.io/docs/guide/querying-with-domql.html`
             );
         }
         expected = formatExpected(attribute, expected);
@@ -108,7 +108,7 @@ function expandQuery(
         const newTop = key;
         if (newTop !== "and" && newTop !== "or") {
             throw new Error(
-                `Invalid operator: ${newTop}. Learn more at https://ayakashi.io/docs/guide/querying-with-domql.html`
+                `Invalid operator: ${newTop}. Learn more at https://ayakashi-io.github.io/docs/guide/querying-with-domql.html`
             );
         }
         const container = {[key]: []};
@@ -129,7 +129,7 @@ function expandQuery(
         const op = Object.keys(member[key])[0];
         if (VALID_OPERATORS.indexOf(op) === -1) {
             throw new Error(
-                `Invalid operator: ${op}. Learn more at https://ayakashi.io/docs/guide/querying-with-domql.html`
+                `Invalid operator: ${op}. Learn more at https://ayakashi-io.github.io/docs/guide/querying-with-domql.html`
             );
         }
         reductionTree[top].push(operators[op](createNodeQuery(env, el, key), expected));
@@ -146,7 +146,7 @@ function throwIfInvalidExpected(expected: unknown) {
                 Array.isArray(expected) ||
                     (typeof expected === "object" && expected !== null)
                 ? JSON.stringify(expected) : String(expected) || "empty_string"
-            }. Learn more at https://ayakashi.io/docs/guide/querying-with-domql.html`);
+            }. Learn more at https://ayakashi-io.github.io/docs/guide/querying-with-domql.html`);
     }
 }
 

@@ -37,8 +37,13 @@ function getContent() {
 * @param {import("@ayakashi/types").IApiAyakashiInstance} ayakashi
 */
 module.exports = async function(ayakashi, input, params) {
-    const manifest = await ayakashi.get("https://ayakashi.io/manifest.json");
-    console.log("Latest Ayakashi version:", manifest.ayakashi.version);
+    const res = await ayakashi.get("https://api.github.com/repos/ayakashi-io/ayakashi");
+    const repoInfo = JSON.parse(res);
+
+    return {
+        name: repoInfo.name,
+        author: repoInfo.owner.login
+    };
 };
 `);
 }

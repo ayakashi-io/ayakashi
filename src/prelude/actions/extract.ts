@@ -7,7 +7,7 @@ import {isRegExp} from "util";
 export interface IExtractActions {
 /**
  * Extracts data from a prop.
- * Learn more here: https://ayakashi.io/docs/guide/data-extraction.html
+ * Learn more here: https://ayakashi-io.github.io/docs/guide/data-extraction.html
  * ```js
 ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
 const result = await ayakashi.extract("myDivProp");
@@ -20,7 +20,7 @@ const result = await ayakashi.extract("myDivProp");
 
 /**
  * Extracts data from the first match of a prop.
- * Learn more here: https://ayakashi.io/docs/guide/data-extraction.html
+ * Learn more here: https://ayakashi-io.github.io/docs/guide/data-extraction.html
  * ```js
 ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
 const result = await ayakashi.extractFirst("myDivProp");
@@ -33,7 +33,7 @@ const result = await ayakashi.extractFirst("myDivProp");
 
 /**
  * Extracts data from the last match of a prop.
- * Learn more here: https://ayakashi.io/docs/guide/data-extraction.html
+ * Learn more here: https://ayakashi-io.github.io/docs/guide/data-extraction.html
  * ```js
 ayakashi.select("myDivProp").where({id: {eq: "myDiv"}});
 const result = await ayakashi.extractLast("myDivProp");
@@ -234,7 +234,7 @@ async function recursiveExtract<T, U>(
     } else {
         if (typeof extractable === "object" && extractable !== null) {
             opLog.warn("Nested or multiple extractions per prop are deprecated");
-            opLog.warn("Learn more here: https://ayakashi.io/docs/guide/data-extraction.html");
+            opLog.warn("Learn more here: https://ayakashi-io.github.io/docs/guide/data-extraction.html");
         }
         throw new Error("Invalid extractable");
     }

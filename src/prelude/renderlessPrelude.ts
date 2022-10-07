@@ -25,7 +25,7 @@ export interface IRenderlessAyakashiInstance extends IRetryActions, IRequestActi
  * A timeout can be specified (in ms) for slow pages (default 10s).
  * Use a timeout of 0 to disable the timeout.
  * ```js
-await ayakashi.load("https://ayakashi.io");
+await ayakashi.load("https://ayakashi-io.github.io");
 ```
 */
     load: (this: IRenderlessAyakashiInstance, url: string, timeout?: number) => Promise<void>;
