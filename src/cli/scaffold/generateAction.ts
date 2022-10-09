@@ -11,13 +11,14 @@ const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(_writeFile);
 const exists = promisify(_exists);
 
-export async function generateAction(directory: string, name: string) {
+export async function generateAction(directory: string, name: string, ts: boolean) {
     const opLog = getOpLog();
+    const ext = ts ? ".ts" : ".js";
     let fileName: string;
-    if (name.indexOf(".js") > -1) {
+    if (name.indexOf(ext) > -1) {
         fileName = name;
     } else {
-        fileName = `${name}.js`;
+        fileName = `${name}${ext}`;
     }
     const actionsFolder = pathJoin(directory, "actions");
     const filePath = pathJoin(actionsFolder, fileName);
@@ -25,10 +26,10 @@ export async function generateAction(directory: string, name: string) {
         opLog.error(`action <${name}> already exists in ${filePath}`);
         return;
     }
-    opLog.info(`Created <${name}> in ${filePath}`);
     await mkdirp(actionsFolder);
-    const content = getContent(name);
+    const content = ts ? getContentTS(name) : getContent(name);
     await writeFile(filePath, content);
+    opLog.info(`Created <${name}> in ${filePath}`);
 }
 
 function getContent(name: string) {
@@ -46,5 +47,29 @@ module.exports = function(ayakashi) {
         //do something with the prop
     });
 };
+`);
+}
+
+function getContentTS(name: string) {
+    return (
+`import {IAyakashiInstance, IDomProp} from "@ayakashi/types";
+
+//action type definition, fill in actual type
+declare module "@ayakashi/types/types/prelude/prelude" {
+    export interface IAyakashiInstance {
+        ${name}: (prop: IDomProp | string) => Promise<void>;
+    }
+}
+
+export default function(ayakashi: IAyakashiInstance) {
+    ayakashi.registerAction("${name}", async function(prop) {
+        //prop boilerplate
+        const myProp = this.prop(prop);
+        if (!myProp) throw new Error("<${name}> needs a valid prop");
+        const matchCount = await myProp.trigger();
+        if (matchCount === 0) throw new Error("<${name}> needs a prop with at least 1 match");
+        //do something with the prop
+    });
+}
 `);
 }

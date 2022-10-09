@@ -1,4 +1,5 @@
 import yargs from "yargs";
+import prompts from "prompts";
 import {run} from "../runner/runner";
 import {getOpLog} from "../opLog/opLog";
 import {downloadChromium, getRecommendedChromiumRevision} from "../chromeDownloader/downloader";
@@ -20,6 +21,7 @@ import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
 import {refreshUA} from "./refreshUA";
 import {updateStealthPatches} from "./updateStealth";
+import {isTypescriptProject, getTypescriptRoot} from "./scaffold/tsHelpers";
 const packageJson = require("../../package.json");
 
 yargs
@@ -171,6 +173,10 @@ yargs
                 type: "string",
                 describe: "The name of the new scraper|renderlessScraper|script|prop|action|extractor|preloader"
             })
+            .option("ts", {
+                type: "boolean",
+                describe: "Generate a typescript project"
+            })
             .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#new");
         //@ts-ignore
     }, async function(argv) {
@@ -179,67 +185,82 @@ yargs
         if ((!argv.prop && !argv.project && !argv.action && !argv.extractor &&
             !argv.preloader && !argv.scraper && !argv.renderlessScraper &&
             !argv.apiScraper && !argv.script) || argv.project) {
+            let ts = <boolean>argv.ts || false;
+            if (!ts) {
+                const response = await prompts({
+                    type: "select",
+                    name: "projectType",
+                    message: "Do you want to generate a javascript or typescript project?",
+                    choices: [{
+                        title: "Javascript",
+                        value: "js"
+                    }, {
+                        title: "Typescript",
+                        value: "ts"
+                    }],
+                    instructions: false
+                });
+                if (!response.projectType) {
+                    opLog.error("Select a project type to continue");
+                    process.exit(1);
+                }
+                if (response.projectType === "ts") {
+                    ts = true;
+                }
+            }
             if (argv.dir === ".") {
-                await generateProject(getDirectory(argv.dir), true);
+                await generateProject(getDirectory(argv.dir), true, ts);
             } else {
-                await generateProject(getDirectory(<string>argv.dir, false), false);
+                await generateProject(getDirectory(<string>argv.dir, false), false, ts);
             }
         } else if (argv.prop) {
             const name = await getName(argv.name, "prop");
-            if (!name) {
-                opLog.error("Invalid prop name");
-                process.exit(1);
-            }
-            await generateProp(getDirectory(<string>argv.dir), name);
+            let directory = getDirectory(<string>argv.dir);
+            const ts = await isTypescriptProject(directory);
+            if (ts) directory = await getTypescriptRoot(directory);
+            await generateProp(directory, name, ts);
         } else if (argv.action) {
             const name = await getName(argv.name, "action");
-            if (!name) {
-                opLog.error("Invalid action name");
-                process.exit(1);
-            }
-            await generateAction(getDirectory(<string>argv.dir), name);
+            let directory = getDirectory(<string>argv.dir);
+            const ts = await isTypescriptProject(directory);
+            if (ts) directory = await getTypescriptRoot(directory);
+            await generateAction(directory, name, ts);
         } else if (argv.extractor) {
             const name = await getName(argv.name, "extractor");
-            if (!name) {
-                opLog.error("Invalid extractor name");
-                process.exit(1);
-            }
-            await generateExtractor(getDirectory(<string>argv.dir), name);
+            let directory = getDirectory(<string>argv.dir);
+            const ts = await isTypescriptProject(directory);
+            if (ts) directory = await getTypescriptRoot(directory);
+            await generateExtractor(directory, name, ts);
         } else if (argv.preloader) {
             const name = await getName(argv.name, "preloader");
-            if (!name) {
-                opLog.error("Invalid preloader name");
-                process.exit(1);
-            }
-            await generatePreloader(getDirectory(<string>argv.dir), name);
+            let directory = getDirectory(<string>argv.dir);
+            const ts = await isTypescriptProject(directory);
+            if (ts) directory = await getTypescriptRoot(directory);
+            await generatePreloader(directory, name, ts);
         } else if (argv.scraper) {
             const name = await getName(argv.name, "scraper");
-            if (!name) {
-                opLog.error("Invalid scraper name");
-                process.exit(1);
-            }
-            await generateScraper(getDirectory(<string>argv.dir), name);
+            let directory = getDirectory(<string>argv.dir);
+            const ts = await isTypescriptProject(directory);
+            if (ts) directory = await getTypescriptRoot(directory);
+            await generateScraper(directory, name, ts);
         } else if (argv.renderlessScraper) {
             const name = await getName(argv.name, "renderlessScraper");
-            if (!name) {
-                opLog.error("Invalid renderlessScraper name");
-                process.exit(1);
-            }
-            await generateRenderlessScraper(getDirectory(<string>argv.dir), name);
+            let directory = getDirectory(<string>argv.dir);
+            const ts = await isTypescriptProject(directory);
+            if (ts) directory = await getTypescriptRoot(directory);
+            await generateRenderlessScraper(directory, name, ts);
         } else if (argv.apiScraper) {
             const name = await getName(argv.name, "apiScraper");
-            if (!name) {
-                opLog.error("Invalid apiScraper name");
-                process.exit(1);
-            }
-            await generateApiScraper(getDirectory(<string>argv.dir), name);
+            let directory = getDirectory(<string>argv.dir);
+            const ts = await isTypescriptProject(directory);
+            if (ts) directory = await getTypescriptRoot(directory);
+            await generateApiScraper(directory, name, ts);
         }  else if (argv.script) {
             const name = await getName(argv.name, "script");
-            if (!name) {
-                opLog.error("Invalid script name");
-                process.exit(1);
-            }
-            await generateScript(getDirectory(<string>argv.dir), name);
+            let directory = getDirectory(<string>argv.dir);
+            const ts = await isTypescriptProject(directory);
+            if (ts) directory = await getTypescriptRoot(directory);
+            await generateScript(directory, name, ts);
         }
     })
     //@ts-ignore

@@ -16,8 +16,10 @@ export function prepareStandard(dir: string, alternativeConfigFile: string) {
     opLog.info("running project:", directory);
     opLog.info("configFile:", resolvedConfigFile);
     try {
+        let config = require(resolvedConfigFile);
+        if (config.default) config = config.default;
         return {
-            config: require(resolvedConfigFile),
+            config: config,
             directory: directory
         };
     } catch (_e) {

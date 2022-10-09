@@ -11,13 +11,14 @@ const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(_writeFile);
 const exists = promisify(_exists);
 
-export async function generatePreloader(directory: string, name: string) {
+export async function generatePreloader(directory: string, name: string, ts: boolean) {
     const opLog = getOpLog();
+    const ext = ts ? ".ts" : ".js";
     let fileName: string;
-    if (name.indexOf(".js") > -1) {
+    if (name.indexOf(ext) > -1) {
         fileName = name;
     } else {
-        fileName = `${name}.js`;
+        fileName = `${name}${ext}`;
     }
     const preloadersFolder = pathJoin(directory, "preloaders");
     const filePath = pathJoin(preloadersFolder, fileName);
@@ -25,10 +26,10 @@ export async function generatePreloader(directory: string, name: string) {
         opLog.error(`preloader <${name}> already exists in ${filePath}`);
         return;
     }
-    opLog.info(`Created <${name}> in ${filePath}`);
     await mkdirp(preloadersFolder);
-    const content = getContent();
+    const content = ts ? getContentTS() : getContent();
     await writeFile(filePath, content);
+    opLog.info(`Created <${name}> in ${filePath}`);
 }
 
 function getContent() {
@@ -39,5 +40,28 @@ function getContent() {
 // module.exports = function() {
 //     console.log(navigator.userAgent);
 // };
+`);
+}
+
+function getContentTS() {
+    return (
+`
+//run it on load
+// console.log(navigator.userAgent);
+
+//or export it as a module to be available on window.ayakashi.preloaders
+//and execute it on demand
+
+//type definition, fill in actual type
+// import {} from "@ayakashi/types/types/prelude/prelude";
+// declare module "@ayakashi/types/types/prelude/prelude" {
+//     export interface IPreloaders {
+//         getUserAgent: () => string;
+//     }
+// }
+
+// export default function getUserAgent() {
+//     return navigator.userAgent;
+// }
 `);
 }

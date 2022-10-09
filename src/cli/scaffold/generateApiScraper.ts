@@ -11,13 +11,14 @@ const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(_writeFile);
 const exists = promisify(_exists);
 
-export async function generateApiScraper(directory: string, name: string) {
+export async function generateApiScraper(directory: string, name: string, ts: boolean) {
     const opLog = getOpLog();
+    const ext = ts ? ".ts" : ".js";
     let fileName: string;
-    if (name.indexOf(".js") > -1) {
+    if (name.indexOf(ext) > -1) {
         fileName = name;
     } else {
-        fileName = `${name}.js`;
+        fileName = `${name}${ext}`;
     }
     const scrapersFolder = pathJoin(directory, "scrapers");
     const filePath = pathJoin(scrapersFolder, fileName);
@@ -25,10 +26,10 @@ export async function generateApiScraper(directory: string, name: string) {
         opLog.error(`scraper <${name}> already exists in ${filePath}`);
         return;
     }
-    opLog.info(`Created <${name}> in ${filePath}`);
     await mkdirp(scrapersFolder);
-    const content = getContent();
+    const content = ts ? getContentTS() : getContent();
     await writeFile(filePath, content);
+    opLog.info(`Created <${name}> in ${filePath}`);
 }
 
 function getContent() {
@@ -45,5 +46,24 @@ module.exports = async function(ayakashi, input, params) {
         author: repoInfo.owner.login
     };
 };
+`);
+}
+
+function getContentTS() {
+    return (
+`import {IApiAyakashiInstance} from "@ayakashi/types";
+
+type ScraperInput = {};
+type ScraperParams = {};
+
+export default async function(ayakashi: IApiAyakashiInstance, input: ScraperInput, params: ScraperParams) {
+    const res = await ayakashi.get("https://api.github.com/repos/ayakashi-io/ayakashi");
+    const repoInfo = JSON.parse(res);
+
+    return {
+        name: repoInfo.name,
+        author: repoInfo.owner.login
+    };
+}
 `);
 }

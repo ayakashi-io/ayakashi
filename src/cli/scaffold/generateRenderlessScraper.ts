@@ -11,13 +11,14 @@ const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(_writeFile);
 const exists = promisify(_exists);
 
-export async function generateRenderlessScraper(directory: string, name: string) {
+export async function generateRenderlessScraper(directory: string, name: string, ts: boolean) {
     const opLog = getOpLog();
+    const ext = ts ? ".ts" : ".js";
     let fileName: string;
-    if (name.indexOf(".js") > -1) {
+    if (name.indexOf(ext) > -1) {
         fileName = name;
     } else {
-        fileName = `${name}.js`;
+        fileName = `${name}${ext}`;
     }
     const scrapersFolder = pathJoin(directory, "scrapers");
     const filePath = pathJoin(scrapersFolder, fileName);
@@ -25,10 +26,10 @@ export async function generateRenderlessScraper(directory: string, name: string)
         opLog.error(`scraper <${name}> already exists in ${filePath}`);
         return;
     }
-    opLog.info(`Created <${name}> in ${filePath}`);
     await mkdirp(scrapersFolder);
-    const content = getContent();
+    const content = ts ? getContentTS() : getContent();
     await writeFile(filePath, content);
+    opLog.info(`Created <${name}> in ${filePath}`);
 }
 
 function getContent() {
@@ -50,5 +51,29 @@ module.exports = async function(ayakashi, input, params) {
         author: await ayakashi.extractFirst("author")
     };
 };
+`);
+}
+
+function getContentTS() {
+    return (
+`import {IRenderlessAyakashiInstance} from "@ayakashi/types";
+
+type ScraperInput = {page: string};
+type ScraperParams = {};
+
+export default async function(ayakashi: IRenderlessAyakashiInstance, input: ScraperInput, params: ScraperParams) {
+    await ayakashi.load(input.page);
+    ayakashi
+        .select("name")
+        .where({itemprop: {eq: "name"}});
+    ayakashi
+        .select("author")
+        .where({itemprop: {eq: "author"}});
+
+    return {
+        name: await ayakashi.extractFirst("name"),
+        author: await ayakashi.extractFirst("author")
+    };
+}
 `);
 }

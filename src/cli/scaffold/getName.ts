@@ -1,18 +1,22 @@
-import {createInterface} from "readline";
+import prompts from "prompts";
+import {camelCase} from "lodash";
+import {getOpLog} from "../../opLog/opLog";
 
-export function getName(name: unknown, typeForQuestion: string): Promise<string> {
-    return new Promise(function(resolve) {
-        if (name && typeof name === "string") {
-            resolve(name);
-        } else {
-            const rl = createInterface({
-                input: process.stdin,
-                output: process.stdout
-            });
-            rl.question(`Enter a name for the new ${typeForQuestion}: `, (answer) => {
-                resolve(answer);
-                rl.close();
-            });
+const opLog = getOpLog();
+
+export async function getName(name: unknown, typeForQuestion: string): Promise<string> {
+    if (name && typeof name === "string") {
+        return name;
+    } else {
+        const response = await prompts({
+            type: "text",
+            name: "answer",
+            message: `Enter a name for the new ${typeForQuestion}`
+        });
+        if (!response.answer) {
+            opLog.error(`Enter a name for the new ${typeForQuestion} to continue`);
+            process.exit(1);
         }
-    });
+        return camelCase(response.answer.replace(/[.]js|[.]ts/, ""));
+    }
 }
