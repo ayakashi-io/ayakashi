@@ -21,7 +21,7 @@ import {generateScript} from "./scaffold/generateScript";
 import {generateProject} from "./scaffold/generateProject";
 import {refreshUA} from "./refreshUA";
 import {updateStealthPatches} from "./updateStealth";
-import {isTypescriptProject, getTypescriptRoot} from "./scaffold/tsHelpers";
+import {isTypescriptProject, getTypescriptRoot} from "./tsHelpers";
 const packageJson = require("../../package.json");
 
 yargs
@@ -77,6 +77,10 @@ yargs
                 default: "stdout",
                 choices: ["sqlite", "csv", "json", "stdout"]
             })
+            .option("skipTsBuild", {
+                type: "boolean",
+                describe: "Skip automatic typescript compile"
+            })
             .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#run");
     }, async function(argv) {
         const opLog = getOpLog();
@@ -108,7 +112,11 @@ yargs
                 directory = simple.directory;
                 simpleScraper = simple.scraper;
             } else {
-                const standard = prepareStandard(<string>argv.dir, <string>argv.configFile);
+                const standard = await prepareStandard(
+                    <string>argv.dir,
+                    <string>argv.configFile,
+                    <boolean>argv.skipTsBuild || false
+                );
                 config = standard.config;
                 directory = standard.directory;
             }

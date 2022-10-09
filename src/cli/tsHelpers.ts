@@ -2,7 +2,7 @@ import {resolve as pathResolve} from "path";
 import {promisify} from "util";
 import {readdir as _readdir, lstat as _lstat, readFile as _readFile} from "fs";
 import {parse as jsonParse} from "json5";
-import {getOpLog} from "../../opLog/opLog";
+import {getOpLog} from "../opLog/opLog";
 
 const readdir = promisify(_readdir);
 const lstat = promisify(_lstat);
