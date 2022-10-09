@@ -177,6 +177,11 @@ yargs
                 type: "boolean",
                 describe: "Generate a typescript project"
             })
+            .option("js", {
+                type: "boolean",
+                describe: "Generate a javascript project"
+            })
+            .conflicts("ts", "js")
             .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#new");
         //@ts-ignore
     }, async function(argv) {
@@ -185,8 +190,8 @@ yargs
         if ((!argv.prop && !argv.project && !argv.action && !argv.extractor &&
             !argv.preloader && !argv.scraper && !argv.renderlessScraper &&
             !argv.apiScraper && !argv.script) || argv.project) {
-            let ts = <boolean>argv.ts || false;
-            if (!ts) {
+            let ts: boolean;
+            if (argv.ts === undefined && argv.js === undefined) {
                 const response = await prompts({
                     type: "select",
                     name: "projectType",
@@ -206,7 +211,13 @@ yargs
                 }
                 if (response.projectType === "ts") {
                     ts = true;
+                } else {
+                    ts = false;
                 }
+            } else if (argv.ts) {
+                ts = true;
+            } else {
+                ts = false;
             }
             if (argv.dir === ".") {
                 await generateProject(getDirectory(argv.dir), true, ts);
