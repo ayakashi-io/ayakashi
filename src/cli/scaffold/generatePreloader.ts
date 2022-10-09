@@ -27,40 +27,42 @@ export async function generatePreloader(directory: string, name: string, ts: boo
         return;
     }
     await mkdirp(preloadersFolder);
-    const content = ts ? getContentTS() : getContent();
+    const content = ts ? getContentTS(name) : getContent(name);
     await writeFile(filePath, content);
     opLog.info(`Created <${name}> in ${filePath}`);
 }
 
-function getContent() {
+function getContent(name: string) {
     return (
-`//console.log(navigator.userAgent);
-//or export it as a module to be available on window.ayakashi.preloaders
-//and execute it on demand
+`//run it on load
+// console.log(navigator.userAgent);
+
+//or export it as a module to be available inside evaluate() calls
+//as this.preloaders.${name}() or window.ayakashi.preloaders.${name}()
+
 // module.exports = function() {
 //     console.log(navigator.userAgent);
 // };
 `);
 }
 
-function getContentTS() {
+function getContentTS(name: string) {
     return (
-`
-//run it on load
+`//run it on load
 // console.log(navigator.userAgent);
 
-//or export it as a module to be available on window.ayakashi.preloaders
-//and execute it on demand
+//or export it as a module to be available inside evaluate() calls
+//as this.preloaders.${name}() or window.ayakashi.preloaders.${name}()
 
 //type definition, fill in actual type
 // import {} from "@ayakashi/types/types/prelude/prelude";
 // declare module "@ayakashi/types/types/prelude/prelude" {
 //     export interface IPreloaders {
-//         getUserAgent: () => string;
+//         ${name}: () => string;
 //     }
 // }
 
-// export default function getUserAgent() {
+// export default function() {
 //     return navigator.userAgent;
 // }
 `);

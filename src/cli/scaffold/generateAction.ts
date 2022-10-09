@@ -62,7 +62,7 @@ declare module "@ayakashi/types/types/prelude/prelude" {
 }
 
 export default function(ayakashi: IAyakashiInstance) {
-    ayakashi.registerAction("${name}", async function(prop) {
+    ayakashi.registerAction("${name}", async function(prop: IDomProp | string) {
         //prop boilerplate
         const myProp = this.prop(prop);
         if (!myProp) throw new Error("<${name}> needs a valid prop");
