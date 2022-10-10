@@ -1,4 +1,5 @@
 import {resolve as pathResolve} from "path";
+import {exec} from "child_process";
 import {promisify} from "util";
 import {readdir as _readdir, lstat as _lstat, readFile as _readFile} from "fs";
 import {parse as jsonParse} from "json5";
@@ -90,4 +91,23 @@ export async function isTypescriptDistReady(directory: string) {
     } catch (_e) {
         return false;
     }
+}
+
+export function buildTS() {
+    const waiter = opLog.waiter("compiling typescript");
+    return new Promise<void>(function(resolve) {
+        const ps = exec("npx tsc --pretty false");
+        ps.stdout.on("data", function(d) {
+            waiter.clear();
+            process.stderr.write(d.toString());
+        });
+        ps.on("exit", function(code) {
+            if (code) {
+                waiter.warn("typescript compiled with errors");
+            } else {
+                waiter.succeed("typescript compiled");
+            }
+            resolve();
+        });
+    });
 }

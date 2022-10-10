@@ -1,8 +1,7 @@
 import {getOpLog} from "../opLog/opLog";
 import {getDirectory} from "./getDirectory";
 import {resolve as pathResolve, sep} from "path";
-import {exec} from "child_process";
-import {isTypescriptProject, getTypescriptDist, isTypescriptDistReady} from "./tsHelpers";
+import {isTypescriptProject, getTypescriptDist, isTypescriptDistReady, buildTS} from "./tsHelpers";
 
 export async function prepareStandard(dir: string, alternativeConfigFile: string, skipTsBuild: boolean) {
     const opLog = getOpLog();
@@ -45,21 +44,4 @@ export async function prepareStandard(dir: string, alternativeConfigFile: string
         opLog.error("Could not find a valid ayakashi config file");
         process.exit(1);
     }
-}
-
-function buildTS() {
-    const opLog = getOpLog();
-    const waiter = opLog.waiter("compiling typescript");
-    return new Promise<void>(function(resolve) {
-        exec("npx tsc --build", function(err) {
-            if (err) {
-                waiter.fail("failed to compile typescript");
-                console.error(err.message);
-                process.exit(1);
-            } else {
-                waiter.succeed("typescript compiled");
-            }
-            resolve();
-        });
-    });
 }

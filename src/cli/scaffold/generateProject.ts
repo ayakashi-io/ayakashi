@@ -10,6 +10,7 @@ import {getOpLog} from "../../opLog/opLog";
 
 import {generateScraper} from "./generateScraper";
 import {generateScript} from "./generateScript";
+import {buildTS} from "../tsHelpers";
 
 const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(_writeFile);
@@ -58,7 +59,7 @@ export async function generateProject(projectDir: string, useCurrentFolder: bool
     }
     await runNpmInstall(npm);
     if (ts) {
-        await buildTS(npm);
+        await buildTS();
     }
     opLog.messageBox([
         "Your project is ready!",
@@ -285,23 +286,7 @@ function runNpmInstall(npm: string) {
                 waiter.fail("failed to run npm install, please run it manually");
                 console.error(err.message);
             } else {
-                waiter.succeed("dependencies installed!");
-            }
-            resolve();
-        });
-    });
-}
-
-function buildTS(npm: string) {
-    const opLog = getOpLog();
-    const waiter = opLog.waiter("compiling typescript");
-    return new Promise<void>(function(resolve) {
-        exec(`${npm} run build`, function(err) {
-            if (err) {
-                waiter.fail("failed to compile typescript, please run it manually");
-                console.error(err.message);
-            } else {
-                waiter.succeed("compiled!");
+                waiter.succeed("dependencies installed");
             }
             resolve();
         });
