@@ -1,6 +1,6 @@
 {
   "name": "ayakashi",
-  "version": "1.0.0-beta8",
+  "version": "1.0.0-beta8.1",
   "description": "The next generation web scraping framework",
   "author": {
     "name": "Zisis Maras",
@@ -47,6 +47,7 @@
     "@types/mkdirp": "~0.5.2",
     "@types/node": "~10.12.20",
     "@types/node-dir": "~0.0.32",
+    "@types/prompts": "~2.4.1",
     "@types/resolve-from": "~4.0.0",
     "@types/rimraf": "~2.0.2",
     "@types/semver": "~6.0.0",
@@ -85,6 +86,7 @@
     "extract-zip": "~1.6.7",
     "jsdom": "~13.1.0",
     "json2csv": "~4.3.5",
+    "json5": "~2.2.1",
     "lodash": "^4.17.21",
     "mariadb": "~2.0.3",
     "mkdirp": "~0.5.1",
@@ -93,6 +95,7 @@
     "ora": "~3.2.0",
     "pg": "~7.9.0",
     "pipeproc": "^0.4.1",
+    "prompts": "~2.4.2",
     "require-all": "~3.0.0",
     "resolve-from": "~4.0.0",
     "rimraf": "~2.6.3",

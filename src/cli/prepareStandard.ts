@@ -1,27 +1,47 @@
 import {getOpLog} from "../opLog/opLog";
 import {getDirectory} from "./getDirectory";
-import {resolve as pathResolve} from "path";
+import {resolve as pathResolve, sep} from "path";
+import {isTypescriptProject, getTypescriptDist, isTypescriptDistReady, buildTS} from "./tsHelpers";
 
-export function prepareStandard(dir: string, alternativeConfigFile: string) {
+export async function prepareStandard(dir: string, alternativeConfigFile: string, skipTsBuild: boolean) {
     const opLog = getOpLog();
-    const directory = getDirectory(dir);
+    let directory = getDirectory(dir);
+    //check if it's a ts project and use the dist directory
+    const ts = await isTypescriptProject(directory);
+    if (ts) {
+        directory = await getTypescriptDist(directory);
+        //we'll still compile if there is no dist folder even if the flag is set
+        if (!skipTsBuild || !(await isTypescriptDistReady(directory))) {
+            await buildTS();
+        }
+    }
     let resolvedConfigFile: string;
-    //if an alternative configFile is given, we resolve it based on the cwd
-    //else we look in the project folder
     if (alternativeConfigFile) {
-        resolvedConfigFile = pathResolve(process.cwd(), alternativeConfigFile);
+        if (ts) {
+            if (alternativeConfigFile.endsWith(".ts")) {
+                let c = alternativeConfigFile.split(sep).pop() as string;
+                c = c.replace(".ts", ".js");
+                resolvedConfigFile = pathResolve(directory, c);
+            } else {
+                resolvedConfigFile = pathResolve(alternativeConfigFile);
+            }
+        } else {
+            resolvedConfigFile = pathResolve(alternativeConfigFile);
+        }
     } else {
         resolvedConfigFile = pathResolve(directory, "ayakashi.config.js");
     }
     opLog.info("running project:", directory);
     opLog.info("configFile:", resolvedConfigFile);
     try {
+        let config = require(resolvedConfigFile);
+        if (config.default) config = config.default;
         return {
-            config: require(resolvedConfigFile),
+            config: config,
             directory: directory
         };
     } catch (_e) {
         opLog.error("Could not find a valid ayakashi config file");
-        return process.exit(1);
+        process.exit(1);
     }
 }

@@ -11,13 +11,14 @@ const mkdirp = promisify(_mkdirp);
 const writeFile = promisify(_writeFile);
 const exists = promisify(_exists);
 
-export async function generateProp(directory: string, name: string) {
+export async function generateProp(directory: string, name: string, ts: boolean) {
     const opLog = getOpLog();
+    const ext = ts ? ".ts" : ".js";
     let fileName: string;
-    if (name.indexOf(".js") > -1) {
+    if (name.indexOf(ext) > -1) {
         fileName = name;
     } else {
-        fileName = `${name}.js`;
+        fileName = `${name}${ext}`;
     }
     const propsFolder = pathJoin(directory, "props");
     const filePath = pathJoin(propsFolder, fileName);
@@ -25,10 +26,10 @@ export async function generateProp(directory: string, name: string) {
         opLog.error(`prop <${name}> already exists in ${filePath}`);
         return;
     }
-    opLog.info(`Created <${name}> in ${filePath}`);
     await mkdirp(propsFolder);
-    const content = getContent(name);
+    const content = ts ? getContentTS(name) : getContent(name);
     await writeFile(filePath, content);
+    opLog.info(`Created <${name}> in ${filePath}`);
 }
 
 function getContent(name: string) {
@@ -41,5 +42,17 @@ module.exports = function(ayakashi) {
         .select("${name}")
         .where({id: {eq: "myId"}});
 };
+`);
+}
+
+function getContentTS(name: string) {
+    return (
+`import {IAyakashiInstance} from "@ayakashi/types";
+
+export default function(ayakashi: IAyakashiInstance) {
+    ayakashi
+        .select("${name}")
+        .where({id: {eq: "myId"}});
+}
 `);
 }
