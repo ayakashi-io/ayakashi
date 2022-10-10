@@ -49,7 +49,11 @@ export async function getTypescriptRoot(directory: string) {
         process.exit(1);
     }
 
-    return pathResolve(directory, root);
+    let result = pathResolve(directory, root);
+    if (process.platform === "win32") {
+        result = result.replace(/\\/g, "/");
+    }
+    return result;
 }
 
 export async function getTypescriptDist(directory: string) {
@@ -68,7 +72,11 @@ export async function getTypescriptDist(directory: string) {
         process.exit(1);
     }
 
-    return pathResolve(directory, dist);
+    let result = pathResolve(directory, dist);
+    if (process.platform === "win32") {
+        result = result.replace(/\\/g, "/");
+    }
+    return result;
 }
 
 export async function isTypescriptDistReady(directory: string) {
