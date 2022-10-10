@@ -79,7 +79,7 @@ yargs
             })
             .option("skipTsBuild", {
                 type: "boolean",
-                describe: "Skip automatic typescript compile"
+                describe: "Skip automatic typescript compilation"
             })
             .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#run");
     }, async function(argv) {
@@ -311,7 +311,7 @@ yargs
     //@ts-ignore
     .command("update-ua", "Updates the builtin database of user agent strings", (_argv) => {
         yargs
-        .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#update-ua");
+        .epilogue("Learn more at https://ayakashi-io.github.io/docs/installation#updating-subcomponents");
         //@ts-ignore
     }, async function(argv) {
         await refreshUA();
@@ -319,7 +319,7 @@ yargs
     //@ts-ignore
     .command("update-stealth", "Updates the headless chromium stealth patches", (_argv) => {
         yargs
-        .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#update-stealth");
+        .epilogue("Learn more at https://ayakashi-io.github.io/docs/installation#updating-subcomponents");
         //@ts-ignore
     }, async function(argv) {
         await updateStealthPatches();
