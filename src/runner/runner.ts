@@ -146,7 +146,12 @@ export async function run(projectFolder: string, config: Config, options: {
         chromePath = config.config.chromePath;
     } else {
         if (!(await isChromiumAlreadyInstalled())) {
-            await downloadChromium(await getRecommendedChromiumRevision(), 0);
+            await downloadChromium({
+                useExact: true,
+                revision: await getRecommendedChromiumRevision(),
+                useChannel: false,
+                channel: ""
+            }, "");
         }
         chromePath = await getChromePath();
     }
