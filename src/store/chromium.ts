@@ -6,6 +6,9 @@ import {getStoreDir} from "./store";
 export async function getStoredRevision() {
     const storeDir = await getStoreDir();
     try {
+        if (!(await isCfT())) {
+            return "";
+        }
         return readFileSync(pathResolve(storeDir, "chromium", "revision"), "utf8");
     } catch (_e) {
         return "";
@@ -44,6 +47,20 @@ export async function isChromiumAlreadyInstalled() {
     const storeDir = await getStoreDir();
     try {
         if (lstatSync(`${storeDir}/chromium`).isDirectory()) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (e) {
+        return false;
+    }
+}
+
+export async function isCfT() {
+    const storeDir = await getStoreDir();
+    try {
+        const revision = readFileSync(pathResolve(storeDir, "chromium", "revision"), "utf8");
+        if (revision && revision.match(/\d+[.]\d+[.]\d+[.]\d+/)) {
             return true;
         } else {
             return false;

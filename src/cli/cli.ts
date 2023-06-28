@@ -3,7 +3,7 @@ import prompts from "prompts";
 import {run} from "../runner/runner";
 import {getOpLog} from "../opLog/opLog";
 import {downloadChromium, getRecommendedChromiumRevision} from "../chromeDownloader/downloader";
-import {isChromiumAlreadyInstalled, getStoredRevision} from "../store/chromium";
+import {isChromiumAlreadyInstalled, getStoredRevision, isCfT} from "../store/chromium";
 import {Config} from "../runner/parseConfig";
 import {getDirectory} from "./getDirectory";
 import {prepareStandard} from "./prepareStandard";
@@ -346,7 +346,7 @@ yargs
         await refreshUA();
     })
     //@ts-ignore
-    .command("update-stealth", "Updates the headless chromium stealth patches", (_argv) => {
+    .command("update-stealth", "Updates the headless chrome stealth patches", (_argv) => {
         yargs
         .epilogue("Learn more at https://ayakashi-io.github.io/docs/installation#updating-subcomponents");
         //@ts-ignore
@@ -360,10 +360,10 @@ yargs
         const opLog = getOpLog();
         const storedRevision = await getStoredRevision();
         opLog.info(`Ayakashi version: ${packageJson.version}`);
-        if (await isChromiumAlreadyInstalled()) {
-            opLog.info(`Chromium revision: ${storedRevision}`);
+        if (await isChromiumAlreadyInstalled() && await isCfT()) {
+            opLog.info(`Chrome revision: ${storedRevision}`);
         } else {
-            opLog.info(`Chromium revision: none`);
+            opLog.info(`Chrome revision: none`);
         }
     })
     .demandCommand().recommendCommands().strict()
