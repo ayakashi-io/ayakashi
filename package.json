@@ -70,7 +70,7 @@
   "dependencies": {
     "@ayakashi/get-node-selector": "^1.0.0",
     "@ayakashi/input": "^1.0.0",
-    "@ayakashi/request": "^2.88.6",
+    "@ayakashi/request": "^2.88.7",
     "async": "~2.6.2",
     "backoff": "~2.5.0",
     "body-parser": "~1.18.3",
