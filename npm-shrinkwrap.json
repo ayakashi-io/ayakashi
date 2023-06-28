@@ -20,7 +20,7 @@
         "browserify": "~16.2.3",
         "browserify-incremental": "~3.1.1",
         "chalk": "~2.4.2",
-        "chrome-remote-interface": "~0.31.3",
+        "chrome-remote-interface": "~0.32.2",
         "cli-table": "~0.3.1",
         "dayjs": "~1.8.8",
         "debug": "~4.1.1",
@@ -3497,9 +3497,9 @@
       "integrity": "sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg=="
     },
     "node_modules/chrome-remote-interface": {
-      "version": "0.31.3",
-      "resolved": "https://registry.npmjs.org/chrome-remote-interface/-/chrome-remote-interface-0.31.3.tgz",
-      "integrity": "sha512-NTwb1YNPHXLTus1RjqsLxJmdViKwKJg/lrFEcM6pbyQy04Ow2QKWHXyPpxzwE+dFsJghWuvSAdTy4W0trluz1g==",
+      "version": "0.32.2",
+      "resolved": "https://registry.npmjs.org/chrome-remote-interface/-/chrome-remote-interface-0.32.2.tgz",
+      "integrity": "sha512-3UbFKtEmqApehPQnqdblcggx7KveQphEMKQmdJZsOguE9ylw2N2/9Z7arO7xS55+DBJ/hyP8RrayLt4MMdJvQg==",
       "dependencies": {
         "commander": "2.11.x",
         "ws": "^7.2.0"
@@ -18291,9 +18291,9 @@
       "integrity": "sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg=="
     },
     "chrome-remote-interface": {
-      "version": "0.31.3",
-      "resolved": "https://registry.npmjs.org/chrome-remote-interface/-/chrome-remote-interface-0.31.3.tgz",
-      "integrity": "sha512-NTwb1YNPHXLTus1RjqsLxJmdViKwKJg/lrFEcM6pbyQy04Ow2QKWHXyPpxzwE+dFsJghWuvSAdTy4W0trluz1g==",
+      "version": "0.32.2",
+      "resolved": "https://registry.npmjs.org/chrome-remote-interface/-/chrome-remote-interface-0.32.2.tgz",
+      "integrity": "sha512-3UbFKtEmqApehPQnqdblcggx7KveQphEMKQmdJZsOguE9ylw2N2/9Z7arO7xS55+DBJ/hyP8RrayLt4MMdJvQg==",
       "requires": {
         "commander": "2.11.x",
         "ws": "^7.2.0"
