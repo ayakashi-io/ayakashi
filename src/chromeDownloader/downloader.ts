@@ -6,55 +6,64 @@ import extractZip from "extract-zip";
 import {getStoreDir} from "../store/store";
 import {getChromePath, cleanChromiumDirectory, updateStoredRevision} from "../store/chromium";
 
-export async function downloadChromium(newRevision: number, storedRevision: number) {
+export async function downloadChromium(
+    options: {
+        useExact: boolean,
+        revision: string,
+        useChannel: boolean,
+        channel: "Stable" | "Beta" | "Dev" | "Canary" | ""
+    },
+    storedRevision: string
+) {
     const opLog = getOpLog();
     let chromiumArch = "";
     let filename = "";
     if (process.platform === "win32") {
         if (process.arch === "x64") {
-            chromiumArch = "Win_x64";
+            chromiumArch = "win64";
+            filename = "chrome-win64";
         } else if (process.arch === "x32") {
-            chromiumArch = "Win";
+            chromiumArch = "win32";
+            filename = "chrome-win32";
         }
-        filename = "chrome-win";
     }
     if (process.platform === "darwin") {
-        chromiumArch = "Mac";
-        filename = "chrome-mac";
+        if (process.arch === "x64") {
+            chromiumArch = "mac-x64";
+            filename = "chrome-mac-x64";
+        }
     }
     if (process.platform === "linux") {
         if (process.arch === "x64") {
-            chromiumArch = "Linux_x64";
-        } else if (process.arch === "x32") {
-            throw new Error("Linux_x32 is not supported");
+            chromiumArch = "linux64";
+            filename = "chrome-linux64";
         }
-        filename = "chrome-linux";
     }
     if (!chromiumArch) {
         opLog.error("unsupported architecture:", process.platform, "-", process.arch);
         throw new Error("unsupported_architecture");
     }
-    let revision = newRevision;
-    if (!revision) {
+    let revision = options.revision;
+    if (options.useChannel) {
         try {
-            revision = await requestPromise
-            .get(`https://commondatastorage.googleapis.com/chromium-browser-snapshots/${chromiumArch}/LAST_CHANGE`);
-            //@ts-ignore
-            revision = parseInt(revision);
+            let versions = await requestPromise
+            .get(`https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json`);
+            versions = JSON.parse(versions);
+            revision = versions.channels[options.channel].version;
         } catch (_e) {
             throw new Error("invalid_chromium_revision");
         }
     }
-    opLog.info("downloading chromium", `${revision}`, "for", chromiumArch);
+    opLog.info("downloading chrome", `${revision}`, "for", chromiumArch);
     if (storedRevision === revision) {
-        opLog.info(`downloaded chromium is already at revision ${revision}`);
+        opLog.info(`downloaded chrome is already at revision ${revision}`);
         return;
     }
     await cleanChromiumDirectory();
     const storeDir = await getStoreDir();
     return new Promise<void>(function(resolve, reject) {
         const downloadStream = request
-        .get(`https://commondatastorage.googleapis.com/chromium-browser-snapshots/${chromiumArch}/${revision}/${filename}.zip`);
+        .get(`https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${revision}/${chromiumArch}/${filename}.zip`);
         let total = "0mb";
         let downloaded = 0;
         const waiter = opLog.waiter("0.0MB/0.0MB");
@@ -93,19 +102,17 @@ export async function downloadChromium(newRevision: number, storedRevision: numb
     });
 }
 
-const RECOMMENDED_CHROMIUM_REVISION_FALLBACK = 1045629;
-export async function getRecommendedChromiumRevision(): Promise<number> {
+const RECOMMENDED_CHROMIUM_REVISION_FALLBACK = "114.0.5735.133";
+export async function getRecommendedChromiumRevision(): Promise<string> {
     try {
         //tslint:disable
         let text: string = await requestPromise
             .get("https://raw.githubusercontent.com/puppeteer/puppeteer/main/packages/puppeteer-core/src/revisions.ts");
         //tslint:enable
         text = text.replace(/\s+/g, "");
-        let match = text.match(/{.*}/);
+        const match = text.match(/{.*}/);
         if (!match) return RECOMMENDED_CHROMIUM_REVISION_FALLBACK;
-        match = match[0].match(/[0-9]+/);
-        if (!match) return RECOMMENDED_CHROMIUM_REVISION_FALLBACK;
-        return parseInt(match[0]);
+        return match[0].split(":")[1].split(",")[0].replace(/'/g, "");
     } catch (_e) {
         return RECOMMENDED_CHROMIUM_REVISION_FALLBACK;
     }

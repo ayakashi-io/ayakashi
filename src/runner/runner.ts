@@ -24,7 +24,7 @@ import {
 } from "./parseConfig";
 
 import {downloadChromium, getRecommendedChromiumRevision} from "../chromeDownloader/downloader";
-import {isChromiumAlreadyInstalled, getChromePath} from "../store/chromium";
+import {isChromiumAlreadyInstalled, getChromePath, isCfT} from "../store/chromium";
 import {
     getOrCreateStoreProjectFolder,
     hasPreviousRun,
@@ -145,8 +145,13 @@ export async function run(projectFolder: string, config: Config, options: {
     if (config.config && config.config.chromePath) {
         chromePath = config.config.chromePath;
     } else {
-        if (!(await isChromiumAlreadyInstalled())) {
-            await downloadChromium(await getRecommendedChromiumRevision(), 0);
+        if (!(await isChromiumAlreadyInstalled()) || !(await isCfT())) {
+            await downloadChromium({
+                useExact: true,
+                revision: await getRecommendedChromiumRevision(),
+                useChannel: false,
+                channel: ""
+            }, "");
         }
         chromePath = await getChromePath();
     }

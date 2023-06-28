@@ -3,7 +3,7 @@ import prompts from "prompts";
 import {run} from "../runner/runner";
 import {getOpLog} from "../opLog/opLog";
 import {downloadChromium, getRecommendedChromiumRevision} from "../chromeDownloader/downloader";
-import {isChromiumAlreadyInstalled, getStoredRevision} from "../store/chromium";
+import {isChromiumAlreadyInstalled, getStoredRevision, isCfT} from "../store/chromium";
 import {Config} from "../runner/parseConfig";
 import {getDirectory} from "./getDirectory";
 import {prepareStandard} from "./prepareStandard";
@@ -283,30 +283,59 @@ yargs
         }
     })
     //@ts-ignore
-    .command("update-chrome", "Downloads the recommended, latest or specified chromium revision", (_argv) => {
+    .command("update-chrome", "Downloads the recommended, latest or specified chrome revision", (_argv) => {
         yargs
         .option("revision", {
-            describe: "Download a specific revision",
-            type: "number",
+            describe: "Download a specific revision. Format: '114.0.5735.133'",
+            type: "string",
             alias: "r"
         })
-        .option("latest", {
-            describe: "Download the latest revision",
+        .option("stable", {
+            describe: "Download the latest stable revision",
+            type: "boolean"
+        })
+        .option("beta", {
+            describe: "Download the latest beta revision",
+            type: "boolean"
+        })
+        .option("dev", {
+            describe: "Download the latest dev revision",
+            type: "boolean"
+        })
+        .option("canary", {
+            describe: "Download the latest canary revision",
             type: "boolean"
         })
         .epilogue("Learn more at https://ayakashi-io.github.io/docs/reference/cli-commands.html#update-chrome");
         //@ts-ignore
     }, async function(argv) {
         const storedRevision = await getStoredRevision();
-        let revision = 0;
+        const options: {
+            useExact: boolean,
+            revision: string,
+            useChannel: boolean,
+            channel: "Stable" | "Beta" | "Dev" | "Canary" | ""
+        } = {useExact: false, revision: "", useChannel: false, channel: ""};
         if (argv.revision) {
-            revision = <number>argv.revision;
-        } else if (argv.latest) {
-            revision = 0;
+            options.revision = <string>argv.revision;
+            options.useExact = true;
+        } else if (argv.stable) {
+            options.channel = "Stable";
+            options.useChannel = true;
+        } else if (argv.beta) {
+            options.channel = "Beta";
+            options.useChannel = true;
+        } else if (argv.dev) {
+            options.channel = "Dev";
+            options.useChannel = true;
+        } else if (argv.canary) {
+            options.channel = "Canary";
+            options.useChannel = true;
         } else {
-            revision = await getRecommendedChromiumRevision();
+            options.revision = await getRecommendedChromiumRevision();
+            options.useExact = true;
         }
-        await downloadChromium(revision, storedRevision);
+        await downloadChromium(options, storedRevision);
     })
     //@ts-ignore
     .command("update-ua", "Updates the builtin database of user agent strings", (_argv) => {
@@ -317,7 +346,7 @@ yargs
         await refreshUA();
     })
     //@ts-ignore
-    .command("update-stealth", "Updates the headless chromium stealth patches", (_argv) => {
+    .command("update-stealth", "Updates the headless chrome stealth patches", (_argv) => {
         yargs
         .epilogue("Learn more at https://ayakashi-io.github.io/docs/installation#updating-subcomponents");
         //@ts-ignore
@@ -331,10 +360,10 @@ yargs
         const opLog = getOpLog();
         const storedRevision = await getStoredRevision();
         opLog.info(`Ayakashi version: ${packageJson.version}`);
-        if (await isChromiumAlreadyInstalled()) {
-            opLog.info(`Chromium revision: ${storedRevision}`);
+        if (await isChromiumAlreadyInstalled() && await isCfT()) {
+            opLog.info(`Chrome revision: ${storedRevision}`);
         } else {
-            opLog.info(`Chromium revision: none`);
+            opLog.info(`Chrome revision: none`);
         }
     })
     .demandCommand().recommendCommands().strict()
