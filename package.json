@@ -1,6 +1,6 @@
 {
   "name": "ayakashi",
-  "version": "1.0.0-beta8.3",
+  "version": "1.0.0-beta8.4",
   "description": "The next generation web scraping framework",
   "author": {
     "name": "Zisis Maras",
@@ -104,7 +104,7 @@
     "sqlite3": "~5.0.2",
     "tedious": "~5.0.3",
     "tough-cookie": "~3.0.1",
-    "user-agents": "~1.0.1160",
+    "user-agents": "~1.0.1425",
     "uuid": "~3.3.2",
     "yargs": "~13.2.2"
   },
